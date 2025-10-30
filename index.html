@@ -144,12 +144,6 @@ select {
     box-shadow: 0 0 15px #ffaaaa, 0 0 30px #ffaaaa inset; 
 }
 
-/* ホバーで光る */
-.frame:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 25px, 0 0 50px inset;
-}
-
 /* スコア */
 .score {
     font-family: 'DS-DIGIB', sans-serif;
@@ -306,8 +300,7 @@ document.querySelectorAll('.left-block select, .right-block select').forEach(sel
 
         // 円をすべて削除
         frames.forEach(frame => {
-            const circle = frame.querySelector('.cyber-circle');
-            if (circle) circle.remove();
+            frame.querySelectorAll('.cyber-circle').forEach(c => c.remove());
         });
 
         // スコアを0にリセット

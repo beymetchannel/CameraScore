@@ -1,0 +1,19 @@
+@font-face {
+    font-family: 'CyberFont';
+    src: url('fonts/CyberFont.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'CyberFont', sans-serif;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: black;
+    font-family: 'CyberFont', sans-serif; /* ダウンロードしたフォント */
+}

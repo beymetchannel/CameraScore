@@ -241,12 +241,6 @@ function updateScore(container) {
     void scoreEl.offsetWidth;
     scoreEl.classList.add("flash");
 
-    // 4点フィニッシュ演出
-    if (circles === 4) {
-        showFinishEffect(
-            container.closest('.left-block') ? "LEFT FINISH!" : "RIGHT FINISH!"
-        );
-    }
 }
 
 function showFinishEffect(text) {
@@ -293,18 +287,20 @@ document.querySelectorAll('.frame-container').forEach(container => {
 
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
     select.addEventListener('change', () => {
-        const block = select.closest('.left-block, .right-block');
-        const container = block.querySelector('.frame-container');
-        const frames = container.querySelectorAll('.frame');
-        const scoreEl = container.querySelector('.score');
+        // 左右両方のブロックを取得
+        document.querySelectorAll('.left-block, .right-block').forEach(block => {
+            const container = block.querySelector('.frame-container');
+            const frames = container.querySelectorAll('.frame');
+            const scoreEl = container.querySelector('.score');
 
-        // 円をすべて削除
-        frames.forEach(frame => {
-            frame.querySelectorAll('.cyber-circle').forEach(c => c.remove());
+            // 円をすべて削除
+            frames.forEach(frame => {
+                frame.querySelectorAll('.cyber-circle').forEach(c => c.remove());
+            });
+
+            // スコアを0にリセット
+            scoreEl.textContent = '0';
         });
-
-        // スコアを0にリセット
-        scoreEl.textContent = '0';
     });
 });
 

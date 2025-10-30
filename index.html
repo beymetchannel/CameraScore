@@ -106,10 +106,9 @@ select {
 .right-block select { border-color: #ffaaaa; } /* 白っぽい赤ピンク */
 
 /* 四角＋スコア */
-.frame-container {
-    display: flex;
-    flex-direction: column; 
-    align-items: center;
+.frame:hover {
+    transform: none;
+    box-shadow: inherit;
 }
 
 .right-block .frame-container {
@@ -350,7 +349,7 @@ document.querySelectorAll('.frame-container').forEach(container => {
     width: 100vw; height: 100vh;
     background: rgba(255,255,255,0.9);
     backdrop-filter: blur(3px);
-    animation: finishBlink 0.4s ease-out forwards;
+    animation: finishBlink 1.2s ease-out forwards;
     z-index: 99;
     display: flex;
     justify-content: center;
@@ -363,9 +362,10 @@ document.querySelectorAll('.frame-container').forEach(container => {
 
 @keyframes finishBlink {
     0% { opacity: 0; }
-    20% { opacity: 1; }
+    10% { opacity: 1; }
+    80% { opacity: 1; }
     100% { opacity: 0; }
-} 
+}
 </style>
 
 

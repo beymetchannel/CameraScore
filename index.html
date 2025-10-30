@@ -296,6 +296,26 @@ document.querySelectorAll('.frame-container').forEach(container => {
         });
     });
 });
+
+document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
+    select.addEventListener('change', () => {
+        const block = select.closest('.left-block, .right-block');
+        const container = block.querySelector('.frame-container');
+        const frames = container.querySelectorAll('.frame');
+        const scoreEl = container.querySelector('.score');
+
+        // 円をすべて削除
+        frames.forEach(frame => {
+            const circle = frame.querySelector('.cyber-circle');
+            if (circle) circle.remove();
+        });
+
+        // スコアを0にリセット
+        scoreEl.textContent = '0';
+    });
+});
+
+    
 </script>
 
 <style>
@@ -349,7 +369,7 @@ document.querySelectorAll('.frame-container').forEach(container => {
     width: 100vw; height: 100vh;
     background: rgba(255,255,255,0.9);
     backdrop-filter: blur(3px);
-    animation: finishBlink 1.2s ease-out forwards;
+    animation: finishBlink 2s ease-out forwards;
     z-index: 99;
     display: flex;
     justify-content: center;
@@ -363,7 +383,7 @@ document.querySelectorAll('.frame-container').forEach(container => {
 @keyframes finishBlink {
     0% { opacity: 0; }
     10% { opacity: 1; }
-    80% { opacity: 1; }
+    85% { opacity: 1; }
     100% { opacity: 0; }
 }
 </style>

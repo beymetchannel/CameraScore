@@ -378,10 +378,21 @@ function addHudToFrame(frame, container){
 function removeHudFromFrame(frame, container){
   const huds = frame.querySelectorAll('.hud-ring');
   if(huds.length > 0){
-    huds[huds.length-1].remove();
+    huds[huds.length - 1].remove();
     updateScore(container);
   }
 }
+
+// HUDクリックで削除（最後に追加されたHUDから削除）
+img.addEventListener('click', e => {
+  e.stopPropagation();
+  // 親フレームを取得して container を特定
+  const frame = e.target.parentElement;
+  const container = frame.closest('.left-block, .right-block');
+  if (container) {
+    removeHudFromFrame(frame, container);
+  }
+});
 
 function updateScore(container){
   const count = container.querySelectorAll('.hud-ring').length;

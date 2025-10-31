@@ -308,50 +308,49 @@ document.querySelectorAll('.left-block, .right-block').forEach(block => {
 
     frames.forEach(frame => {
         frame.addEventListener('click', () => {
-    let circle = frame.querySelector('.cyber-circle');
-
-    if (circle) {
-        circle.remove();
-        updateScore(block);
-        return;
-    }
-
-    let target = [...frames].find(f => !f.querySelector('.cyber-circle'));
-    if (!target) return;
-
-    circle = document.createElement('div');
-    circle.className = 'cyber-circle';
-
-    if(target.classList.contains('blue')){
-        circle.style.border = '3px solid #aaffff';
-        circle.style.boxShadow = '0 0 20px #aaffff, 0 0 35px #aaffff inset';
-    } else {
-        circle.style.border = '3px solid #ffaaaa';
-        circle.style.boxShadow = '0 0 20px #ffaaaa, 0 0 35px #ffaaaa inset';
-    }
-
-    target.appendChild(circle);
-    updateScore(block);
-});
+            let circle = frame.querySelector('.cyber-circle');
+        
+            if (circle) {
+                circle.remove();
+                updateScore(block);
+                return;
+            }
+        
+            let target = [...frames].find(f => !f.querySelector('.cyber-circle'));
+            if (!target) return;
+        
+            circle = document.createElement('div');
+            circle.className = 'cyber-circle';
+        
+            if(target.classList.contains('blue')){
+                circle.style.border = '3px solid #aaffff';
+                circle.style.boxShadow = '0 0 20px #aaffff, 0 0 35px #aaffff inset';
+            } else {
+                circle.style.border = '3px solid #ffaaaa';
+                circle.style.boxShadow = '0 0 20px #ffaaaa, 0 0 35px #ffaaaa inset';
+            }
+        
+            target.appendChild(circle);
+            updateScore(block);
+        });
     });
 });
 
+// 左右両方のブロックを取得
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
     select.addEventListener('change', () => {
-        // 左右両方のブロックを取得
-        document.querySelectorAll('.left-block, .right-block').forEach(block => {
-            const container = block.querySelector('.frame-container');
-            const frames = container.querySelectorAll('.frame');
-            const scoreEl = container.querySelector('.score');
-
-            // 円をすべて削除
-            frames.forEach(frame => {
-                frame.querySelectorAll('.cyber-circle').forEach(c => c.remove());
-            });
-
-            // スコアを0にリセット
-            scoreEl.textContent = '0';
+        // 自分のブロックだけクリアする（両方消すならループでもOK）
+        const block = select.closest('.left-block, .right-block');
+        const frames = block.querySelectorAll('.frame');
+        const scoreEl = block.querySelector('.score');
+    
+        // 円を全て消す
+        frames.forEach(frame => {
+            frame.querySelectorAll('.cyber-circle').forEach(c => c.remove());
         });
+    
+        // スコアをリセット
+        scoreEl.textContent = '0';
     });
 });
 

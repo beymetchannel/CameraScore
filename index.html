@@ -1,3 +1,4 @@
+mada
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -157,8 +158,10 @@ select, select option {
 /* HUD 画像（中央に収める） */
 .hud-ring {
   position:absolute;
-  top:50; left:50;
-  width:80; height:80;
+  top:50%;
+  left:50%;
+  width:80px;
+  height:80px;
   transform:translate(-50%,-50%);
   object-fit:contain;
   pointer-events:none;
@@ -325,30 +328,7 @@ navigator.mediaDevices?.getUserMedia?.({ video:{ facingMode:'environment' }, aud
   .then(s => document.getElementById('camera').srcObject = s)
   .catch(e => console.warn('カメラ取得失敗:', e));
 
-// updateScore: コンテナ（.left-block か .right-block）を渡す
-function updateScore(container) {
-  if (!container) return;
 
-  const count = container.querySelectorAll('.hud-ring').length; // cyber-circle は未使用
-  const scoreEl = container.querySelector('.score');
-
-  if (scoreEl) {
-    // スコアが増えたときだけエフェクト
-    const prevScore = parseInt(scoreEl.textContent || '0');
-    scoreEl.textContent = count;
-    if (count > prevScore) {
-      scoreEl.classList.remove('score-bonus');
-      void scoreEl.offsetWidth; // 再トリガー
-      scoreEl.classList.add('score-bonus');
-    }
-  }
-
-  if (count === 4) {
-    const bladerNameEl = container.querySelector('.blader-name');
-    const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
-    showFinishEffect(bladerName);
-  }
-}
 
 function showFinishEffect(bladerName){
   const div = document.createElement('div');
@@ -391,18 +371,27 @@ function toggleHud(frame) {
   const container = frame.closest('.left-block, .right-block');
   updateScore(container);
 }
-
+// updateScore: コンテナ（.left-block か .right-block）を渡す
 function updateScore(container) {
   if (!container) return;
-  
+
   const count = container.querySelectorAll('.hud-ring').length; // cyber-circle は未使用
   const scoreEl = container.querySelector('.score');
-  if (scoreEl) scoreEl.textContent = count;
+
+  if (scoreEl) {
+    // スコアが増えたときだけエフェクト
+    const prevScore = parseInt(scoreEl.textContent || '0');
+    scoreEl.textContent = count;
+    if (count > prevScore) {
+      scoreEl.classList.remove('score-bonus');
+      void scoreEl.offsetWidth; // 再トリガー
+      scoreEl.classList.add('score-bonus');
+    }
+  }
 
   if (count === 4) {
     const bladerNameEl = container.querySelector('.blader-name');
     const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
-    console.log('WIN!!', bladerName);
     showFinishEffect(bladerName);
   }
 }
@@ -476,8 +465,6 @@ rankSelect.addEventListener('change', ()=>{
   currentRankIndex = ranks.indexOf(rankSelect.value);
 });
 
-// 初期スコア更新
-document.querySelectorAll('.left-block, .right-block').forEach(block=>updateScore(block));
 
 </script>
 </body>

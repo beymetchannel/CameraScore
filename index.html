@@ -160,7 +160,7 @@ video#camera {
     transition: transform 0.3s, box-shadow 0.3s;
 
     /* ★追加：黒透明＋HUDぽくぼかし */
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
 }
 
@@ -285,6 +285,9 @@ function updateScore(container) {
     void scoreEl.offsetWidth;
     scoreEl.classList.add("flash");
 
+    normalizeCircles(container);
+
+
 }
 
 function showFinishEffect(text) {
@@ -348,7 +351,32 @@ document.querySelectorAll('.left-block select, .right-block select').forEach(sel
     });
 });
 
-    
+function normalizeCircles(container) {
+    const frames = [...container.querySelectorAll('.frame')];
+    let circles = container.querySelectorAll('.cyber-circle').length;
+
+    // 全ての丸を消す
+    frames.forEach(f => f.querySelectorAll('.cyber-circle').forEach(c => c.remove()));
+
+    // 上から circles 個 付け直す
+    for (let i = 0; i < circles; i++) {
+        const target = frames[i];
+        const circle = document.createElement('div');
+        circle.className = 'cyber-circle';
+
+        if(target.classList.contains('blue')){
+            circle.style.border = '3px solid #aaffff';
+            circle.style.boxShadow = '0 0 20px #aaffff, 0 0 35px #aaffff inset';
+        } else {
+            circle.style.border = '3px solid #ffaaaa';
+            circle.style.boxShadow = '0 0 20px #ffaaaa, 0 0 35px #ffaaaa inset';
+        }
+
+        target.appendChild(circle);
+    }
+}    
+
+
 </script>
 
 <style>

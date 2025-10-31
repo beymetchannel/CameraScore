@@ -340,37 +340,7 @@ function showFinishEffect(bladerName){
   setTimeout(()=>div.remove(), 2000);
 }
 
-// フレームクリックで HUD を toggle（画像を追加/削除）
-function toggleHud(frame) {
-  const existing = frame.querySelector('.hud-ring');
-  if (existing) {
-    existing.remove();
-  } else {
-    const img = document.createElement('img');
 
-    // 右ブロックか左ブロックかで画像を変える
-    const container = frame.closest('.left-block, .right-block');
-    if (container.classList.contains('right-block')) {
-      img.src = 'HudLing-pink.png';
-    } else {
-      img.src = 'HudLing.png';
-    }
-
-    img.className = 'hud-ring';
-    img.style.position = 'absolute';
-    img.style.top = '50%';
-    img.style.left = '50%';
-    img.style.width = '80px';
-    img.style.height = '80px';
-    img.style.transform = 'translate(-50%, -50%)';
-    img.style.pointerEvents = 'none';
-    frame.appendChild(img);
-  }
-
-  // 親ブロックを再計算してスコア更新
-  const container = frame.closest('.left-block, .right-block');
-  updateScore(container);
-}
 // updateScore: コンテナ（.left-block か .right-block）を渡す
 function updateScore(container) {
   if (!container) return;
@@ -396,14 +366,6 @@ function updateScore(container) {
   }
 }
 
-// クリックでHUD切替
-document.querySelectorAll('.frame').forEach(frame=>{
-  frame.addEventListener('click', (e)=>{
-    // フレーム上のクリックは HUD toggle のみ
-    // （frame 内へ要素を追加しているので pointer-events:none なら重ならない）
-    toggleHud(frame);
-  });
-});
 
 const centerRank = document.getElementById('center-rank');
 const ranks = ["1st","2nd","3rd","4th","5th","6th","7th"];
@@ -427,31 +389,68 @@ function handleScoreChange(container) {
 }
 
 
-// フレームクリック登録
-// フレームクリックでHUD追加/削除
-document.querySelectorAll('.frame').forEach(frame=>{
-  frame.addEventListener('click', ()=>{
-    const existing = frame.querySelector('.hud-ring');
-    const container = frame.closest('.left-block, .right-block');
+const leftBlock = document.querySelector('.left-block');
+const rightBlock = document.querySelector('.right-block');
 
-    if(existing){
-      existing.remove();
-    } else {
-      const img = document.createElement('img');
-      img.className = 'hud-ring';
-      img.src = container.classList.contains('right-block') ? 'HudLing-pink.png' : 'HudLing.png';
-      img.style.cssText = 'position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%, -50%);pointer-events:none;';
-      frame.appendChild(img);
+function updateScore(container) {
+  const count = container.querySelectorAll('.hud-ring').length;
+  const scoreEl = container.querySelector('.score');
+  if (scoreEl) {
+    const prevScore = parseInt(scoreEl.textContent || '0');
+    scoreEl.textContent = count;
+    if (count > prevScore) {
+      scoreEl.classList.remove('score-bonus');
+      void scoreEl.offsetWidth;
+      scoreEl.classList.add('score-bonus');
     }
+  }
+  if (count === 4) {
+    const bladerNameEl = container.querySelector('.blader-name');
+    const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
+    showFinishEffect(bladerName);
+  }
+}
 
-    updateScore(container);
+// HUD追加
+function addHud(container) {
+  const frameContainer = container.querySelector('.frame-container');
+  const frame = frameContainer.children[Math.floor(Math.random() * frameContainer.children.length)];
+  const img = document.createElement('img');
+  img.className = 'hud-ring';
+  img.src = container.classList.contains('right-block') ? 'HudLing-pink.png' : 'HudLing.png';
+  img.style.cssText = 'position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%, -50%);pointer-events:auto;';
+  // HUD自体をクリックしたときに最後尾を削除する
+  img.addEventListener('click', (e)=>{
+    e.stopPropagation(); // 親クリックを止める
+    removeLastHud(container);
   });
+  frame.appendChild(img);
+  updateScore(container);
+}
+
+// HUD削除（最後尾）
+function removeLastHud(container) {
+  const huds = container.querySelectorAll('.hud-ring');
+  if (huds.length > 0) {
+    huds[huds[huds.length - 1].parentElement.removeChild(huds[huds.length - 1]);
+    updateScore(container);
+  }
+}
+
+// 画面クリックで左右判定してHUD追加
+document.body.addEventListener('click', (e)=>{
+  const x = e.clientX;
+  const width = window.innerWidth;
+  if (x < width/2) {
+    addHud(leftBlock);
+  } else {
+    addHud(rightBlock);
+  }
 });
 
 // 初期スコア更新
-document.querySelectorAll('.left-block, .right-block').forEach(block => {
-  updateScore(block);
-});
+updateScore(leftBlock);
+updateScore(rightBlock);
 
 // クリックで手動選択（1st〜7th）
 centerRank.addEventListener('click', ()=>{

@@ -79,7 +79,7 @@ video#camera {
 .left-block {
     position: absolute;
     top: 20px;
-    left: 0;
+    left: 20px;  /* 少し内側に */
     display: flex;
     flex-direction: column;
     pointer-events: auto;
@@ -95,27 +95,25 @@ video#camera {
     align-items: flex-end; /* 子要素を右寄せ */
 }
 
-
-    
-.left-block, .right-block {
-    position: absolute;
-    top: 20px;
-    display: flex;
-    flex-direction: column;
-    pointer-events: auto;
-}
-
-
+/* 選択ボックス */
 .left-block select,
 .right-block select {
-    width: 40vw;            /* 画面幅の40% */
-    max-width: 40vw;
-    min-width: 120px;       /* 狭い画面時の最小幅 */
-    font-size: clamp(12px, 2vw, 16px);
+    width: 40vw;      /* 画面幅の40% */
+    max-width: 400px; /* 好きな最大幅 */
+    min-width: 120px; /* 狭い画面時の最小幅 */
+    font-size: clamp(12px, 2vw, 22px);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
     box-sizing: border-box;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 10px 12px;
+    appearance: none;
+    cursor: pointer;
+    margin-bottom: 10px;
 }
 
 /* フレームコンテナも右ブロックは右寄せ */

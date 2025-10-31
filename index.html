@@ -401,6 +401,12 @@ document.body.addEventListener('click', (e)=>{
     }
     return;
   }
+
+  // クリック対象がHUD、frame、ブレーダー名、selectならHUD追加しない
+  if(e.target.closest('.blader-name, select, .frame, .hud-ring')) return;
+
+  // 左右どちらにHUD追加するかの判定（ここでは左ブロック）
+  addHud(leftBlock);
 });
 
 leftBlock.addEventListener('click', e=>{

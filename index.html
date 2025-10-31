@@ -427,23 +427,6 @@ function handleScoreChange(container) {
   });
 }
 
-// フレームクリックでHUD追加/削除
-function toggleHud(frame) {
-  const existing = frame.querySelector('.hud-ring');
-  const container = frame.closest('.left-block, .right-block');
-
-  if(existing){
-    existing.remove();
-  } else {
-    const img = document.createElement('img');
-    img.className = 'hud-ring';
-    img.src = container.classList.contains('right-block') ? 'HudLing-pink.png' : 'HudLing.png';
-    img.style.cssText = 'position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%, -50%);pointer-events:none;';
-    frame.appendChild(img);
-  }
-
-  handleScoreChange(container);
-}
 
 // フレームクリック登録
 document.querySelectorAll('.frame').forEach(frame=>{
@@ -455,11 +438,6 @@ document.querySelectorAll('.left-block, .right-block').forEach(block=>{
   handleScoreChange(block);
 });
 
-// クリックで手動ランク切替
-centerRank.addEventListener('click', ()=>{
-  currentRankIndex = (currentRankIndex + 1) % ranks.length;
-  centerRank.textContent = ranks[currentRankIndex];
-});
 // クリックで手動選択（1st〜7th）
 centerRank.addEventListener('click', ()=>{
   let nextIndex = (currentRankIndex + 1) % ranks.length;

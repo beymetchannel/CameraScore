@@ -60,7 +60,7 @@ video#camera {
     z-index: 0; /* 最背面 */
 
     background-image: url('bi.png');
-    background-size: cover;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
 
@@ -237,6 +237,10 @@ video#camera {
             <div class="frame blue"></div>
             <div class="score" id="score-left">0</div>
         </div>
+        <div class="score-container left-score-container">
+            <div class="score" id="score-left">0</div>
+        <div class="blader-name" id="left-blader">BLADER A</div>
+    </div>
     </div>
 
     <!-- 右側 -->
@@ -253,6 +257,10 @@ video#camera {
             <div class="frame pink"></div>
             <div class="score" id="score-right">0</div>
         </div>
+        <div class="score-container left-score-container">
+            <div class="score" id="score-left">0</div>
+        <div class="blader-name" id="left-blader"></div>
+    </div>
     </div>
 </div>
 
@@ -407,6 +415,45 @@ document.querySelectorAll('.left-block select, .right-block select').forEach(sel
     85% { opacity: 1; }
     100% { opacity: 0; }
 }
+    
+/* スコア＋名前の横並び */
+.score-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 1vh;
+}
+
+/* 左側ブレーダー名はスコアの右 */
+.left-score-container {
+    justify-content: flex-start;
+}
+
+.left-score-container .blader-name {
+    margin-left: 1vw; /* スコアとの間隔 */
+}
+
+/* 右側ブレーダー名はスコアの左 */
+.right-score-container {
+    justify-content: flex-end;
+}
+
+.right-score-container .blader-name {
+    margin-right: 1vw; /* スコアとの間隔 */
+}
+
+/* ブレーダー名ボックス */
+.blader-name {
+    font-family: 'CyberFont', sans-serif;
+    font-size: clamp(12px, 2.5vh, 24px);
+    padding: 5px 10px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    border: 2px solid #ffdd99;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
 </style>
 
 

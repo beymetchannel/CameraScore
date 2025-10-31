@@ -353,9 +353,8 @@ function handleFrameTap(container, tappedFrame){
   const frames = Array.from(container.querySelectorAll('.frame'));
 
   if(hudsInFrame.length > 0){
-    // HUD 削除: 下の HUD から
-    const hudToRemove = Array.from(tappedFrame.querySelectorAll('.hud-ring'))
-                             .sort((a,b)=>a.offsetTop - b.offsetTop)[0];
+    // HUD 削除: 下の HUD から（DOM の最後の HUD を削除）
+    const hudToRemove = hudsInFrame[hudsInFrame.length - 1];
     if(hudToRemove) hudToRemove.remove();
     updateScore(container);
   } else {

@@ -328,49 +328,33 @@ navigator.mediaDevices?.getUserMedia?.({ video:{ facingMode:'environment' }, aud
   .then(s => document.getElementById('camera').srcObject = s)
   .catch(e => console.warn('カメラ取得失敗:', e));
 
+
 const leftBlock = document.querySelector('.left-block');
 const rightBlock = document.querySelector('.right-block');
+const centerRank = document.getElementById('center-rank');
+const ranks = ["1st","2nd","3rd","4th","5th","6th","7th"];
+let currentRankIndex = 0;
 
-function showFinishEffect(bladerName){
-  const div = document.createElement('div');
-  div.className = 'win-overlay';
-  div.textContent = `${bladerName}\nWIN‼︎`;
-  document.body.appendChild(div);
-  setTimeout(()=>div.remove(), 2000);
-}
-
-function updateScore(container) {
-  const count = container.querySelectorAll('.hud-ring').length;
-  const scoreEl = container.querySelector('.score');
-  if(scoreEl){
-    const prevScore = parseInt(scoreEl.textContent||'0');
-    scoreEl.textContent = count;
-    if(count > prevScore){
-      scoreEl.classList.remove('score-bonus');
-      void scoreEl.offsetWidth;
-      scoreEl.classList.add('score-bonus');
-    }
-  }
-  if(count===4){
-    const bladerNameEl = container.querySelector('.blader-name');
-    const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
-    showFinishEffect(bladerName);
-  }
-}
-
-// HUD追加
+// HUD追加（1つずつ順番に追加、4点以上は追加しない）
 function addHud(container){
-  const frameContainer = container.querySelector('.frame-container');
-  const frame = frameContainer.children[Math.floor(Math.random() * frameContainer.children.length)];
+  const frames = container.querySelectorAll('.frame');
+  // 既に4点なら追加しない
+  if(container.querySelectorAll('.hud-ring').length >= 4) return;
+
+  // 次の空フレームを探す
+  const nextFrame = Array.from(frames).find(f => f.querySelectorAll('.hud-ring').length === 0);
+  if(!nextFrame) return;
+
   const img = document.createElement('img');
   img.className = 'hud-ring';
   img.src = container.classList.contains('right-block') ? 'HudLing-pink.png' : 'HudLing.png';
-  img.style.cssText = 'position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%,-50%);pointer-events:auto;';
+  img.style.cssText = 'position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%, -50%);pointer-events:auto;';
+  // HUDクリックで削除
   img.addEventListener('click', e=>{
-    e.stopPropagation(); // 親クリックを止める
+    e.stopPropagation();
     removeLastHud(container);
   });
-  frame.appendChild(img);
+  nextFrame.appendChild(img);
   updateScore(container);
 }
 
@@ -383,27 +367,69 @@ function removeLastHud(container){
   }
 }
 
-// 画面クリックで左右判定してHUD追加
-document.body.addEventListener('click', e=>{
-  const x = e.clientX;
-  const width = window.innerWidth;
-  if(x < width/2){
+// スコア更新
+function updateScore(container){
+  const count = container.querySelectorAll('.hud-ring').length;
+  const scoreEl = container.querySelector('.score');
+  if(scoreEl) scoreEl.textContent = count;
+
+  if(count === 4){
+    const bladerNameEl = container.querySelector('.blader-name');
+    const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
+    showFinishEffect(bladerName);
+  }
+}
+
+// 完了演出
+function showFinishEffect(bladerName){
+  const div = document.createElement('div');
+  div.className = 'win-overlay';
+  div.textContent = `${bladerName}\nWIN‼︎`;
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(), 2000);
+}
+
+// 画面クリックでHUD追加またはスコアリセット
+document.body.addEventListener('click', ()=>{
+  const leftScore = leftBlock.querySelectorAll('.hud-ring').length;
+  const rightScore = rightBlock.querySelectorAll('.hud-ring').length;
+
+  // どちらかが4点のときはリセット確認
+  if(leftScore === 4 || rightScore === 4){
+    if(confirm("スコアをクリアしますか？")){
+      resetScores();
+    }
+    return;
+  }
+
+  // 左右のどちらかを順番に追加（クリック位置は関係なし）
+  // ここでは左→右→左→右... の順番に追加する例
+  if(leftScore <= rightScore){
     addHud(leftBlock);
   } else {
     addHud(rightBlock);
   }
 });
 
-// 初期スコア更新
+// スコア・HUD・ランクのリセット
+function resetScores(){
+  // HUD削除
+  document.querySelectorAll('.hud-ring').forEach(h => h.remove());
+  // スコアリセット
+  leftBlock.querySelector('.score').textContent = 0;
+  rightBlock.querySelector('.score').textContent = 0;
+  // ランクリセット
+  currentRankIndex = 0;
+  centerRank.textContent = ranks[currentRankIndex];
+}
+
+// 初期スコア
 updateScore(leftBlock);
 updateScore(rightBlock);
 
 // ランク手動切替
-const centerRank = document.getElementById('center-rank');
-const ranks = ["1st","2nd","3rd","4th","5th","6th","7th"];
-let currentRankIndex = 0;
 centerRank.addEventListener('click', ()=>{
-  currentRankIndex = (currentRankIndex+1)%ranks.length;
+  currentRankIndex = (currentRankIndex + 1) % ranks.length;
   centerRank.textContent = ranks[currentRankIndex];
 });
 </script>

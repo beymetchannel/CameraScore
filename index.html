@@ -131,8 +131,11 @@ video#camera {
     
 /* 左右で選択ボックスの縁色を変更 */
 .left-block select { border-color: #aaffff; } /* 白っぽい青 */
-.right-block select { border-color: #ffaaaa; } /* 白っぽい赤ピンク */
-
+.right-block select { 
+    border-color: #ffaaaa;  /* 白っぽい赤ピンク */
+    text-align: right;
+    direction: rtl; /* 選択肢内のテキストも右から表示させたい場合 */
+}
 
 /* プルダウン */
 select {

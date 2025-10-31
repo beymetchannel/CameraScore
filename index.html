@@ -421,6 +421,7 @@ document.querySelectorAll('.left-block select, .right-block select').forEach(sel
     flex-direction: row;
     align-items: center;
     margin-top: 1vh;
+    gap: 0.5vw;
 }
 
 /* 左側ブレーダー名はスコアの右 */
@@ -437,7 +438,7 @@ document.querySelectorAll('.left-block select, .right-block select').forEach(sel
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start; /* 左寄せに変更 */
+    justify-content: flex-start;
 }
 
 .right-score-container .blader-name {
@@ -447,7 +448,7 @@ document.querySelectorAll('.left-block select, .right-block select').forEach(sel
 /* ブレーダー名ボックス */
 .blader-name {
     font-family: 'CyberFont', sans-serif;
-    font-size: clamp(12px, 2.5vh, 24px);
+    font-size: clamp(16px, 2.5vh, 24px);
     padding: 5px 10px;
     background: rgba(0,0,0,0.7);
     color: #fff;

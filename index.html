@@ -42,6 +42,12 @@ video#camera { position:absolute; inset:0; width:100%; height:100%; object-fit:c
 .left-block { left:20px; }
 .right-block { right:20px; align-items:flex-end; }
 
+/* 選択ボックスもCyberFontに */
+select, select option {
+  font-family: 'CyberFont', sans-serif !important;
+  letter-spacing: 1px;
+}
+  
 /* 選択ボックス */
 .left-block select, .right-block select {
   width:40vw; max-width:400px; min-width:120px;

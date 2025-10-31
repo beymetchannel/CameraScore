@@ -390,7 +390,7 @@ function showFinishEffect(bladerName){
 }
 
 // 画面クリックでHUD追加またはスコアリセット
-document.body.addEventListener('click', ()=>{
+document.body.addEventListener('click', (e)=>{
   const leftScore = leftBlock.querySelectorAll('.hud-ring').length;
   const rightScore = rightBlock.querySelectorAll('.hud-ring').length;
 
@@ -402,13 +402,9 @@ document.body.addEventListener('click', ()=>{
     return;
   }
 
-  // 左右のどちらかを順番に追加（クリック位置は関係なし）
-  // ここでは左→右→左→右... の順番に追加する例
-  if(leftScore <= rightScore){
-    addHud(leftBlock);
-  } else {
-    addHud(rightBlock);
-  }
+  // 今はクリック位置に関係なく左右自動で追加しているので削除
+  // 左クリックで左HUD追加、右クリックで右HUD追加などを選ぶ場合は
+  // addHud(leftBlock) または addHud(rightBlock) を個別に呼ぶ形にする
 });
 
 // スコア・HUD・ランクのリセット

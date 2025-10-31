@@ -228,6 +228,30 @@ select, select option {
   100% { transform: scale(1); text-shadow: 0 0 10px #ffaa33, 0 0 20px #ffaa33; color:#ffdd99; }
 }
 
+.center-block {
+  position: absolute;
+  top: 20px;             /* 選択ボックスに合わせる */
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.center-battle {
+  font-family: 'CyberFont', sans-serif;
+  font-size: 1rem;       /* 小さく */
+  color: #ffdd33;
+  text-shadow: 0 0 5px #fff, 0 0 10px #ffea50;
+}
+
+.center-score {
+  font-family: 'DS-DIGIB', monospace;
+  font-size: 2.5rem;     /* 大きく */
+  color: #ffdd33;
+  text-shadow: 0 0 10px #ffaa33, 0 0 20px #ffaa33, 0 0 40px #ff4400;
+}
+  
   
 </style>
 </head>
@@ -255,7 +279,11 @@ select, select option {
       <div class="blader-name" contenteditable="true" id="left-blader">BLADER A</div>
     </div>
   </div>
-
+  <!-- バトルカウント -->
+  <div class="center-block">
+    <div class="center-battle">Battle</div>
+    <div class="center-score">01</div>
+  </div>
   <!-- 右 -->
   <div class="right-block">
     <select class="right-select">

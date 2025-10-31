@@ -416,9 +416,26 @@ function toggleHud(slot) {
   updateScore(slot.parentElement); // スコア反映
 }
 
-document.querySelectorAll(".slot").forEach(slot => {
-  slot.addEventListener("click", () => {
-    toggleHud(slot);
+function toggleHud(frame) {
+  const img = frame.querySelector(".hud-ring");
+
+  if (img) {
+    img.remove();
+  } else {
+    const newImg = document.createElement("img");
+    newImg.src = "HudRing.png"; // ファイル名そのまま
+    newImg.className = "hud-ring";
+    frame.appendChild(newImg);
+  }
+
+  // スコア反映（左右のブロックを再計算）
+  const container = frame.closest('.left-block, .right-block');
+  updateScore(container);
+}
+    
+document.querySelectorAll(".frame").forEach(frame => {
+  frame.addEventListener("click", () => {
+    toggleHud(frame);
   });
 });
 

@@ -285,9 +285,17 @@ function toggleHud(frame) {
     existing.remove();
   } else {
     const img = document.createElement('img');
-    img.src = 'HudLing.png';
+
+    // 右ブロックか左ブロックかで画像を変える
+    const container = frame.closest('.left-block, .right-block');
+    if (container.classList.contains('right-block')) {
+      img.src = 'HudLing-pink.png';
+    } else {
+      img.src = 'HudLing.png';
+    }
+
     img.className = 'hud-ring';
-    img.style.position = 'absolute'; // CSS inlineでも確実に
+    img.style.position = 'absolute';
     img.style.top = '50%';
     img.style.left = '50%';
     img.style.width = '80px';
@@ -297,9 +305,8 @@ function toggleHud(frame) {
     frame.appendChild(img);
   }
 
-  // 親ブロック（左 or 右）を再計算して更新
+  // 親ブロックを再計算してスコア更新
   const container = frame.closest('.left-block, .right-block');
-  console.log('updateScore called for:', container);
   updateScore(container);
 }
 

@@ -234,7 +234,7 @@ select, select option {
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  pointer-events: auto;   /* selectを操作可能に */
+  pointer-events: auto;   
   z-index: 2;
 }
 
@@ -248,13 +248,13 @@ select, select option {
 
 .center-rank {
   font-family: 'CyberFont', sans-serif;
-  font-size: 2rem;     
+  font-size: 2rem;
   color: #fff;
-  background: rgba(0,0,0,0.7);
-  border: 2px solid #fff;
-  border-radius: 8px;
-  padding: 2px 6px;
   cursor: pointer;
+  user-select: none;
+  padding: 2px 6px;
+  text-shadow: 0 0 5px #fff;
+  border-bottom: 2px solid #fff; /* optional: 下線でクリック可能感を出す */
 }
   
   
@@ -287,15 +287,7 @@ select, select option {
   <!-- バトルカウント -->
   <div class="center-block">
     <div class="center-battle">Battle</div>
-    <select class="center-rank" id="center-rank">
-      <option>1st</option>
-      <option>2nd</option>
-      <option>3rd</option>
-      <option>4th</option>
-      <option>5th</option>
-      <option>6th</option>
-      <option>7th</option>
-    </select>
+    <div class="center-rank" id="center-rank">1st</div>
   </div>
   <!-- 右 -->
   <div class="right-block">
@@ -414,21 +406,19 @@ document.querySelectorAll('.frame').forEach(frame=>{
   });
 });
 
-// 選択ボックスが変わったら両ブロックをクリア
-const rankSelect = document.getElementById('center-rank');
+const centerRank = document.getElementById('center-rank');
 const ranks = ["1st","2nd","3rd","4th","5th","6th","7th"];
 let currentRankIndex = 0;
 
-// 選択ボックス変更で順位自動更新
+// 左右のスコアが4点取得後に自動更新
 document.querySelectorAll('.left-select, .right-select').forEach(sel=>{
   sel.addEventListener('change', (e)=>{
-    // どちらかが4点取得時のみ進める
     const leftCount = document.querySelectorAll('.left-block .hud-ring').length;
     const rightCount = document.querySelectorAll('.right-block .hud-ring').length;
     
     if(leftCount >= 4 || rightCount >= 4){
       currentRankIndex = Math.min(currentRankIndex + 1, ranks.length-1);
-      rankSelect.value = ranks[currentRankIndex];
+      centerRank.textContent = ranks[currentRankIndex];
       
       // 両サイドのHUDとスコアをリセット
       document.querySelectorAll('.hud-ring, .cyber-circle').forEach(n=>n.remove());
@@ -436,6 +426,13 @@ document.querySelectorAll('.left-select, .right-select').forEach(sel=>{
       document.getElementById('score-right').textContent = '0';
     }
   });
+});
+
+// クリックで手動選択（1st〜7th）
+centerRank.addEventListener('click', ()=>{
+  let nextIndex = (currentRankIndex + 1) % ranks.length;
+  currentRankIndex = nextIndex;
+  centerRank.textContent = ranks[currentRankIndex];
 });
 
 // 手動変更

@@ -433,7 +433,7 @@ function normalizeCircles(container) {
     width: 100vw; height: 100vh;
     background: rgba(255,255,255,0.9);
     backdrop-filter: blur(3px);
-    animation: finishBlink forwards ease-out 5s;
+    animation: finishBlink 5s ease-out forwards;
     z-index: 99;
     display: flex;
     justify-content: center;
@@ -445,18 +445,9 @@ function normalizeCircles(container) {
 }
 
 @keyframes finishBlink {
-  0% {
-    opacity: 0;
-    color: yellow;
-  }
-  10% {
-    opacity: 1; /* 一瞬でフェードイン */
-    color: yellow;
-  }
-  100% {
-    opacity: 0; /* ゆっくりフェードアウト */
-    color: yellow;
-  }
+    0%  -> 0 opacity
+    2%  -> 1 opacity (バチッ)
+    100% -> 0 opacity (ゆっくり消える)
 }
     
 /* スコア＋名前の横並び */

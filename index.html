@@ -276,18 +276,23 @@ navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audi
 
 // 四角のフレームごとにクリックイベント
 function updateScore(container) {
+
+    // 先に丸を整理する
+    normalizeCircles(container);
+
     const scoreEl = container.querySelector('.score');
     const circles = container.querySelectorAll('.cyber-circle').length;
     scoreEl.textContent = circles;
 
-    // score flash
+    // スコア光アニメ
     scoreEl.classList.remove("flash");
     void scoreEl.offsetWidth;
     scoreEl.classList.add("flash");
 
-    normalizeCircles(container);
-
-
+    // ★4点時演出
+    if (circles === 4) {
+        showFinishEffect("FINISH!");
+    }
 }
 
 function showFinishEffect(text) {

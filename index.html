@@ -192,17 +192,27 @@ navigator.mediaDevices?.getUserMedia?.({ video:{ facingMode:'environment' }, aud
 // updateScore: コンテナ（.left-block か .right-block）を渡す
 function updateScore(container) {
   if (!container) return;
-  // カウントする要素を拡張：cyber-circle と hud-ring を両方数える
+
+  // HUD / cyber-circle の数を数える
   const count = container.querySelectorAll('.cyber-circle, .hud-ring').length;
+  
+  // スコア表示更新
   const scoreEl = container.querySelector('.score');
   if (scoreEl) scoreEl.textContent = String(count);
-  // animation トリガー
+
+  // スコアフラッシュ
   if (scoreEl) {
     scoreEl.classList.remove('flash');
     void scoreEl.offsetWidth;
     scoreEl.classList.add('flash');
   }
-  if (count === 4) showFinishEffect(${bladerName}+'\nWIN!!!');
+
+  // 4点になったら勝者表示
+  if (count === 4) {
+    const bladerNameEl = container.querySelector('.blader-name');
+    const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
+    showFinishEffect(`${bladerName}\nWIN!!`);
+  }
 }
 
 function showFinishEffect(text){

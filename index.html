@@ -344,62 +344,44 @@ const centerRank = document.getElementById('center-rank');
 const ranks = ["1st","2nd","3rd","4th","5th","6th","7th"];
 let currentRankIndex = 0;
 
-// HUD追加/削除（フレームタップ）
-document.querySelectorAll('.frame').forEach(frame => {
-  frame.addEventListener('click', e => {
-    e.stopPropagation();
+// HUD 増加後の rank 更新フラグ
+let rankCanAdvance = false;
 
-    const container = frame.closest('.left-block, .right-block');
-    const huds = frame.querySelectorAll('.hud-ring');
+// HUD 追加/削除処理
+function handleFrameTap(container, tappedFrame){
+  const hudsInFrame = tappedFrame.querySelectorAll('.hud-ring');
+  const frames = Array.from(container.querySelectorAll('.frame'));
 
-    if(huds.length === 0){
-      // HUD追加（1つずつ）
-      addHudToFrame(frame, container);
-    } else {
-      // HUD削除（最後のHUDから）
-      removeHudFromFrame(frame, container);
-    }
-  });
-});
-
-function addHudToFrame(frame, container){
-  // 4点制限
-  if(container.querySelectorAll('.hud-ring').length >= 4) return;
-
-  const img = document.createElement('img');
-  img.className = 'hud-ring';
-  img.src = container.classList.contains('right-block') ? 'HudLing-pink.png' : 'HudLing.png';
-  img.style.cssText = 'position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%,-50%);pointer-events:none;';
-  frame.appendChild(img);
-
-  updateScore(container);
-}
-
-function removeHudFromFrame(frame, container){
-  const huds = frame.querySelectorAll('.hud-ring');
-  if(huds.length > 0){
-    huds[huds.length - 1].remove();
+  if(hudsInFrame.length > 0){
+    // HUD 削除: 下の HUD から
+    const hudToRemove = Array.from(tappedFrame.querySelectorAll('.hud-ring'))
+                             .sort((a,b)=>a.offsetTop - b.offsetTop)[0];
+    if(hudToRemove) hudToRemove.remove();
     updateScore(container);
+  } else {
+    // HUD 追加: 上の frame から順に1つだけ
+    const nextFrame = frames.find(f => f.querySelectorAll('.hud-ring').length === 0);
+    if(!nextFrame) return;
+
+    const img = document.createElement('img');
+    img.className = 'hud-ring';
+    img.src = container.classList.contains('right-block') ? 'HudLing-pink.png' : 'HudLing.png';
+    img.style.cssText = 'position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%, -50%);pointer-events:none;';
+    nextFrame.appendChild(img);
+
+    updateScore(container);
+
+    // rank 更新可能フラグを立てる
+    rankCanAdvance = true;
   }
 }
 
-// HUDクリックで削除（最後に追加されたHUDから削除）
-img.addEventListener('click', e => {
-  e.stopPropagation();
-  // 親フレームを取得して container を特定
-  const frame = e.target.parentElement;
-  const container = frame.closest('.left-block, .right-block');
-  if (container) {
-    removeHudFromFrame(frame, container);
-  }
-});
-
+// スコア更新
 function updateScore(container){
   const count = container.querySelectorAll('.hud-ring').length;
   const scoreEl = container.querySelector('.score');
   if(scoreEl) scoreEl.textContent = count;
 
-  // HUDが4になったらWIN演出
   if(count === 4){
     const bladerNameEl = container.querySelector('.blader-name');
     const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
@@ -407,7 +389,7 @@ function updateScore(container){
   }
 }
 
-// WIN演出
+// 完了演出
 function showFinishEffect(bladerName){
   const div = document.createElement('div');
   div.className = 'win-overlay';
@@ -416,24 +398,32 @@ function showFinishEffect(bladerName){
   setTimeout(()=>div.remove(), 2000);
 }
 
-// ランク進行（選択ボックス変更時）
-document.querySelectorAll('select').forEach(sel => {
-  sel.addEventListener('change', e => {
-    currentRankIndex = (currentRankIndex + 1) % ranks.length;
-    centerRank.textContent = ranks[currentRankIndex];
+// フレームタップ登録
+[leftBlock, rightBlock].forEach(block=>{
+  const frames = block.querySelectorAll('.frame');
+  frames.forEach(frame=>{
+    frame.addEventListener('click', e=>{
+      e.stopPropagation();
+      handleFrameTap(block, frame);
+    });
   });
 });
 
-// ランク手動切替（任意）
-centerRank.addEventListener('click', ()=>{
-  currentRankIndex = (currentRankIndex + 1) % ranks.length;
-  centerRank.textContent = ranks[currentRankIndex];
+// 選択ボックス変更で rank 更新（HUD 増加直後のみ）
+[leftBlock, rightBlock].forEach(block=>{
+  const select = block.querySelector('select');
+  select.addEventListener('change', ()=>{
+    if(rankCanAdvance){
+      currentRankIndex = (currentRankIndex + 1) % ranks.length;
+      centerRank.textContent = ranks[currentRankIndex];
+      rankCanAdvance = false;
+    }
+  });
 });
 
-// 初期スコア更新
+// 初期スコア
 updateScore(leftBlock);
 updateScore(rightBlock);
-  
 </script>
 </body>
 </html>

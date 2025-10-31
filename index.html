@@ -59,13 +59,19 @@ select, select option {
 
 /* 4点取得時の表示背景 */
 .win-overlay {
-    background-color: rgba(255, 255, 255, 0.3); /* 白を薄く */
-    color: #000;
-    font-size: 1.5rem;
-    text-align: center;
-    padding: 1rem;
-    border-radius: 8px;
-    white-space: pre-line;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.3); /* 白を薄く */
+  color: #000;
+  font-size: 3rem;
+  text-align: center;
+  padding: 2rem;
+  border-radius: 8px;
+  white-space: pre-line; /* 改行を反映 */
+  z-index: 1000;
 }
 
 /* 選択ボックス */
@@ -217,9 +223,10 @@ function updateScore(container) {
 function showFinishEffect(bladerName){
   const div = document.createElement('div');
   div.className = 'win-overlay';
-  div.textContent = `${bladerName}\nWIN‼︎`;  // ←改行＆「‼︎」
+  div.textContent = `${bladerName}\nWIN‼︎`;  // 改行 & 「‼︎」
   document.body.appendChild(div);
 
+  // 2秒後に削除
   setTimeout(()=>div.remove(), 2000);
 }
 

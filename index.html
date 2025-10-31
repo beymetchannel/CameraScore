@@ -74,19 +74,21 @@ video#camera {
 /* 左右ブロック */
 .left-block, .right-block {
     position: absolute;
-    top: 10px;
+    top: 20px;
     display: flex;
     flex-direction: column;
     pointer-events: auto;
 }
 
-.left-block select, .right-block select { 
-    width: 100%; max-width: 180px; /* 通常時の上限（調整可） */ 
-    min-width: 120px; /* 縮小時の下限 */ 
-    font-size: clamp(12px, 2vw, 16px); /* 画面に応じて文字サイズ可変 */ 
-    white-space: nowrap; 
-    text-overflow: ellipsis; 
-    overflow: hidden; 
+.left-block select,
+.right-block select {
+    width: 100%;
+    max-width: 180px; /* 通常時の上限（調整可） */
+    min-width: 120px; /* 縮小時の下限 */
+    font-size: clamp(12px, 2vw, 16px); /* 画面に応じて文字サイズ可変 */
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
     
 /* 左右で選択ボックスの縁色を変更 */

@@ -252,7 +252,7 @@ select, select option {
 
 .center-block {
   position: absolute;
-  top: 20px;             
+  top: 10px;             
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -265,7 +265,7 @@ select, select option {
   font-size: 1rem;      
   color: #fff;
   text-shadow: 0 0 5px #fff;
-  margin-bottom: 2px;
+  margin-bottom: 0px;
 }
 
 .center-rank {
@@ -343,9 +343,43 @@ const rightBlock = document.querySelector('.right-block');
 const centerRank = document.getElementById('center-rank');
 const ranks = ["1st","2nd","3rd","4th","5th","6th","7th"];
 let currentRankIndex = 0;
-
-// HUD 増加後の rank 更新フラグ
 let rankCanAdvance = false;
+
+// ランク表示を更新
+function updateRank(){
+  centerRank.textContent = ranks[currentRankIndex];
+}
+
+// タップで1つ進める
+centerRank.addEventListener("click", () => {
+  currentRankIndex = (currentRankIndex + 1) % ranks.length;
+  updateRank();
+});
+
+// 長押しで1つ戻す
+let pressTimer;
+centerRank.addEventListener("mousedown", () => {
+  pressTimer = setTimeout(() => {
+    currentRankIndex = (currentRankIndex - 1 + ranks.length) % ranks.length;
+    updateRank();
+  }, 500); // 0.5秒以上押したら
+});
+
+centerRank.addEventListener("mouseup", () => clearTimeout(pressTimer));
+centerRank.addEventListener("mouseleave", () => clearTimeout(pressTimer));
+
+// スマホタッチ対応
+centerRank.addEventListener("touchstart", () => {
+  pressTimer = setTimeout(() => {
+    currentRankIndex = (currentRankIndex - 1 + ranks.length) % ranks.length;
+    updateRank();
+  }, 500);
+});
+
+centerRank.addEventListener("touchend", () => clearTimeout(pressTimer));
+centerRank.addEventListener("touchcancel", () => clearTimeout(pressTimer));
+
+updateRank();
 
 // HUD 追加/削除処理
 function handleFrameTap(container, tappedFrame){
@@ -353,11 +387,10 @@ function handleFrameTap(container, tappedFrame){
   const frames = Array.from(container.querySelectorAll('.frame'));
 
   if(hudsInFrame.length > 0){
-    // HUD 削除: 見た目の下から削除するため、frame 内の hud の順番を逆にする
-    const hudArray = Array.from(hudsInFrame).sort((a,b)=>b.offsetTop - a.offsetTop);
-    const hudToRemove = hudArray[0];
-    if(hudToRemove) hudToRemove.remove();
+    // HUD 削除（frame 内にある HUD を必ず消す）
+    hudsInFrame[0].remove();
     updateScore(container);
+    return;
   } else {
     // HUD 追加: 上の frame から順に1つだけ
     const nextFrame = frames.find(f => f.querySelectorAll('.hud-ring').length === 0);

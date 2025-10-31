@@ -445,10 +445,17 @@ function normalizeCircles(container) {
 }
 
 @keyframes finishBlink {
-    0%  -> 0 opacity
-    2%  -> 1 opacity (バチッ)
-    100% -> 0 opacity (ゆっくり消える)
+  0% {
+    opacity: 0;           /* 開始：透明 */
+  }
+  10% {
+    opacity: 1;           /* 一瞬でフェードイン（0% → 10%の間で） */
+  }
+  100% {
+    opacity: 0;           /* ゆっくりフェードアウト（10% → 100%） */
+  }
 }
+
     
 /* スコア＋名前の横並び */
 .score-container {

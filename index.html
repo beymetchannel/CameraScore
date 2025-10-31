@@ -199,7 +199,7 @@ select, select option {
   100% { opacity:0 }   /* ゆっくりフェードアウト */
 }
 
-/* スコアコンテナとブレーダー名 */
+
 /* スコアコンテナとブレーダー名 */
 .score-container { display:flex; align-items:center; gap:.8vw; pointer-events:auto; }
 
@@ -401,12 +401,19 @@ document.body.addEventListener('click', (e)=>{
     }
     return;
   }
-
-  // 今はクリック位置に関係なく左右自動で追加しているので削除
-  // 左クリックで左HUD追加、右クリックで右HUD追加などを選ぶ場合は
-  // addHud(leftBlock) または addHud(rightBlock) を個別に呼ぶ形にする
 });
 
+leftBlock.addEventListener('click', e=>{
+  e.stopPropagation(); // バブル防止
+  addHud(leftBlock);
+});
+
+rightBlock.addEventListener('click', e=>{
+  e.stopPropagation();
+  addHud(rightBlock);
+});
+
+  
 // スコア・HUD・ランクのリセット
 function resetScores(){
   // HUD削除

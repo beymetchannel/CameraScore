@@ -402,10 +402,14 @@ document.body.addEventListener('click', (e)=>{
     return;
   }
 
-  // クリック対象がHUD、frame、ブレーダー名、selectならHUD追加しない
+  // クリック対象が HUD、frame、ブレーダー名、select なら HUD追加しない
   if(e.target.closest('.blader-name, select, .frame, .hud-ring')) return;
 
-  // 左右どちらにHUD追加するかの判定（ここでは左ブロック）
+  // bodyクリック時にフォーカスが入らないようにする
+  e.preventDefault();
+  e.stopPropagation();
+
+  // 左右どちらにHUD追加するかはお好みで
   addHud(leftBlock);
 });
 

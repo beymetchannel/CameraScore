@@ -219,6 +219,26 @@ video#camera {
             0 0 60px #ff3300;
     }
 }
+
+.slot img.hud-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80%;
+  height: auto;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: hudRotate 5s linear infinite;
+  opacity: 1;
+}
+
+@keyframes hudRotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+
+    
 </style>
 </head>
 <body>
@@ -379,6 +399,28 @@ function normalizeCircles(container) {
     }
 }    
 
+function toggleHud(slot) {
+  const img = slot.querySelector(".hud-ring");
+
+  if (img) {
+    // すでにHUDがある → 削除
+    img.remove();
+  } else {
+    // HUDがない → 追加
+    const newImg = document.createElement("img");
+    newImg.src = "./HudRing.png"; // 同じディレクトリから読み込み
+    newImg.className = "hud-ring";
+    slot.appendChild(newImg);
+  }
+
+  updateScore(slot.parentElement); // スコア反映
+}
+
+document.querySelectorAll(".slot").forEach(slot => {
+  slot.addEventListener("click", () => {
+    toggleHud(slot);
+  });
+});
 
 </script>
 

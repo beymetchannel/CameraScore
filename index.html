@@ -51,7 +51,23 @@ select, select option {
   font-family: 'CyberFont', sans-serif !important;
   letter-spacing: 1px;
 }
-  
+
+  /* カード上のブレーダー選択box */
+.blader-select {
+    font-size: 1.1rem; /* 元より少し大きめ */
+}
+
+/* 4点取得時の表示背景 */
+.win-overlay {
+    background-color: rgba(255, 255, 255, 0.3); /* 白を薄く */
+    color: #000;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    white-space: pre-line;
+}
+
 /* 選択ボックス */
 .left-block select, .right-block select {
   width:40vw; max-width:400px; min-width:120px;
@@ -77,8 +93,8 @@ select, select option {
 /* HUD 画像（中央に収める） */
 .hud-ring {
   position:absolute;
-  top:50%; left:50%;
-  width:80%; height:80%;
+  top:50; left:50;
+  width:80; height:80;
   transform:translate(-50%,-50%);
   object-fit:contain;
   pointer-events:none;
@@ -108,7 +124,7 @@ select, select option {
   background: rgba(255,255,255,.95); backdrop-filter: blur(3px);
   color:#ffea50; font-family:inherit; font-size:8vw; text-shadow:0 0 25px #fff59e;
   pointer-events:none;
-  animation: finishBlink 5s ease-out forwards;
+  animation: finishBlink 4s ease-out forwards;
 }
 @keyframes finishBlink {
   0% { opacity:0 }
@@ -186,7 +202,7 @@ function updateScore(container) {
     void scoreEl.offsetWidth;
     scoreEl.classList.add('flash');
   }
-  if (count === 4) showFinishEffect('FINISH!');
+  if (count === 4) showFinishEffect('${bladerName}\nWIN!!!');
 }
 
 function showFinishEffect(text){

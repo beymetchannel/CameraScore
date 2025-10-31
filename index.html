@@ -207,21 +207,20 @@ function updateScore(container) {
     scoreEl.classList.add('flash');
   }
 
-  // 4点になったら勝者表示
   if (count === 4) {
     const bladerNameEl = container.querySelector('.blader-name');
     const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
-    showFinishEffect(`${bladerName}\nWIN!!`);
+    showFinishEffect(bladerName);
   }
 }
 
-function showFinishEffect(text){
+function showFinishEffect(bladerName){
   const div = document.createElement('div');
-  div.className = 'finish-flash';
-  div.textContent = text;
+  div.className = 'win-overlay';
+  div.textContent = `${bladerName}\nWIN‼︎`;  // ←改行＆「‼︎」
   document.body.appendChild(div);
-  // remove after animation (same duration 5s)
-  setTimeout(()=>div.remove(), 5200);
+
+  setTimeout(()=>div.remove(), 2000);
 }
 
 // フレームクリックで HUD を toggle（画像を追加/削除）

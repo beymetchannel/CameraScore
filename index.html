@@ -230,13 +230,37 @@ function toggleHud(frame) {
     existing.remove();
   } else {
     const img = document.createElement('img');
-    img.src = 'HudLing.png'; // 同ディレクトリの画像ファイル名
+    img.src = 'HudLing.png';
     img.className = 'hud-ring';
+    img.style.position = 'absolute'; // CSS inlineでも確実に
+    img.style.top = '50%';
+    img.style.left = '50%';
+    img.style.width = '80px';
+    img.style.height = '80px';
+    img.style.transform = 'translate(-50%, -50%)';
+    img.style.pointerEvents = 'none';
     frame.appendChild(img);
   }
+
   // 親ブロック（左 or 右）を再計算して更新
   const container = frame.closest('.left-block, .right-block');
+  console.log('updateScore called for:', container);
   updateScore(container);
+}
+
+function updateScore(container) {
+  if (!container) return;
+  
+  const count = container.querySelectorAll('.hud-ring').length; // cyber-circle は未使用
+  const scoreEl = container.querySelector('.score');
+  if (scoreEl) scoreEl.textContent = count;
+
+  if (count === 4) {
+    const bladerNameEl = container.querySelector('.blader-name');
+    const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
+    console.log('WIN!!', bladerName);
+    showFinishEffect(bladerName);
+  }
 }
 
 // クリックでHUD切替

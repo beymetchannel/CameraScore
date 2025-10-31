@@ -344,44 +344,51 @@ const centerRank = document.getElementById('center-rank');
 const ranks = ["1st","2nd","3rd","4th","5th","6th","7th"];
 let currentRankIndex = 0;
 
-// HUD追加（1つずつ順番に追加、4点以上は追加しない）
-function addHud(container){
-  const frames = container.querySelectorAll('.frame');
-  // 既に4点なら追加しない
-  if(container.querySelectorAll('.hud-ring').length >= 4) return;
+// HUD追加/削除（フレームタップ）
+document.querySelectorAll('.frame').forEach(frame => {
+  frame.addEventListener('click', e => {
+    e.stopPropagation();
 
-  // 次の空フレームを探す
-  const nextFrame = Array.from(frames).find(f => f.querySelectorAll('.hud-ring').length === 0);
-  if(!nextFrame) return;
+    const container = frame.closest('.left-block, .right-block');
+    const huds = frame.querySelectorAll('.hud-ring');
+
+    if(huds.length === 0){
+      // HUD追加（1つずつ）
+      addHudToFrame(frame, container);
+    } else {
+      // HUD削除（最後のHUDから）
+      removeHudFromFrame(frame, container);
+    }
+  });
+});
+
+function addHudToFrame(frame, container){
+  // 4点制限
+  if(container.querySelectorAll('.hud-ring').length >= 4) return;
 
   const img = document.createElement('img');
   img.className = 'hud-ring';
   img.src = container.classList.contains('right-block') ? 'HudLing-pink.png' : 'HudLing.png';
-  img.style.cssText = 'position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%, -50%);pointer-events:auto;';
-  // HUDクリックで削除
-  img.addEventListener('click', e=>{
-    e.stopPropagation();
-    removeLastHud(container);
-  });
-  nextFrame.appendChild(img);
+  img.style.cssText = 'position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%,-50%);pointer-events:none;';
+  frame.appendChild(img);
+
   updateScore(container);
 }
 
-// HUD削除（最後尾）
-function removeLastHud(container){
-  const huds = container.querySelectorAll('.hud-ring');
-  if(huds.length>0){
-    huds[huds.length-1].parentElement.removeChild(huds[huds.length-1]);
+function removeHudFromFrame(frame, container){
+  const huds = frame.querySelectorAll('.hud-ring');
+  if(huds.length > 0){
+    huds[huds.length-1].remove();
     updateScore(container);
   }
 }
 
-// スコア更新
 function updateScore(container){
   const count = container.querySelectorAll('.hud-ring').length;
   const scoreEl = container.querySelector('.score');
   if(scoreEl) scoreEl.textContent = count;
 
+  // HUDが4になったらWIN演出
   if(count === 4){
     const bladerNameEl = container.querySelector('.blader-name');
     const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
@@ -389,7 +396,7 @@ function updateScore(container){
   }
 }
 
-// 完了演出
+// WIN演出
 function showFinishEffect(bladerName){
   const div = document.createElement('div');
   div.className = 'win-overlay';
@@ -398,62 +405,24 @@ function showFinishEffect(bladerName){
   setTimeout(()=>div.remove(), 2000);
 }
 
-// 画面クリックでHUD追加またはスコアリセット
-document.body.addEventListener('click', (e)=>{
-  const leftScore = leftBlock.querySelectorAll('.hud-ring').length;
-  const rightScore = rightBlock.querySelectorAll('.hud-ring').length;
-
-  // どちらかが4点のときはリセット確認
-  if(leftScore === 4 || rightScore === 4){
-    if(confirm("スコアをクリアしますか？")){
-      resetScores();
-    }
-    return;
-  }
-
-  // クリック対象が HUD、frame、ブレーダー名、select なら HUD追加しない
-  if(e.target.closest('.blader-name, select, .frame, .hud-ring')) return;
-
-  // bodyクリック時にフォーカスが入らないようにする
-  e.preventDefault();
-  e.stopPropagation();
-
-  // 左右どちらにHUD追加するかはお好みで
-  addHud(leftBlock);
+// ランク進行（選択ボックス変更時）
+document.querySelectorAll('select').forEach(sel => {
+  sel.addEventListener('change', e => {
+    currentRankIndex = (currentRankIndex + 1) % ranks.length;
+    centerRank.textContent = ranks[currentRankIndex];
+  });
 });
 
-leftBlock.addEventListener('click', e=>{
-  e.stopPropagation(); // バブル防止
-  addHud(leftBlock);
-});
-
-rightBlock.addEventListener('click', e=>{
-  e.stopPropagation();
-  addHud(rightBlock);
-});
-
-  
-// スコア・HUD・ランクのリセット
-function resetScores(){
-  // HUD削除
-  document.querySelectorAll('.hud-ring').forEach(h => h.remove());
-  // スコアリセット
-  leftBlock.querySelector('.score').textContent = 0;
-  rightBlock.querySelector('.score').textContent = 0;
-  // ランクリセット
-  currentRankIndex = 0;
-  centerRank.textContent = ranks[currentRankIndex];
-}
-
-// 初期スコア
-updateScore(leftBlock);
-updateScore(rightBlock);
-
-// ランク手動切替
+// ランク手動切替（任意）
 centerRank.addEventListener('click', ()=>{
   currentRankIndex = (currentRankIndex + 1) % ranks.length;
   centerRank.textContent = ranks[currentRankIndex];
 });
+
+// 初期スコア更新
+updateScore(leftBlock);
+updateScore(rightBlock);
+  
 </script>
 </body>
 </html>

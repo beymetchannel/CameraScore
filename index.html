@@ -102,6 +102,7 @@ video#camera {
     max-width: 400px; 
     min-width: 120px; /* 狭い画面時の最小幅 */
     font-family: 'CyberFont';
+    font-size: clamp(12px, 2vw, 22px);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -132,19 +133,8 @@ video#camera {
 /* 左右で選択ボックスの縁色を変更 */
 .left-block select { border-color: #aaffff; } /* 白っぽい青 */
 .right-block select {
-    width: 40vw;
-    max-width: 400px;
-    min-width: 120px;
-    font-size: clamp(12px, 2vw, 22px);
     padding: 10px 12px;
-    background: rgba(0,0,0,0.7);
-    color: #fff;
     border: 2px solid #ffaaaa; /* これで枠線ピンク */
-    border-radius: 8px;
-    appearance: none;
-    cursor: pointer;
-    margin-bottom: 10px;
-
     display: block;
     margin-left: auto; /* 右寄せ */
     text-align: right; /* テキストも右寄せ */

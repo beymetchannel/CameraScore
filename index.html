@@ -79,11 +79,10 @@ video#camera {
 .left-block {
     position: absolute;
     top: 20px;
-    left: 20px; /* 左端から */
+    left: 0;
     display: flex;
     flex-direction: column;
     pointer-events: auto;
-    width: 180px; /* ブロック幅 */
 }
 
 .right-block {
@@ -93,7 +92,6 @@ video#camera {
     display: flex;
     flex-direction: column;
     pointer-events: auto;
-    width: 180px; /* ブロック幅 */
     align-items: flex-end; /* 子要素を右寄せ */
 }
 
@@ -110,14 +108,14 @@ video#camera {
 
 .left-block select,
 .right-block select {
-    width: 100%;
-    max-width: 40vw; /* 通常時の上限（調整可） */
-    min-width: 120px; /* 縮小時の下限 */
-    box-sizing: border-box;
-    font-size: clamp(12px, 2vw, 16px); /* 画面に応じて文字サイズ可変 */
+    width: 40vw;            /* 画面幅の40% */
+    max-width: 40vw;
+    min-width: 120px;       /* 狭い画面時の最小幅 */
+    font-size: clamp(12px, 2vw, 16px);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 /* フレームコンテナも右ブロックは右寄せ */

@@ -70,8 +70,35 @@ video#camera {
     50% { box-shadow: 0 0 20px #0ff, 0 0 40px #0ff, 0 0 60px #0ff inset; }
     100% { box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff inset; }
 }
+
+
+
+
     
 /* 左右ブロック */
+.left-block {
+    position: absolute;
+    top: 20px;
+    left: 20px; /* 左端から */
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    width: 180px; /* ブロック幅 */
+}
+
+.right-block {
+    position: absolute;
+    top: 20px;
+    right: 20px; /* 右端から */
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    width: 180px; /* ブロック幅 */
+    align-items: flex-end; /* 子要素を右寄せ */
+}
+
+
+    
 .left-block, .right-block {
     position: absolute;
     top: 20px;
@@ -80,15 +107,30 @@ video#camera {
     pointer-events: auto;
 }
 
+
 .left-block select,
 .right-block select {
     width: 100%;
     max-width: 180px; /* 通常時の上限（調整可） */
     min-width: 120px; /* 縮小時の下限 */
+    box-sizing: border-box;
     font-size: clamp(12px, 2vw, 16px); /* 画面に応じて文字サイズ可変 */
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+}
+
+/* フレームコンテナも右ブロックは右寄せ */
+.left-block .frame-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.right-block .frame-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
     
 /* 左右で選択ボックスの縁色を変更 */

@@ -303,36 +303,36 @@ function showFinishEffect(text) {
     setTimeout(() => flash.remove(), 450);
 }
 
-document.querySelectorAll('.frame-container').forEach(container => {
-    const frames = container.querySelectorAll('.frame');
+document.querySelectorAll('.left-block, .right-block').forEach(block => {
+    const frames = block.querySelectorAll('.frame');
 
     frames.forEach(frame => {
         frame.addEventListener('click', () => {
-            let circle = frame.querySelector('.cyber-circle');
+    let circle = frame.querySelector('.cyber-circle');
 
-            if (circle) {
-                circle.remove();
-                updateScore(container);
-                return;
-            }
+    if (circle) {
+        circle.remove();
+        updateScore(block);
+        return;
+    }
 
-            let target = [...frames].find(f => !f.querySelector('.cyber-circle'));
-            if (!target) return;
+    let target = [...frames].find(f => !f.querySelector('.cyber-circle'));
+    if (!target) return;
 
-            circle = document.createElement('div');
-            circle.className = 'cyber-circle';
+    circle = document.createElement('div');
+    circle.className = 'cyber-circle';
 
-            if(target.classList.contains('blue')){
-                circle.style.border = '3px solid #aaffff';
-                circle.style.boxShadow = '0 0 20px #aaffff, 0 0 35px #aaffff inset';
-            } else {
-                circle.style.border = '3px solid #ffaaaa';
-                circle.style.boxShadow = '0 0 20px #ffaaaa, 0 0 35px #ffaaaa inset';
-            }
+    if(target.classList.contains('blue')){
+        circle.style.border = '3px solid #aaffff';
+        circle.style.boxShadow = '0 0 20px #aaffff, 0 0 35px #aaffff inset';
+    } else {
+        circle.style.border = '3px solid #ffaaaa';
+        circle.style.boxShadow = '0 0 20px #ffaaaa, 0 0 35px #ffaaaa inset';
+    }
 
-            target.appendChild(circle);
-            updateScore(container);
-        });
+    target.appendChild(circle);
+    updateScore(block);
+});
     });
 });
 

@@ -408,7 +408,7 @@ function toggleHud(slot) {
   } else {
     // HUDがない → 追加
     const newImg = document.createElement("img");
-    newImg.src = "./HudRing.png"; // 同じディレクトリから読み込み
+    newImg.src = "HudLing.png"; // 同じディレクトリから読み込み
     newImg.className = "hud-ring";
     slot.appendChild(newImg);
   }
@@ -423,7 +423,7 @@ function toggleHud(frame) {
     img.remove();
   } else {
     const newImg = document.createElement("img");
-    newImg.src = "HudRing.png"; // ファイル名そのまま
+    newImg.src = "HudLing.png"; // ファイル名そのまま
     newImg.className = "hud-ring";
     frame.appendChild(newImg);
   }

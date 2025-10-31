@@ -50,32 +50,29 @@ video#camera {
     z-index: 1;
 }
 
-.cyber-border {
+.bi-border {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 2;
+    z-index: 0; /* 最背面 */
 
-    /* 画像を縁取りとして表示 */
     background-image: url('bi.png');
-    background-size: cover;      /* 画面全体にフィット */
-    background-position: center; 
+    background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
 
-    border: none;                /* 元の枠線は不要 */
-    
-    /* 薄く光らせる場合 */
-    filter: drop-shadow(0 0 10px #0ff);
+    opacity: 0.6; /* 半透明 */
+    filter: drop-shadow(0 0 20px #0ff); /* グロウ効果 */
     animation: glow 2s infinite alternate;
 }
 
 @keyframes glow {
-    0% { filter: drop-shadow(0 0 5px #0ff); }
-    50% { filter: drop-shadow(0 0 15px #0ff); }
-    100% { filter: drop-shadow(0 0 5px #0ff); }
+    0%   { filter: drop-shadow(0 0 10px #0ff); }
+    50%  { filter: drop-shadow(0 0 25px #0ff); }
+    100% { filter: drop-shadow(0 0 10px #0ff); }
 }
 
 
@@ -223,7 +220,7 @@ video#camera {
 
 <video id="camera" autoplay playsinline></video>
 
-<div class="cyber-border"></div>
+<div class="bi-border"></div>
 
 <div class="ui-layer">
     <!-- 左側 -->

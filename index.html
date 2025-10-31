@@ -235,7 +235,6 @@ video#camera {
             <div class="frame blue"></div>
             <div class="frame blue"></div>
             <div class="frame blue"></div>
-            <div class="score" id="score-left">0</div>
         </div>
         <div class="score-container left-score-container">
             <div class="score" id="score-left">0</div>
@@ -255,7 +254,6 @@ video#camera {
             <div class="frame pink"></div>
             <div class="frame pink"></div>
             <div class="frame pink"></div>
-            <div class="score" id="score-right">0</div>
         </div>
         <div class="score-container left-score-container">
             <div class="score" id="score-left">0</div>
@@ -435,7 +433,10 @@ document.querySelectorAll('.left-block select, .right-block select').forEach(sel
 
 /* 右側ブレーダー名はスコアの左 */
 .right-score-container {
-    justify-content: flex-end;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start; /* 左寄せに変更 */
 }
 
 .right-score-container .blader-name {

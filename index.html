@@ -238,7 +238,7 @@ video#camera {
         </div>
         <div class="score-container left-score-container">
             <div class="score" id="score-left">0</div>
-        <div class="blader-name" id="left-blader">BLADER A</div>
+            <div class="blader-name" id="left-blader" contenteditable="true">BLADER A</div>
     </div>
     </div>
 
@@ -256,7 +256,7 @@ video#camera {
             <div class="frame pink"></div>
         </div>
         <div class="score-container right-score-container">
-            <div class="blader-name" id="right-blader">BLADER B</div>
+            <div class="blader-name" id="right-blader" contenteditable="true">BLADER B</div>
             <div class="score" id="score-right">0</div>
         </div>
     </div>
@@ -455,6 +455,8 @@ document.querySelectorAll('.left-block select, .right-block select').forEach(sel
     border: 2px solid #ffdd99;
     border-radius: 8px;
     white-space: nowrap;
+    cursor: text;
+    outline: none; 
 }
 
 </style>

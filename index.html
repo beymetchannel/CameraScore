@@ -54,7 +54,7 @@ select, select option {
 
   /* カード上のブレーダー選択box */
 .blader-select {
-    font-size: 1.1rem; /* 元より少し大きめ */
+    font-size: 1.5rem; /* 元より少し大きめ */
 }
 
 /* 4点取得時の表示背景 */
@@ -202,7 +202,7 @@ function updateScore(container) {
     void scoreEl.offsetWidth;
     scoreEl.classList.add('flash');
   }
-  if (count === 4) showFinishEffect('${bladerName}\nWIN!!!');
+  if (count === 4) showFinishEffect(${bladerName}+'\nWIN!!!');
 }
 
 function showFinishEffect(text){

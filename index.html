@@ -139,9 +139,10 @@ video#camera {
 .right-block select {
     padding: 10px 12px;
     border: 2px solid #ffaaaa; /* これで枠線ピンク */
-    display: block;
+    display: flex;
+    justify-content: flex-end;
     margin-left: auto; /* 右寄せ */
-    text-align: right; /* テキストも右寄せ */
+    text-align-last: right;
 }
 
 .right-block .frame-container {
@@ -152,12 +153,16 @@ video#camera {
 /* 四角のサイズは画面の50%÷4 */
 .frame {
     width: 60px;
-    height: 10vh; /* 4つで40% */
+    height: 10vh;
     border: 3px solid;
     position: relative;
-    box-shadow: 0 0 15px, 0 0 30px inset; 
+    box-shadow: 0 0 15px, 0 0 30px inset;
     transition: transform 0.3s, box-shadow 0.3s;
-} 
+
+    /* ★追加：黒透明＋HUDぽくぼかし */
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(4px);
+}
 
 /* 隣接四角の上角丸無効 */
 .frame + .frame {

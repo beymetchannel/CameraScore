@@ -131,36 +131,23 @@ video#camera {
     
 /* 左右で選択ボックスの縁色を変更 */
 .left-block select { border-color: #aaffff; } /* 白っぽい青 */
-.right-block select { 
-    border-color: #ffaaaa;  /* 白っぽい赤ピンク */
-    text-align: right;
-    direction: rtl; /* 選択肢内のテキストも右から表示させたい場合 */
-}
-
-/* プルダウン */
-select {
-    font-family: 'CyberFont', sans-serif;
-    font-weight: bold;
-    font-size: 22px; 
-    padding: 10px 12px; 
+.right-block select {
+    width: 40vw;
+    max-width: 400px;
+    min-width: 120px;
+    font-size: clamp(12px, 2vw, 22px);
+    padding: 10px 12px;
     background: rgba(0,0,0,0.7);
     color: #fff;
-    border: 2px solid; 
+    border: 2px solid #ffaaaa;
     border-radius: 8px;
     appearance: none;
     cursor: pointer;
     margin-bottom: 10px;
-    width: 35vw; 
-    max-width: 35vw;
-    box-sizing: border-box;
-}
 
-
-
-/* 四角＋スコア */
-.frame:hover {
-    transform: none;
-    box-shadow: inherit;
+    /* 追加 */
+    display: block;
+    margin-left: auto; /* 左マージンを自動にして右寄せ */
 }
 
 .right-block .frame-container {

@@ -509,7 +509,10 @@ let deck1 = "";
 let deck2 = "";
 let deck3 = "";
 
-// セレクトに "-" と "デッキ編集" を追加する関数
+// === デッキ編集関連 === 
+
+let editingSelect = null;
+
 function addDeckEditOption(select){
   const dash = document.createElement('option');
   dash.value = "--dash--";
@@ -522,15 +525,10 @@ function addDeckEditOption(select){
   select.appendChild(edit);
 }
 
-// 編集中のセレクト保持
-let editingSelect = null;
-
-// セレクト変更時の動作
 function bladeSelectChanged(e){
   const select = e.target;
   if(select.value === "--edit--"){
     editingSelect = select;
-
     const options = [...select.options];
     const presets = options.slice(0, 3).map(o=>o.textContent);
 
@@ -543,7 +541,6 @@ function bladeSelectChanged(e){
   }
 }
 
-// 保存ボタン
 document.getElementById("deckSave").addEventListener("click", ()=>{
   if(!editingSelect) return;
 
@@ -556,11 +553,11 @@ document.getElementById("deckSave").addEventListener("click", ()=>{
     return;
   }
 
+  // デッキ更新（ローカル保存しない版）
   const opts = [...editingSelect.options];
   const reserved = opts.slice(-2);
 
   editingSelect.innerHTML = "";
-
   [d1, d2, d3].forEach(txt=>{
     const opt = document.createElement("option");
     opt.textContent = txt;
@@ -569,51 +566,17 @@ document.getElementById("deckSave").addEventListener("click", ()=>{
 
   reserved.forEach(o=>editingSelect.appendChild(o));
 
-  saveDeckPresets(editingSelect); // ←追加！
-
   document.getElementById("deckModal").style.display = "none";
 });
 
-// 保存
-function saveDeckPresets(select){
-  const side = select.dataset.side;
-  const decks = Array.from(select.options).slice(0,-2).map(o => o.textContent);
-  localStorage.setItem(`decks_${side}`, JSON.stringify(decks));
-}
-
-// 読み込み
-function loadDeckPresets(select){
-  const side = select.dataset.side;
-  const stored = JSON.parse(localStorage.getItem(`decks_${side}`) || "[]");
-  if(stored.length > 0){
-    const reserved = Array.from(select.options).slice(-2);
-    select.innerHTML = "";
-    stored.forEach(t=>{
-      const opt = document.createElement("option");
-      opt.textContent = t;
-      select.appendChild(opt);
-    });
-    reserved.forEach(o=>select.appendChild(o));
-  }
-}
-
-// 初期化処理（ここ重要）
+// 初期化
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
-  // 最初のオプション3つだけ残して初期化
   const opts = [...select.options].slice(0,3);
   select.innerHTML = "";
   opts.forEach(o=>select.appendChild(o));
 
   addDeckEditOption(select);
-  loadDeckPresets(select);
   select.addEventListener("change", bladeSelectChanged);
-});
-
-// モーダル外クリックで閉じる
-document.getElementById("deckModal").addEventListener("click", (e)=>{
-  if(e.target.id === "deckModal"){
-    document.getElementById("deckModal").style.display = "none";
-  }
 });
 
 function saveDeckPresets(select){

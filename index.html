@@ -511,6 +511,71 @@ function showFinishEffect(bladerName){
 // 初期スコア
 updateScore(leftBlock);
 updateScore(rightBlock);
+
+
+let currentDeckSelect = null;
+let deck1 = "";
+let deck2 = "";
+let deck3 = "";
+
+// セレクトに「デッキ編集」を追加する処理（生成時）
+function addDeckEditOption(select) {
+  const divider = document.createElement("option");
+  divider.disabled = true;
+  divider.textContent = "――――――――";
+  
+  const edit = document.createElement("option");
+  edit.value = "deck-edit";
+  edit.textContent = "デッキ編集";
+
+  select.appendChild(divider);
+  select.appendChild(edit);
+}
+
+// セレクト変更イベント
+function bladeSelectChanged(e) {
+  const select = e.target;
+  const val = select.value;
+
+  if (val === "deck-edit") {
+    // もとに戻してモーダルへ
+    select.value = select.dataset.prev || "";
+
+    currentDeckSelect = select;
+
+    // 現在のデッキ名読み込み
+    deck1 = select.dataset.deck1 || "";
+    deck2 = select.dataset.deck2 || "";
+    deck3 = select.dataset.deck3 || "";
+
+    document.getElementById("deckInput1").value = deck1;
+    document.getElementById("deckInput2").value = deck2;
+    document.getElementById("deckInput3").value = deck3;
+
+    document.getElementById("deckEditModal").style.display = "flex";
+    return;
+  }
+
+  // 通常の処理
+  select.dataset.prev = val;
+}
+
+// 保存
+document.getElementById("deckSave").onclick = () => {
+  const m = document.getElementById("deckEditModal");
+
+  currentDeckSelect.dataset.deck1 = document.getElementById("deckInput1").value;
+  currentDeckSelect.dataset.deck2 = document.getElementById("deckInput2").value;
+  currentDeckSelect.dataset.deck3 = document.getElementById("deckInput3").value;
+
+  m.style.display = "none";
+};
+
+// キャンセル
+document.getElementById("deckCancel").onclick = () => {
+  document.getElementById("deckEditModal").style.display = "none";
+};
+  
 </script>
 </body>
 </html>

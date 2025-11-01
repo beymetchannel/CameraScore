@@ -682,9 +682,11 @@ function openDeckModal(side) {
 
 // バトル状態リセット
 function resetBattleState() {
+  // HUD削除 & スコアリセット
   document.querySelectorAll('.hud-ring').forEach(el => el.remove());
   document.getElementById("score-left").textContent = 0;
   document.getElementById("score-right").textContent = 0;
+
   currentRankIndex = 0;
   updateRank();
 }
@@ -711,7 +713,16 @@ function loadDeckPresets(select){
     reserved.forEach(o=>select.appendChild(o));
   }
 }
-  
+
+// 初期ロード時に2つのセレクトへ追加
+const leftSelect = document.querySelector(".left-select");
+const rightSelect = document.querySelector(".right-select");
+addDeckEditOption(leftSelect);
+addDeckEditOption(rightSelect);
+
+// セレクト変更時の処理
+leftSelect.addEventListener("change", bladeSelectChanged);
+rightSelect.addEventListener("change", bladeSelectChanged);
 // 初期化
 document.querySelectorAll('.left-select, .right-select').forEach(select => {
   // デッキ編集と - を追加

@@ -324,7 +324,7 @@ select, select option {
 <div class="ui-layer">
   <!-- 左 -->
   <div class="left-block">
-    <select class="left-select">
+    <select class="left-select" data-side="left">
       <option>ウィザードロッド3-60B</option>
       <option>ブラストW9-60LR</option>
       <option>シャークスケイル1-60FB</option>
@@ -347,7 +347,7 @@ select, select option {
   </div>
   <!-- 右 -->
   <div class="right-block">
-    <select class="right-select">
+    <select class="right-select" data-side="right">
       <option>ウィザードロッド3-60B</option>
       <option>ブラストW9-60LR</option>
       <option>シャークスケイル1-60FB</option>
@@ -581,10 +581,38 @@ document.getElementById("deckSave").addEventListener("click", ()=>{
 
 // セレクト要素に「デッキ編集」を追加
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
-  addDeckEditOption(select);
-  select.addEventListener('change', bladeSelectChanged);
+  loadDeckPresets(select);
 });
   
+// モーダル外クリックで閉じる
+document.getElementById("deckModal").addEventListener("click", (e)=>{
+  if(e.target.id === "deckModal"){
+    document.getElementById("deckModal").style.display = "none";
+  }
+});
+
+function saveDeckPresets(select){
+  const side = select.dataset.side;
+  const decks = Array.from(select.options).slice(0,-2).map(o => o.textContent);
+  localStorage.setItem(`decks_${side}`, JSON.stringify(decks));
+}
+
+function loadDeckPresets(select){
+  const side = select.dataset.side;
+  const stored = JSON.parse(localStorage.getItem(`decks_${side}`) || "[]");
+  if(stored.length > 0){
+    // "-"と編集だけ残して全削除
+    const reserved = Array.from(select.options).slice(-2);
+    select.innerHTML = "";
+    stored.forEach(t=>{
+      const opt = document.createElement("option");
+      opt.textContent = t;
+      select.appendChild(opt);
+    });
+    reserved.forEach(o=>select.appendChild(o));
+  }
+}
+
 </script>
 </body>
 </html>

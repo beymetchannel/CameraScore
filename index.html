@@ -677,14 +677,7 @@ function openDeckModal(side) {
 }
   
   
-// 初期化
-document.querySelectorAll('.left-select, .right-select').forEach(select => {
-  // デッキ編集と - を追加
-  addDeckEditOption(select);
 
-  // 選択時の処理
-  select.addEventListener("change", bladeSelectChanged);
-});
 
 
 // バトル状態リセット
@@ -718,7 +711,13 @@ function loadDeckPresets(select){
     reserved.forEach(o=>select.appendChild(o));
   }
 }
-
+  
+// 初期化
+document.querySelectorAll('.left-select, .right-select').forEach(select => {
+  // デッキ編集と - を追加
+  addDeckEditOption(sel);
+  sel.addEventListener("change", bladeSelectChanged);
+});
 </script>
 </body>
 </html>

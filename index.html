@@ -278,7 +278,41 @@ select, select option {
   text-shadow: 0 0 5px #fff;
   border-bottom: 2px solid #fff; /* optional: 下線でクリック可能感を出す */
 }
-  
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #111;
+  padding: 20px;
+  border: 2px solid #0ff;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 320px;
+  color: #fff;
+  font-family: CyberFont, sans-serif;
+}
+
+.modal-content input {
+  width: 100%;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
   
 </style>
 </head>
@@ -330,7 +364,26 @@ select, select option {
     </div>
   </div>
 </div>
+<!-- Deck Edit Modal -->
+<div id="deckEditModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h2>デッキ編集</h2>
+    
+    <label>1st</label>
+    <input type="text" id="deckInput1">
 
+    <label>2nd</label>
+    <input type="text" id="deckInput2">
+
+    <label>3rd</label>
+    <input type="text" id="deckInput3">
+
+    <div class="modal-buttons">
+      <button id="deckSave">保存</button>
+      <button id="deckCancel">キャンセル</button>
+    </div>
+  </div>
+</div>
 <script>
 // カメラ取得（任意）
 navigator.mediaDevices?.getUserMedia?.({ video:{ facingMode:'environment' }, audio:false })
@@ -387,8 +440,10 @@ function handleFrameTap(container, tappedFrame){
   const frames = Array.from(container.querySelectorAll('.frame'));
 
   if(hudsInFrame.length > 0){
-    // HUD 削除（frame 内にある HUD を必ず消す）
-    hudsInFrame[0].remove();
+    // 全フレームからHUDを収集し、下→上で並べて一番下を消す
+    const allHUDs = Array.from(container.querySelectorAll('.hud-ring'));
+    const hudToRemove = allHUDs.sort((a,b)=>b.parentElement.offsetTop - a.parentElement.offsetTop)[0];
+    hudToRemove.remove();
     updateScore(container);
     return;
   } else {

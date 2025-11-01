@@ -1,4 +1,3 @@
-mada
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -6,399 +5,126 @@ mada
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CameraScore</title>
 <style>
+/* ==== フォント ==== */
 @font-face {
   font-family: 'CyberFont';
   src: url('CyberFont.ttf') format('truetype');
 }
-
 @font-face {
   font-family: 'DS-DIGIB';
   src: url('DS-DIGIB.ttf') format('truetype');
 }
-/* フォント定義は環境によるので任意で差し替え */
-body, html { margin:0; padding:0; height:100%; background:black; font-family: 'CyberFont', sans-serif; }
+
+/* ==== 基本 ==== */
+body,html { margin:0;padding:0;height:100%;background:black;font-family:'CyberFont',sans-serif; }
 video#camera { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+.bi-border{position:absolute;inset:0;pointer-events:none;background:url('bi.png')center/contain no-repeat;opacity:.6;filter:drop-shadow(0 0 20px #0ff);animation:glow 2s infinite alternate;z-index:1;}
+@keyframes glow{0%{filter:drop-shadow(0 0 10px #0ff)}50%{filter:drop-shadow(0 0 25px #0ff)}100%{filter:drop-shadow(0 0 10px #0ff)}}
 
+.ui-layer{position:absolute;inset:0;z-index:2;}
 
-.score {
-  font-family: 'DS-DIGIB', monospace !important;
+/* ==== 選択ボックス ==== */
+select,select option {font-family:'CyberFont'!important;letter-spacing:1px;}
+.left-block select,.right-block select {
+  font-size:1.3rem;width:40vw;max-width:400px;min-width:120px;
+  padding:10px 12px;margin-bottom:10px;background:rgba(0,0,0,.6);
+  color:#fff;border-radius:8px;border:2px solid;appearance:none;cursor:pointer;
 }
-  
-.score-display {
-  font-size: 20vh; /* ←ここは20%の指定だったはず。必要に応じて修正 */
-  color: #fff; 
-  text-shadow: 0 0 10px orange, 0 0 20px orange, 0 0 40px orange;
-}
-  
-.ui-layer { 
-  position:absolute; 
-  inset:0; 
-  z-index:1; 
-}
+.left-block select{border-color:#aaffff;}
+.right-block select{border-color:#ffaaaa;text-align-last:right;}
 
-.bi-border {
-  position:absolute; inset:0; pointer-events:none; z-index:0;
-  background-image: url('bi.png'); background-size:contain; background-position:center; background-repeat:no-repeat;
-  opacity:.6; filter: drop-shadow(0 0 20px #0ff);
-  animation: glow 2s infinite alternate;
-}
-@keyframes glow { 0%{filter:drop-shadow(0 0 10px #0ff)} 50%{filter:drop-shadow(0 0 25px #0ff)} 100%{filter:drop-shadow(0 0 10px #0ff)} }
+.left-block select option,.right-block select option{font-size:1.3rem;}
 
-/* 左右ブロック */
-.left-block, .right-block {
-  position:absolute; top:20px; display:flex; flex-direction:column; pointer-events:auto;
+.left-block,.right-block{
+  position:absolute;top:20px;display:flex;flex-direction:column;pointer-events:auto;
 }
-.left-block { left:20px; }
-.right-block { right:20px; align-items:flex-end; }
+.left-block{left:20px;}
+.right-block{right:20px;align-items:flex-end;}
 
-/* 選択ボックスもCyberFontに */
-select, select option {
-  font-family: 'CyberFont', sans-serif !important;
-  letter-spacing: 1px;
+/* ==== フレーム ==== */
+.frame-container{display:flex;flex-direction:column;gap:0;}
+.frame{
+  width:60px;height:10vh;border:2px solid;position:relative;pointer-events:auto;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  box-shadow:0 0 15px,inset 0 0 30px;
 }
+.frame.blue{border-color:#aaffff;box-shadow:0 0 15px #aaffff,inset 0 0 30px #aaffff;}
+.frame.pink{border-color:#ffaaaa;box-shadow:0 0 15px #ffaaaa,inset 0 0 30px #ffaaaa;}
 
-  /* カード上のブレーダー選択box */
-.blader-select {
-    font-size: 1.3rem; /* 元より少し大きめ */
-}
+.hud-ring{position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%,-50%);animation:hudSpin 3s linear infinite;pointer-events:none;}
+@keyframes hudSpin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 
-/* 4点取得時の表示背景 */
-.win-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #ffea50;
-  font-family: 'CyberFont', sans-serif;
-  font-size: 8vw;         /* 画面幅に応じて可変 */
-  text-align: center;
-  white-space: pre-line;   /* 改行を反映 */
-  text-shadow: 
-     0 0 10px #fff59e,
-     0 0 20px #ffea50,
-     0 0 40px #ffdd33,
-     0 0 60px #ffdd33;
-  z-index: 1000;
-  animation: winFlash 4s ease-out forwards;
+/* ==== スコア ==== */
+.score{font-family:'DS-DIGIB'!important;font-size:25vh;color:#ffdd99;text-shadow:0 0 10px #ffaa33,0 0 20px #ffaa33,0 0 40px #ff4400;pointer-events:auto;}
+.score-container{display:flex;align-items:center;gap:.8vw;}
+
+.left-score-container .blader-name{border:2px solid #aaffff;}
+.right-score-container .blader-name{border:2px solid #ffaaaa;}
+
+.blader-name{
+  padding:8px 12px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;
+  font-size:1.6rem;cursor:text;white-space:nowrap;
 }
 
-@keyframes winFlash {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  20% {
-    transform: scale(1.5);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 1;
-  }
-  80% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
+/* ==== ラウンド ==== */
+.center-block{position:absolute;top:10px;left:50%;transform:translateX(-50%);text-align:center;z-index:3;}
+.center-battle{font-size:1rem;color:#fff;}
+.center-rank{font-size:2rem;color:#fff;border-bottom:2px solid #fff;cursor:pointer;user-select:none;}
+
+/* ==== WIN ==== */
+.win-overlay{
+  position:fixed;inset:0;display:flex;justify-content:center;align-items:center;
+  background:rgba(255,255,255,.2);color:#ffea50;font-size:8vw;white-space:pre-line;
+  text-shadow:0 0 10px #fff59e,0 0 20px #ffea50,0 0 40px #ffdd33;z-index:1000;
+  animation:winFlash 4s forwards;
+}
+@keyframes winFlash{0%{transform:scale(.5);opacity:0}20%{transform:scale(1.5);opacity:1}100%{transform:scale(1);opacity:0}}
+
+/* ==== モーダル ==== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;z-index:2000;
+}
+.modal-content{
+  background:#0B0E1A;border:2px solid #00D4FF;width:90%;max-width:420px;
+  padding:20px;border-radius:12px;color:#fff;
+}
+.modal-content.right{border-color:#FF33D4;}
+.modal-content h2{text-align:center;margin-bottom:10px;}
+
+.deck-input
+{width:100%;
+padding:12px;
+margin-bottom:10px;
+font-size:1.1rem;
+font-family:'CyberFont',sans-serif;
+background:rgba(0,0,0,.6);
+border:2px solid #00eaff;
+color:#fff;
+box-sizing: border-box;
 }
 
-/* 選択ボックス */
-/* 左右ブロックの選択ボックス */
-.left-block select,
-.right-block select {
-  font-size: 1.3rem;   /* 元の 1.5rem から少し大きく */
-  font-family: 'CyberFont', sans-serif !important;
-  letter-spacing: 1px;
-  width: 40vw;
-  max-width: 400px;
-  min-width: 120px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
-  background: rgba(0,0,0,0.6);
-  color: #fff;
-  border-radius: 8px;
-  border: 2px solid;
-  appearance: none;
-  cursor: pointer;
-  box-sizing: border-box;
+.modal-save-btn{
+width:100%;
+padding:12px;margin-top:12px;font-size:1.1rem;
+font-family:'CyberFont',sans-serif;
+background:#00D4FF;
+font-weight:bold;
+border-radius:6px;
+cursor:pointer;
+color: #000 !important;
 }
 
-.left-block select { border-color: #aaffff; }
-.right-block select { border-color: #ffaaaa; text-align-last: right; }
-
-/* optionも文字サイズを大きく */
-.left-block select option,
-.right-block select option {
-  font-size: 1.3rem;  /* selectと同じサイズに合わせる */
-}
-/* フレーム群 */
-.frame-container { display:flex; flex-direction:column; gap:0; }
-.frame {
-  width:60px; height:10vh; 
-  border:2px solid; 
-  position:relative; 
-  pointer-events: auto;
-  overflow:hidden;
-  background: rgba(0,0,0,.7); 
-  backdrop-filter: blur(4px);
-  box-shadow: 0 0 15px, inset 0 0 30px; 
-  transition:transform .3s, box-shadow .3s;
-}
-.frame + .frame { border-top-left-radius:0; border-top-right-radius:0; }
-
-/* 色 */
-.frame.blue { border-color:#aaffff; box-shadow:0 0 15px #aaffff, inset 0 0 30px #aaffff;}
-.frame.pink { border-color:#ffaaaa; box-shadow:0 0 15px #ffaaaa, inset 0 0 30px #ffaaaa; }
-
-/* HUD 画像（中央に収める） */
-.hud-ring {
-  position:absolute;
-  top:50%;
-  left:50%;
-  width:80px;
-  height:80px;
-  transform:translate(-50%,-50%);
-  object-fit:contain;
-  pointer-events:none;
-  animation: hudSpin 3s linear infinite;
-}
-@keyframes hudSpin { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
-
-/* 以前の円（cyber-circle）を残したい場合はそのまま */
-.cyber-circle {
-  position:absolute; width:55%; height:55%; border-radius:50%;
-  top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none;
-  animation: noiseSlow 4s infinite steps(5);
-}
-@keyframes noiseSlow { 0%{opacity:.15;filter:blur(1px)} 25%{opacity:.95;filter:blur(0)} 100%{opacity:.6;filter:blur(.3px)} }
-
-/* スコア表示 */
-.score { font-family: monospace; font-size:25vh; color:#ffdd99; margin-top:5px; text-align:center;
-  text-shadow: 0 0 10px #ffaa33,0 0 20px #ffaa33,0 0 40px #ff4400;
-  pointer-events:auto;
-}
-.score.flash { animation: scoreFlash .25s ease-out; }
-@keyframes scoreFlash { 0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)} }
-
-/* finish */
-.finish-flash {
-  position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:99;
-  background: rgba(255,255,255,0.8); backdrop-filter: blur(3px);
-  color:#ffea50; font-family:inherit; font-size:8vw; text-shadow:0 0 25px #fff59e;
-  pointer-events:none;
-  animation: finishBlink 4s ease-out forwards;
-}
-@keyframes finishBlink {
-  0% { opacity:0 }
-  5% { opacity:1 }     /* 瞬間フェードイン */
-  100% { opacity:0 }   /* ゆっくりフェードアウト */
+.modal-save-btn.right{
+background:#FF33D4;
+color: #000 !important;
 }
 
 
-/* スコアコンテナとブレーダー名 */
-.score-container { display:flex; align-items:center; gap:.8vw; pointer-events:auto; }
 
-/* 左ブレーダー名 */
-.left-score-container .blader-name {
-    padding: 8px 12px;
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    border: 2px solid #aaffff; /* 左選択ボックスの色に合わせる */
-    border-radius: 8px;
-    cursor: text;
-    white-space: nowrap;
-    font-size: 1.6rem; /* フォントサイズを大きく */
-}
+.deck-input.right {
+  border-color: #FF33D4 !important;
 
-/* 右ブレーダー名 */
-.right-score-container .blader-name {
-    padding: 8px 12px;
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    border: 2px solid #ffaaaa; /* 右選択ボックスの色に合わせる */
-    border-radius: 8px;
-    cursor: text;
-    white-space: nowrap;
-    font-size: 1.6rem; /* フォントサイズを大きく */
-}
-.blader-name { 
-  padding:5px 10px; 
-  background:rgba(0,0,0,0.6); 
-  color:#fff; 
-  border:2px solid #ffdd99; 
-  border-radius:8px; 
-  cursor:text; 
-  white-space:nowrap; 
-  pointer-events: auto;
-}
-
-
-/* スコア加点時の光と拡大エフェクト */
-.score-bonus {
-  animation: scoreBonus 0.5s ease-out forwards;
-}
-
-@keyframes scoreBonus {
-  0%   { transform: scale(1); text-shadow: 0 0 10px #ffaa33, 0 0 20px #ffaa33; color:#ffdd99; }
-  30%  { transform: scale(1.5); text-shadow: 0 0 20px #fff, 0 0 40px #ffea50; color:#fff59e; }
-  60%  { transform: scale(1.3); text-shadow: 0 0 15px #ffdd33, 0 0 30px #ffaa33; color:#ffdd33; }
-  100% { transform: scale(1); text-shadow: 0 0 10px #ffaa33, 0 0 20px #ffaa33; color:#ffdd99; }
-}
-
-.center-block {
-  position: absolute;
-  top: 10px;             
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  pointer-events: auto;   
-  z-index: 2;
-}
-
-.center-battle {
-  font-family: 'CyberFont', sans-serif;
-  font-size: 1rem;      
-  color: #fff;
-  text-shadow: 0 0 5px #fff;
-  margin-bottom: 0px;
-}
-
-.center-rank {
-  font-family: 'CyberFont', sans-serif;
-  font-size: 2rem;
-  color: #fff;
-  cursor: pointer;
-  user-select: none;
-  padding: 2px 6px;
-  text-shadow: 0 0 5px #fff;
-  border-bottom: 2px solid #fff; /* optional: 下線でクリック可能感を出す */
-}
-
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(6px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-  animation: fadeIn .25s ease;
-}
-
-.modal.hidden {
-  display: none;
-}
-
-/* ★ モーダルの背景を透明60%に */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6); /* 透明度60% */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-/* 共通：モーダルボックス */
-.modal-content {
-  background: #0B0E1A;
-  border: 2px solid #00D4FF; /* 左側デフォルト色 */
-  padding: 20px;
-  width: 90%;
-  max-width: 420px;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,212,255,0.5);
-}
-
-/* ★ 右側の時（ピンク） */
-.modal-content.right {
-  border-color: #FF33D4;
-  box-shadow: 0 0 15px rgba(255,51,212,0.5);
-}
-
-/* 保存ボタン共通 */
-.modal-save-btn {
-  width: 100%;
-  padding: 12px;
-  font-size: 18px;
-  border: none;
-  border-radius: 8px;
-  margin-top: 20px;
-  cursor: pointer;
-  font-weight: bold;
-  background: #00D4FF;
-}
-
-/* ★ 右側時ボタン色をピンクに */
-.modal-save-btn.right {
-  background: #FF33D4;
-}
-
-.modal-content h2 {
-  color: #fff;
-  text-align: center;
-  margin-bottom: 15px;
-  font-family: 'CyberFont';
-}
-
-.modal-content input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  font-size: 1.1rem;
-  border: 2px solid #00eaff;
-  border-radius: 6px;
-  background: rgba(0,0,0,0.65);
-  color: #fff;
-  font-family: 'CyberFont';
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
-}
-
-.modal-buttons button {
-  width: 48%;
-  padding: 12px 0;
-  font-size: 1.1rem;
-  font-family: 'CyberFont';
-  border-radius: 6px;
-  cursor: pointer;
-  border: none;
-  background: linear-gradient(90deg, #00eaff, #00b8ff);
-  color: black;
-  font-weight: bold;
-  box-shadow: 0 0 15px #00eaff;
-}
-
-.modal-buttons button:last-child {
-  background: rgba(255,255,255,0.2);
-  color: #fff;
-  box-shadow: none;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0 }
-  to { opacity: 1 }
-}
-
-@keyframes popIn {
-  from { transform: scale(.8); opacity:0 }
-  to { transform: scale(1); opacity:1 }
-}
-  
 </style>
 </head>
 <body>
@@ -407,402 +133,230 @@ select, select option {
 <div class="bi-border"></div>
 
 <div class="ui-layer">
-  <!-- 左 -->
+  
+  <!-- LEFT -->
   <div class="left-block">
-    <select class="left-select" data-side="left">
-      <option>BayBlade A</option>
-      <option>BayBlade B</option>
-      <option>BayBlade C</option>
-    </select>
+    <select class="blade-select" data-side="left"></select>
     <div class="frame-container left-frames">
-      <div class="frame blue"></div>
-      <div class="frame blue"></div>
-      <div class="frame blue"></div>
-      <div class="frame blue"></div>
+      <div class="frame blue"></div><div class="frame blue"></div><div class="frame blue"></div><div class="frame blue"></div>
     </div>
     <div class="score-container left-score-container">
       <div class="score" id="score-left">0</div>
-      <div class="blader-name" contenteditable="true" id="left-blader">BLADER A</div>
+      <div class="blader-name" id="left-blader" contenteditable>BLADER A</div>
     </div>
   </div>
-  <!-- バトルカウント -->
+
+  <!-- CENTER -->
   <div class="center-block">
     <div class="center-battle">Battle</div>
     <div class="center-rank" id="center-rank">1st</div>
   </div>
-  <!-- 右 -->
+
+  <!-- RIGHT -->
   <div class="right-block">
-    <select class="right-select" data-side="right">
-      <option>BayBlade A</option>
-      <option>BayBlade B</option>
-      <option>BayBlade C</option>
-    </select>
+    <select class="blade-select" data-side="right"></select>
     <div class="frame-container right-frames">
-      <div class="frame pink"></div>
-      <div class="frame pink"></div>
-      <div class="frame pink"></div>
-      <div class="frame pink"></div>
+      <div class="frame pink"></div><div class="frame pink"></div><div class="frame pink"></div><div class="frame pink"></div>
     </div>
     <div class="score-container right-score-container">
-      <div class="blader-name" contenteditable="true" id="right-blader">BLADER B</div>
+      <div class="blader-name" id="right-blader" contenteditable>BLADER B</div>
       <div class="score" id="score-right">0</div>
     </div>
   </div>
 </div>
-<!-- デッキ編集モーダル -->
-<div id="deckModal" class="modal-overlay" style="display:none;">
+
+<!-- Deck Modal -->
+<div id="deckModal" class="modal-overlay">
   <div id="deckModalContent" class="modal-content">
-      <!-- デッキ編集UI -->
-      <button id="saveDeckBtn" class="modal-save-btn">保存</button>
+    <h2>デッキ編集</h2>
+    <input class="deck-input" id="deck1">
+    <input class="deck-input" id="deck2">
+    <input class="deck-input" id="deck3">
+    <button id="saveDeckBtn" class="modal-save-btn">Save</button>
   </div>
 </div>
-  
+
 <script>
-// カメラ取得（任意）
-navigator.mediaDevices?.getUserMedia?.({ video:{ facingMode:'environment' }, audio:false })
-  .then(s => document.getElementById('camera').srcObject = s)
-  .catch(e => console.warn('カメラ取得失敗:', e));
+/* ==== カメラ ==== */
+navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
+  .then(s=>camera.srcObject=s);
 
+/* ==== 初期デッキ ==== */
+let leftDeck = ["BayBlade A","BayBlade B","BayBlade C"];
+let rightDeck = ["BayBlade A","BayBlade B","BayBlade C"];
+let scoreChangePending = false;
 
-const leftBlock = document.querySelector('.left-block');
-const rightBlock = document.querySelector('.right-block');
-const centerRank = document.getElementById('center-rank');
-const ranks = ["1st","2nd","3rd","4th","5th","6th","7th"];
-let currentRankIndex = 0;
-let rankCanAdvance = false;
+function setSelectOptions(select){
+  select.innerHTML = "";
+  const deck = select.dataset.side === "left" ? leftDeck : rightDeck;
 
-// ランク表示を更新
-function updateRank(){
-  centerRank.textContent = ranks[currentRankIndex];
-}
-
-// タップで1つ進める
-centerRank.addEventListener("click", () => {
-  currentRankIndex = (currentRankIndex + 1) % ranks.length;
-  updateRank();
-});
-
-// 長押しで1つ戻す
-let pressTimer;
-centerRank.addEventListener("mousedown", () => {
-  pressTimer = setTimeout(() => {
-    currentRankIndex = (currentRankIndex - 1 + ranks.length) % ranks.length;
-    updateRank();
-  }, 500); // 0.5秒以上押したら
-});
-
-centerRank.addEventListener("mouseup", () => clearTimeout(pressTimer));
-centerRank.addEventListener("mouseleave", () => clearTimeout(pressTimer));
-
-// スマホタッチ対応
-centerRank.addEventListener("touchstart", () => {
-  pressTimer = setTimeout(() => {
-    currentRankIndex = (currentRankIndex - 1 + ranks.length) % ranks.length;
-    updateRank();
-  }, 500);
-});
-
-centerRank.addEventListener("touchend", () => clearTimeout(pressTimer));
-centerRank.addEventListener("touchcancel", () => clearTimeout(pressTimer));
-
-updateRank();
-
-// HUD 追加/削除処理
-function handleFrameTap(container, tappedFrame){
-  const hudsInFrame = tappedFrame.querySelectorAll('.hud-ring');
-  const frames = Array.from(container.querySelectorAll('.frame'));
-
-  if(hudsInFrame.length > 0){
-    // 全フレームからHUDを収集し、下→上で並べて一番下を消す
-    const allHUDs = Array.from(container.querySelectorAll('.hud-ring'));
-    const hudToRemove = allHUDs.sort((a,b)=>b.parentElement.offsetTop - a.parentElement.offsetTop)[0];
-    hudToRemove.remove();
-    updateScore(container);
-    return;
-  } else {
-    // HUD 追加: 上の frame から順に1つだけ
-    const nextFrame = frames.find(f => f.querySelectorAll('.hud-ring').length === 0);
-    if(!nextFrame) return;
-
-    const img = document.createElement('img');
-    img.className = 'hud-ring';
-    img.src = container.classList.contains('right-block') ? 'HudLing-pink.png' : 'HudLing.png';
-    img.style.cssText = 'position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%, -50%);pointer-events:none;';
-    nextFrame.appendChild(img);
-
-    updateScore(container);
-
-    rankCanAdvance = true;
-  }
-}
-  
-// スコア更新
-function updateScore(container){
-  const count = container.querySelectorAll('.hud-ring').length;
-  const scoreEl = container.querySelector('.score');
-  if(scoreEl) scoreEl.textContent = count;
-
-  if(count === 4){
-    const bladerNameEl = container.querySelector('.blader-name');
-    const bladerName = bladerNameEl ? bladerNameEl.textContent : 'BLADER';
-    showFinishEffect(bladerName);
-  }
-}
-
-// 完了演出
-function showFinishEffect(bladerName){
-  const div = document.createElement('div');
-  div.className = 'win-overlay';
-  div.textContent = `${bladerName}\nWIN‼︎`;
-  document.body.appendChild(div);
-  setTimeout(()=>div.remove(), 2000);
-}
-
-// フレームタップ登録
-[leftBlock, rightBlock].forEach(block=>{
-  const frames = block.querySelectorAll('.frame');
-  frames.forEach(frame=>{
-    frame.addEventListener('click', e=>{
-      e.stopPropagation();
-      handleFrameTap(block, frame);
-    });
+  deck.forEach(v=>{
+    const o=document.createElement("option");
+    o.textContent=v;
+    select.appendChild(o);
   });
-});
 
-// 選択ボックス変更で rank 更新（HUD 増加直後のみ）
-[leftBlock, rightBlock].forEach(block=>{
-  const select = block.querySelector('select');
-  select.addEventListener('change', ()=>{
-    if(rankCanAdvance){
-      currentRankIndex = (currentRankIndex + 1) % ranks.length;
-      centerRank.textContent = ranks[currentRankIndex];
-      rankCanAdvance = false;
+  select.append(new Option("-"), new Option("デッキ編集"));
+  select.value = "-";
+}
+
+document.querySelectorAll(".blade-select").forEach(setSelectOptions);
+
+/* ==== デッキ編集 ==== */
+const deckModal=document.getElementById("deckModal");
+let currentSelect=null;
+
+document.querySelectorAll(".blade-select").forEach(sel=>{
+  sel.addEventListener("change",e=>{
+    const v=e.target.value;
+    
+    // ✅ スコア後の最初の選択変更なら rank を1つ進める
+    if(scoreChangePending && v !== "デッキ編集" && v !== "-"){
+      scoreChangePending = false; // 1回だけ
+      r = (r + 1) % ranks.length;
+      centerRank.textContent = ranks[r];
+    }
+    
+    if(v === "デッキ編集"){
+      currentSelect = e.target;
+      deckModal.style.display = "flex";
+
+      const modal = document.getElementById("deckModalContent");
+      const saveBtn = document.getElementById("saveDeckBtn");
+
+      // ✅ 選択ボックスのボーダーカラーを取得
+      const borderColor = window.getComputedStyle(currentSelect).borderColor;
+
+      // ✅ モーダル枠の色適用
+      modal.style.borderColor = borderColor;
+
+      // ✅ 保存ボタンに色を反映
+      saveBtn.style.borderColor = borderColor;
+      saveBtn.style.color = "#ffffff"; 
+      saveBtn.style.backgroundColor = borderColor; // ← 追加
+
+      // ✅ 入力欄に色を反映
+      const inputs = [deck1, deck2, deck3];
+      inputs.forEach((inp,i)=>{
+        inp.value = currentSelect.options[i]?.text || "";
+        inp.style.borderColor = borderColor;
+      });
+    }
+    if(v==="-"){
+      e.target.selectedIndex=0;
     }
   });
 });
 
-// 初期スコア
-updateScore(leftBlock);
-updateScore(rightBlock);
-
-
-const modal = document.getElementById("deckModal");
-const deckInputs = [document.getElementById("deck1"), document.getElementById("deck2"), document.getElementById("deck3")];
-
-let currentDeckSelect = null; // 編集対象select
-
-function openDeckEdit(select) {
-  currentDeckSelect = select;
-
-  const options = [...select.options].slice(0,3).map(o=>o.text);
-  deckInputs.forEach((input, i)=> input.value = options[i] || "");
-
-  modal.classList.remove("hidden");
-}
-
-document.getElementById("cancel-edit").onclick = () => {
-  modal.classList.add("hidden");
-};
-
-document.getElementById("saveDeckBtn").onclick = () => {
-  const newDecks = deckInputs.map(i=>i.value.trim() || "デッキ");
-
-  // セレクト内容更新
-  currentDeckSelect.innerHTML = `
-    <option>${newDecks[0]}</option>
-    <option>${newDecks[1]}</option>
-    <option>${newDecks[2]}</option>
-    <option>デッキ編集</option>
-    <option>-</option>
-  `;
-
-  // 最初のデッキにセット
-  currentDeckSelect.value = newDecks[0];
-
-  modal.classList.add("hidden");
-
-  // リセット適用
-  resetBattleState();
-};
-
-document.getElementById("deckModal").addEventListener("click", (e) => {
-  if(e.target.id === "deckModal"){ 
-    e.target.style.display = "none";
-  }
-});
-
-function addDeckEditOption(select){
-  const edit = document.createElement("option");
-  edit.textContent = "デッキ編集";
-
-  const dash = document.createElement("option");
-  dash.textContent = "-";
-
-  select.appendChild(edit);
-  select.appendChild(dash);
-}
-
-function bladeSelectChanged(e){
-  const select = e.target;
-
-  if(select.value === "デッキ編集"){
-    currentDeckSelect = select; // 編集対象保存
-    document.getElementById("deckModal").style.display = "flex"; // モーダル表示
-    return;
-  }
-
-  if(select.value === "-"){
-    select.selectedIndex = 0; // "-"は選択させない
-    return;
-  }
-
-  resetBattleState();
-}
-
-// ---- デッキ編集モーダル制御 ----
-function openDeckModal(side) {
-  const modal = document.getElementById("deckModal");
-  modal.style.display = "flex";
-
-  const title = document.getElementById("deck-modal-title");
-  const inputs = document.querySelectorAll(".deck-input");
-  const saveBtn = document.getElementById("deck-save-btn");
-
-  title.textContent = side === "right" ? "Right Deck Edit" : "Left Deck Edit";
-
-  // 色切り替え（左=青系 右=ピンク）
-  if (side === "right") {
-    modal.querySelector(".modal-box").style.borderColor = "#ff66cc";
-    saveBtn.style.background = "#ff66cc";
-  } else {
-    modal.querySelector(".modal-box").style.borderColor = "#00c8ff";
-    saveBtn.style.background = "#00c8ff";
-  }
-
-  // 現在の3つのデッキ名を取得
-  const select = document.querySelector(`.${side}-block select`);
-  const base = [...select.options].slice(0, 3).map(o => o.text);
-
-  inputs[0].value = base[0];
-  inputs[1].value = base[1];
-  inputs[2].value = base[2];
-
-  saveBtn.onclick = () => saveDeckNames(side);
-}
-
-// 保存処理
-function saveDeckNames(side) {
-  const select = document.querySelector(`.${side}-block select`);
-  const inputs = document.querySelectorAll(".deck-input");
-  const newDecks = [...inputs].map(i => i.value || "-");
-
-  // セレクトを更新
-  select.innerHTML = `
-    <option>${newDecks[0]}</option>
-    <option>${newDecks[1]}</option>
-    <option>${newDecks[2]}</option>
-    <option>デッキ編集</option>
-    <option>-</option>
-  `;
-  select.selectedIndex = 0;
-
-  closeDeckModal();
-  resetBattleState();
-}
-
-function closeDeckModal() {
-  document.getElementById("deck-modal").style.display = "none";
-}
-
-
-// ---- セレクト初期化 ----
-document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
-  addDeckEditOption(select);
-  select.addEventListener("change", bladeSelectChanged);
-
-  // 既存の3つを保持
-  const baseOptions = [...select.options].slice(0, 3).map(o => o.text);
-
-  // セレクト再構築
-  select.innerHTML = `
-    <option>${baseOptions[0]}</option>
-    <option>${baseOptions[1]}</option>
-    <option>${baseOptions[2]}</option>
-    <option>デッキ編集</option>
-    <option>-</option>
-  `;
-
-  select.addEventListener("change", e => {
-    if (e.target.value === "デッキ編集") {
-      const side = select.classList.contains("right-select") ? "right" : "left";
-      openDeckModal(side);
-    } else if (e.target.value === "-") {
-      e.target.selectedIndex = 0; // "-"に戻らない
-    } else {
-      resetBattleState(); // デッキ変更 → バトルリセット
-    }
-  });
-});
+saveDeckBtn.onclick=()=>{
+  const deckValues = [deck1.value||"デッキ", deck2.value||"デッキ", deck3.value||"デッキ"];
   
+  if(currentSelect.dataset.side === "left"){
+    leftDeck = deckValues;
+  } else {
+    rightDeck = deckValues;
+  }
+  document.querySelectorAll(".blade-select").forEach(setSelectOptions);
+  currentSelect.value = "-";
+  deckModal.style.display="none";
+  resetBattleState();
+};
 
 
 
-// バトル状態リセット
 function resetBattleState() {
-  // HUD削除 & スコアリセット
-  document.querySelectorAll('.hud-ring').forEach(el => el.remove());
-  document.getElementById("score-left").textContent = 0;
-  document.getElementById("score-right").textContent = 0;
+  // スコアリセット
+  document.getElementById("score-left").textContent = "0";
+  document.getElementById("score-right").textContent = "0";
 
-  currentRankIndex = 0;
-  updateRank();
+  // HUD削除
+  document.querySelectorAll(".hud-ring").forEach(h => h.remove());
+
+  // ランクを1stにリセット
+  r = 0;
+  centerRank.textContent = ranks[r];
 }
 
-  
-function saveDeckPresets(select){
-  const side = select.dataset.side;
-  const decks = Array.from(select.options).slice(0,-2).map(o => o.textContent);
-  localStorage.setItem(`decks_${side}`, JSON.stringify(decks));
-}
-
-function loadDeckPresets(select){
-  const side = select.dataset.side;
-  const stored = JSON.parse(localStorage.getItem(`decks_${side}`) || "[]");
-  if(stored.length > 0){
-    // "-"と編集だけ残して全削除
-    const reserved = Array.from(select.options).slice(-2);
-    select.innerHTML = "";
-    stored.forEach(t=>{
-      const opt = document.createElement("option");
-      opt.textContent = t;
-      select.appendChild(opt);
-    });
-    reserved.forEach(o=>select.appendChild(o));
+/* ==== HUD & SCORE ==== */
+function updateScore(container){
+  const count=container.querySelectorAll(".hud-ring").length;
+  container.querySelector(".score").textContent=count;
+  if(count===4){
+    const name=container.querySelector(".blader-name").textContent;
+    const div=document.createElement("div");
+    div.className="win-overlay"; div.textContent=`${name}\nWIN‼︎`;
+    document.body.append(div); setTimeout(()=>div.remove(),2000);
+    
   }
+  scoreChangePending = true;
 }
 
-// 初期ロード時に2つのセレクトへ追加
-const leftSelect = document.querySelector(".left-select");
-const rightSelect = document.querySelector(".right-select");
-addDeckEditOption(leftSelect);
-addDeckEditOption(rightSelect);
+function handleFrameTap(block,frame){
+  const isRemove = frame.querySelector(".hud-ring");
+  if(isRemove){
+    const huds=[...block.querySelectorAll(".hud-ring")];
+    huds.sort((a,b)=>b.parentElement.offsetTop-a.parentElement.offsetTop)[0].remove();
+  }else{
+    const empty=[...block.querySelectorAll(".frame")].find(f=>!f.querySelector(".hud-ring"));
+    if(!empty) return;
+    const img=document.createElement("img");
+    img.className="hud-ring";
+    img.src=block.classList.contains("right-block")?"HudLing-pink.png":"HudLing.png";
+    empty.append(img);
+  }
+  updateScore(block);
+}
 
-// セレクト変更時の処理
-leftSelect.addEventListener("change", bladeSelectChanged);
-rightSelect.addEventListener("change", bladeSelectChanged);
-// 初期化
-document.querySelectorAll('.left-select, .right-select').forEach(select => {
-  // デッキ編集と - を追加
-  addDeckEditOption(sel);
-  sel.addEventListener("change", bladeSelectChanged);
+document.querySelectorAll(".left-block .frame, .right-block .frame").forEach(f=>{
+  f.onclick=e=>handleFrameTap(f.closest(".left-block, .right-block"),f);
 });
-// ページ読み込み時に編集項目追加
-addDeckEditOption(document.querySelector(".left-select"));
-addDeckEditOption(document.querySelector(".right-select"));
 
-// 選択変更時のイベント付与
-document.querySelector(".left-select").addEventListener("change", bladeSelectChanged);
-document.querySelector(".right-select").addEventListener("change", bladeSelectChanged);
+/* ==== ランク ==== */
+const ranks=["1st","2nd","3rd","4th","5th","6th","7th"];
+let r=0;
+const centerRank=document.getElementById("center-rank");
+
+centerRank.onclick = () => {
+  const leftScore = parseInt(document.getElementById("score-left").textContent);
+  const rightScore = parseInt(document.getElementById("score-right").textContent);
+  
+  let rankPressTimer = null;
+    
+  // 長押し判定開始
+  centerRank.addEventListener("mousedown", () => {
+    rankPressTimer = setTimeout(() => {
+      if(r > 0){ // 1st以下には戻さない
+        r = r - 1; // 1つ戻す
+        centerRank.textContent = ranks[r];
+      }
+    }, 500); // 500ms以上で発火
+  });
+
+  // 長押し解除
+  centerRank.addEventListener("mouseup", () => clearTimeout(rankPressTimer));
+  centerRank.addEventListener("mouseleave", () => clearTimeout(rankPressTimer));
+
+  // 条件：どちらかが4点
+  if(leftScore === 4 || rightScore === 4){
+    if(confirm("クリアしますか？")){
+      // HUD削除
+      document.querySelectorAll(".hud-ring").forEach(h=>h.remove());
+
+      // スコアリセット
+      document.getElementById("score-left").textContent = "0";
+      document.getElementById("score-right").textContent = "0";
+
+      // Rank を1stに戻す
+      r = 0;
+      centerRank.textContent = ranks[r];
+    }
+    return; // 以降 rank変更処理は行わない
+  }
+
+  // 通常の rank 進め処理
+  r = (r + 1) % ranks.length;
+  centerRank.textContent = ranks[r];
+};
 </script>
 </body>
 </html>

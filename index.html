@@ -43,15 +43,32 @@ select,select option {font-family:'CyberFont'!important;letter-spacing:1px;}
 
 /* ==== フレーム ==== */
 .frame-container{display:flex;flex-direction:column;gap:0;}
+
 .frame{
-  width:60px;height:10vh;border:2px solid;position:relative;pointer-events:auto;
-  background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  width:60px;
+  height:10vh;
+  border:2px solid;
+  position:relative;
+  overflow: hidden;
+  pointer-events:auto;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(4px);
   box-shadow:0 0 15px,inset 0 0 30px;
 }
+
 .frame.blue{border-color:#aaffff;box-shadow:0 0 15px #aaffff,inset 0 0 30px #aaffff;}
 .frame.pink{border-color:#ffaaaa;box-shadow:0 0 15px #ffaaaa,inset 0 0 30px #ffaaaa;}
 
-.hud-ring{position:absolute;top:50%;left:50%;width:80px;height:80px;transform:translate(-50%,-50%);animation:hudSpin 3s linear infinite;pointer-events:none;}
+.hud-ring{
+position:absolute;
+top:50%;
+left:50%;
+width:70px;
+height:70px;
+transform:translate(-50%,-50%);
+animation:hudSpin 3s linear infinite;
+pointer-events:none;
+}
 @keyframes hudSpin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 
 /* ==== スコア ==== */
@@ -201,30 +218,13 @@ color: #000 !important;
 <script>
 /* ==== カメラ + マイク ==== */
 navigator.mediaDevices.getUserMedia({
-  video: { facingMode: "environment" }, // 背面カメラ
-  audio: true                            // マイクも有効
+  video: { facingMode: "environment" } // 背面カメラのみ
 })
 .then(stream => {
   const video = document.getElementById("camera");
   video.srcObject = stream;
-
-  // マイク音声の利用例（音量解析など）
-  const audioContext = new AudioContext();
-  const source = audioContext.createMediaStreamSource(stream);
-  const analyser = audioContext.createAnalyser();
-  source.connect(analyser);
-
-  // 簡易音量計算
-  const dataArray = new Uint8Array(analyser.frequencyBinCount);
-  function checkVolume() {
-    analyser.getByteFrequencyData(dataArray);
-    const volume = dataArray.reduce((a,b)=>a+b,0)/dataArray.length;
-    // 例えば音量が一定以上でHUDを追加するなどの処理も可能
-    requestAnimationFrame(checkVolume);
-  }
-  checkVolume();
 })
-.catch(err => console.error("カメラ・マイク起動失敗:", err));
+.catch(err => console.error("カメラ起動失敗:", err));
 
 /* ==== 初期デッキ ==== */
 let leftDeck = ["BayBlade A","BayBlade B","BayBlade C"];

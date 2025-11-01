@@ -678,35 +678,24 @@ function openDeckModal(side) {
   
   
 // 初期化
-document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
-
+document.querySelectorAll('.left-select, .right-select').forEach(select => {
+  // デッキ編集と - を追加
   addDeckEditOption(select);
-  // 元の3デッキ名を保持
-  const baseOptions = [...select.options].slice(0, 3).map(o => o.text);
 
-  // セレクト内容を作り直す
-  select.innerHTML = `
-    <option>${baseOptions[0]}</option>
-    <option>${baseOptions[1]}</option>
-    <option>${baseOptions[2]}</option>
-    <option>デッキ編集</option>
-    <option>-</option>
-  `;
-
-  // 変更時の処理
-  select.addEventListener("change", e => {
-    if (e.target.value === "デッキ編集") {
-      const side = select.classList.contains("right-select") ? "right" : "left";
-      openDeckModal(side);
-    } else if (e.target.value === "-") {
-      // "-" を選んだら元に戻す
-      e.target.selectedIndex = 0;
-    } else {
-      // デッキ変更したら戦闘状態リセット
-      resetBattleState();
-    }
-  });
+  // 選択時の処理
+  select.addEventListener("change", bladeSelectChanged);
 });
+
+
+// バトル状態リセット
+function resetBattleState() {
+  document.querySelectorAll('.hud-ring').forEach(el => el.remove());
+  document.getElementById("score-left").textContent = 0;
+  document.getElementById("score-right").textContent = 0;
+  currentRankIndex = 0;
+  updateRank();
+}
+
   
 function saveDeckPresets(select){
   const side = select.dataset.side;

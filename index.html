@@ -364,25 +364,16 @@ select, select option {
     </div>
   </div>
 </div>
-<!-- Deck Edit Modal -->
-<div id="deckEditModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h2>デッキ編集</h2>
-    
-    <label>1st</label>
-    <input type="text" id="deckInput1">
-
-    <label>2nd</label>
-    <input type="text" id="deckInput2">
-
-    <label>3rd</label>
-    <input type="text" id="deckInput3">
-
-    <div class="modal-buttons">
-      <button id="deckSave">保存</button>
-      <button id="deckCancel">キャンセル</button>
-    </div>
-  </div>
+<div id="deckModal" style="
+position:fixed; inset:0; background:rgba(0,0,0,.7);
+display:flex; flex-direction:column; justify-content:center; align-items:center;
+gap:10px; padding:20px; z-index:9999; display:none;
+">
+  <div style="color:white;font-size:1.2rem;">デッキ名を3つ入力</div>
+  <input id="deck1" placeholder="1つ目">
+  <input id="deck2" placeholder="2つ目">
+  <input id="deck3" placeholder="3つ目">
+  <button id="deckSave">保存</button>
 </div>
 <script>
 // カメラ取得（任意）
@@ -518,63 +509,75 @@ let deck1 = "";
 let deck2 = "";
 let deck3 = "";
 
-// セレクトに「デッキ編集」を追加する処理（生成時）
-function addDeckEditOption(select) {
-  const divider = document.createElement("option");
-  divider.disabled = true;
-  divider.textContent = "――――――――";
-  
-  const edit = document.createElement("option");
-  edit.value = "deck-edit";
-  edit.textContent = "デッキ編集";
+// セレクトに "-" と "デッキ編集" 追加
+function addDeckEditOption(select){
+  const dash = document.createElement('option');
+  dash.value = "--dash--";
+  dash.textContent = "-";
+  select.appendChild(dash);
 
-  select.appendChild(divider);
+  const edit = document.createElement('option');
+  edit.value = "--edit--";
+  edit.textContent = "デッキ編集";
   select.appendChild(edit);
 }
 
-// セレクト変更イベント
-function bladeSelectChanged(e) {
+// 編集対象セレクト保持
+let editingSelect = null;
+
+// 選択した時の処理
+function bladeSelectChanged(e){
   const select = e.target;
-  const val = select.value;
+  if(select.value === "--edit--"){
+    editingSelect = select;
 
-  if (val === "deck-edit") {
-    // もとに戻してモーダルへ
-    select.value = select.dataset.prev || "";
+    // 現在の3つのプリセット取得
+    const options = [...select.options];
+    const presets = options.slice(0, 3).map(o=>o.textContent);
 
-    currentDeckSelect = select;
+    document.getElementById("deck1").value = presets[0] || "";
+    document.getElementById("deck2").value = presets[1] || "";
+    document.getElementById("deck3").value = presets[2] || "";
 
-    // 現在のデッキ名読み込み
-    deck1 = select.dataset.deck1 || "";
-    deck2 = select.dataset.deck2 || "";
-    deck3 = select.dataset.deck3 || "";
+    document.getElementById("deckModal").style.display = "flex";
+    select.value = presets[0]; // とりあえず戻す
+  }
+}
 
-    document.getElementById("deckInput1").value = deck1;
-    document.getElementById("deckInput2").value = deck2;
-    document.getElementById("deckInput3").value = deck3;
+// 保存処理
+document.getElementById("deckSave").addEventListener("click", ()=>{
+  if(!editingSelect) return;
 
-    document.getElementById("deckEditModal").style.display = "flex";
+  const d1 = document.getElementById("deck1").value.trim();
+  const d2 = document.getElementById("deck2").value.trim();
+  const d3 = document.getElementById("deck3").value.trim();
+
+  if(!d1 || !d2 || !d3){
+    alert("3つ全て入力してね");
     return;
   }
 
-  // 通常の処理
-  select.dataset.prev = val;
-}
+  // 一旦全options取得
+  const opts = [...editingSelect.options];
 
-// 保存
-document.getElementById("deckSave").onclick = () => {
-  const m = document.getElementById("deckEditModal");
+  // 一番下2つ（- と デッキ編集）を保持
+  const reserved = opts.slice(-2);
 
-  currentDeckSelect.dataset.deck1 = document.getElementById("deckInput1").value;
-  currentDeckSelect.dataset.deck2 = document.getElementById("deckInput2").value;
-  currentDeckSelect.dataset.deck3 = document.getElementById("deckInput3").value;
+  // セレクト初期化（元のプリセットは全削除）
+  editingSelect.innerHTML = "";
 
-  m.style.display = "none";
-};
+  // 新しい3つ追加
+  [d1, d2, d3].forEach(txt=>{
+    const opt = document.createElement("option");
+    opt.textContent = txt;
+    editingSelect.appendChild(opt);
+  });
 
-// キャンセル
-document.getElementById("deckCancel").onclick = () => {
-  document.getElementById("deckEditModal").style.display = "none";
-};
+  // "-" と "デッキ編集" を戻す
+  reserved.forEach(o=>editingSelect.appendChild(o));
+
+  document.getElementById("deckModal").style.display = "none";
+});
 
 // セレクト要素に「デッキ編集」を追加
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {

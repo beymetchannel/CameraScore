@@ -586,7 +586,7 @@ updateScore(leftBlock);
 updateScore(rightBlock);
 
 
-const modal = document.getElementById("edit-modal");
+const modal = document.getElementById("deckModal");
 const deckInputs = [document.getElementById("deck1"), document.getElementById("deck2"), document.getElementById("deck3")];
 
 let currentDeckSelect = null; // 編集対象select
@@ -604,7 +604,7 @@ document.getElementById("cancel-edit").onclick = () => {
   modal.classList.add("hidden");
 };
 
-document.getElementById("save-deck").onclick = () => {
+document.getElementById("saveDeckBtn").onclick = () => {
   const newDecks = deckInputs.map(i=>i.value.trim() || "デッキ");
 
   // セレクト内容更新
@@ -793,6 +793,13 @@ document.querySelectorAll('.left-select, .right-select').forEach(select => {
   addDeckEditOption(sel);
   sel.addEventListener("change", bladeSelectChanged);
 });
+// ページ読み込み時に編集項目追加
+addDeckEditOption(document.querySelector(".left-select"));
+addDeckEditOption(document.querySelector(".right-select"));
+
+// 選択変更時のイベント付与
+document.querySelector(".left-select").addEventListener("change", bladeSelectChanged);
+document.querySelector(".right-select").addEventListener("change", bladeSelectChanged);
 </script>
 </body>
 </html>

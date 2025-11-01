@@ -509,7 +509,7 @@ let deck1 = "";
 let deck2 = "";
 let deck3 = "";
 
-// セレクトに "-" と "デッキ編集" 追加
+// セレクトに "-" と "デッキ編集" を追加する関数
 function addDeckEditOption(select){
   const dash = document.createElement('option');
   dash.value = "--dash--";
@@ -522,16 +522,15 @@ function addDeckEditOption(select){
   select.appendChild(edit);
 }
 
-// 編集対象セレクト保持
+// 編集中のセレクト保持
 let editingSelect = null;
 
-// 選択した時の処理
+// セレクト変更時の動作
 function bladeSelectChanged(e){
   const select = e.target;
   if(select.value === "--edit--"){
     editingSelect = select;
 
-    // 現在の3つのプリセット取得
     const options = [...select.options];
     const presets = options.slice(0, 3).map(o=>o.textContent);
 
@@ -540,11 +539,11 @@ function bladeSelectChanged(e){
     document.getElementById("deck3").value = presets[2] || "";
 
     document.getElementById("deckModal").style.display = "flex";
-    select.value = presets[0]; // とりあえず戻す
+    select.value = presets[0];
   }
 }
 
-// 保存処理
+// 保存ボタン
 document.getElementById("deckSave").addEventListener("click", ()=>{
   if(!editingSelect) return;
 
@@ -557,33 +556,59 @@ document.getElementById("deckSave").addEventListener("click", ()=>{
     return;
   }
 
-  // 一旦全options取得
   const opts = [...editingSelect.options];
-
-  // 一番下2つ（- と デッキ編集）を保持
   const reserved = opts.slice(-2);
 
-  // セレクト初期化（元のプリセットは全削除）
   editingSelect.innerHTML = "";
 
-  // 新しい3つ追加
   [d1, d2, d3].forEach(txt=>{
     const opt = document.createElement("option");
     opt.textContent = txt;
     editingSelect.appendChild(opt);
   });
 
-  // "-" と "デッキ編集" を戻す
   reserved.forEach(o=>editingSelect.appendChild(o));
+
+  saveDeckPresets(editingSelect); // ←追加！
 
   document.getElementById("deckModal").style.display = "none";
 });
 
-// セレクト要素に「デッキ編集」を追加
+// 保存
+function saveDeckPresets(select){
+  const side = select.dataset.side;
+  const decks = Array.from(select.options).slice(0,-2).map(o => o.textContent);
+  localStorage.setItem(`decks_${side}`, JSON.stringify(decks));
+}
+
+// 読み込み
+function loadDeckPresets(select){
+  const side = select.dataset.side;
+  const stored = JSON.parse(localStorage.getItem(`decks_${side}`) || "[]");
+  if(stored.length > 0){
+    const reserved = Array.from(select.options).slice(-2);
+    select.innerHTML = "";
+    stored.forEach(t=>{
+      const opt = document.createElement("option");
+      opt.textContent = t;
+      select.appendChild(opt);
+    });
+    reserved.forEach(o=>select.appendChild(o));
+  }
+}
+
+// 初期化処理（ここ重要）
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
+  // 最初のオプション3つだけ残して初期化
+  const opts = [...select.options].slice(0,3);
+  select.innerHTML = "";
+  opts.forEach(o=>select.appendChild(o));
+
+  addDeckEditOption(select);
   loadDeckPresets(select);
+  select.addEventListener("change", bladeSelectChanged);
 });
-  
+
 // モーダル外クリックで閉じる
 document.getElementById("deckModal").addEventListener("click", (e)=>{
   if(e.target.id === "deckModal"){

@@ -643,15 +643,16 @@ function addDeckEditOption(select){
 }
 
 function bladeSelectChanged(e){
-  const side = e.target.classList.contains("right-select") ? "right" : "left";
+  const select = e.target;
 
-  if(e.target.value === "デッキ編集"){
-    openDeckModal(side); // ← モーダルを呼ぶ
+  if(select.value === "デッキ編集"){
+    currentDeckSelect = select; // 編集対象保存
+    document.getElementById("deckModal").style.display = "flex"; // モーダル表示
     return;
   }
 
-  if(e.target.value === "-"){
-    e.target.selectedIndex = 0;
+  if(select.value === "-"){
+    select.selectedIndex = 0; // "-"は選択させない
     return;
   }
 
@@ -660,7 +661,7 @@ function bladeSelectChanged(e){
 
 // ---- デッキ編集モーダル制御 ----
 function openDeckModal(side) {
-  const modal = document.getElementById("deck-modal");
+  const modal = document.getElementById("deckModal");
   modal.style.display = "flex";
 
   const title = document.getElementById("deck-modal-title");
@@ -716,6 +717,8 @@ function closeDeckModal() {
 
 // ---- セレクト初期化 ----
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
+  addDeckEditOption(select);
+  select.addEventListener("change", bladeSelectChanged);
 
   // 既存の3つを保持
   const baseOptions = [...select.options].slice(0, 3).map(o => o.text);

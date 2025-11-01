@@ -369,11 +369,11 @@ position:fixed; inset:0; background:rgba(0,0,0,.7);
 display:flex; flex-direction:column; justify-content:center; align-items:center;
 gap:10px; padding:20px; z-index:9999; display:none;
 ">
-  <div style="color:white;font-size:1.2rem;">デッキ名を3つ入力</div>
-  <input id="deck1" placeholder="1つ目">
-  <input id="deck2" placeholder="2つ目">
-  <input id="deck3" placeholder="3つ目">
-  <button id="deckSave">保存</button>
+  <div style="color:white;font-size:1.2rem;">Deck Edit</div>
+  <input id="deck1" placeholder="BeyBlade A">
+  <input id="deck2" placeholder="BeyBlade B">
+  <input id="deck3" placeholder="BeyBlade C">
+  <button id="deckSave">Save</button>
 </div>
 <script>
 // カメラ取得（任意）
@@ -549,7 +549,7 @@ document.getElementById("deckSave").addEventListener("click", ()=>{
   const d3 = document.getElementById("deck3").value.trim();
 
   if(!d1 || !d2 || !d3){
-    alert("3つ全て入力してね");
+    alert("未入力項目があります");
     return;
   }
 

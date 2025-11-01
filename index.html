@@ -575,6 +575,12 @@ document.getElementById("deckSave").onclick = () => {
 document.getElementById("deckCancel").onclick = () => {
   document.getElementById("deckEditModal").style.display = "none";
 };
+
+// セレクト要素に「デッキ編集」を追加
+document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
+  addDeckEditOption(select);
+  select.addEventListener('change', bladeSelectChanged);
+});
   
 </script>
 </body>

@@ -658,24 +658,88 @@ function bladeSelectChanged(e){
   resetBattleState();
 }
 
+// ---- デッキ編集モーダル制御 ----
 function openDeckModal(side) {
-  const modal = document.getElementById("deckModal");
-  const modalContent = document.getElementById("deckModalContent");
-  const saveBtn = document.getElementById("saveDeckBtn");
-
+  const modal = document.getElementById("deck-modal");
   modal.style.display = "flex";
 
-  // 既存クラス削除
-  modalContent.classList.remove("right");
-  saveBtn.classList.remove("right");
+  const title = document.getElementById("deck-modal-title");
+  const inputs = document.querySelectorAll(".deck-input");
+  const saveBtn = document.getElementById("deck-save-btn");
 
-  // ★ 右側選択時のみピンク化
+  title.textContent = side === "right" ? "Right Deck Edit" : "Left Deck Edit";
+
+  // 色切り替え（左=青系 右=ピンク）
   if (side === "right") {
-    modalContent.classList.add("right");
-    saveBtn.classList.add("right");
+    modal.querySelector(".modal-box").style.borderColor = "#ff66cc";
+    saveBtn.style.background = "#ff66cc";
+  } else {
+    modal.querySelector(".modal-box").style.borderColor = "#00c8ff";
+    saveBtn.style.background = "#00c8ff";
   }
+
+  // 現在の3つのデッキ名を取得
+  const select = document.querySelector(`.${side}-block select`);
+  const base = [...select.options].slice(0, 3).map(o => o.text);
+
+  inputs[0].value = base[0];
+  inputs[1].value = base[1];
+  inputs[2].value = base[2];
+
+  saveBtn.onclick = () => saveDeckNames(side);
 }
-  
+
+// 保存処理
+function saveDeckNames(side) {
+  const select = document.querySelector(`.${side}-block select`);
+  const inputs = document.querySelectorAll(".deck-input");
+  const newDecks = [...inputs].map(i => i.value || "-");
+
+  // セレクトを更新
+  select.innerHTML = `
+    <option>${newDecks[0]}</option>
+    <option>${newDecks[1]}</option>
+    <option>${newDecks[2]}</option>
+    <option>デッキ編集</option>
+    <option>-</option>
+  `;
+  select.selectedIndex = 0;
+
+  closeDeckModal();
+  resetBattleState();
+}
+
+function closeDeckModal() {
+  document.getElementById("deck-modal").style.display = "none";
+}
+
+
+// ---- セレクト初期化 ----
+document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
+
+  // 既存の3つを保持
+  const baseOptions = [...select.options].slice(0, 3).map(o => o.text);
+
+  // セレクト再構築
+  select.innerHTML = `
+    <option>${baseOptions[0]}</option>
+    <option>${baseOptions[1]}</option>
+    <option>${baseOptions[2]}</option>
+    <option>デッキ編集</option>
+    <option>-</option>
+  `;
+
+  select.addEventListener("change", e => {
+    if (e.target.value === "デッキ編集") {
+      const side = select.classList.contains("right-select") ? "right" : "left";
+      openDeckModal(side);
+    } else if (e.target.value === "-") {
+      e.target.selectedIndex = 0; // "-"に戻らない
+    } else {
+      resetBattleState(); // デッキ変更 → バトルリセット
+    }
+  });
+});
   
 
 

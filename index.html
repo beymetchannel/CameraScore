@@ -595,13 +595,45 @@ document.getElementById("save-deck").onclick = () => {
   resetBattleState();
 };
 
+
+function addDeckEditOption(select){
+  const edit = document.createElement("option");
+  edit.textContent = "デッキ編集";
+
+  const dash = document.createElement("option");
+  dash.textContent = "-";
+
+  select.appendChild(edit);
+  select.appendChild(dash);
+}
+
+function bladeSelectChanged(e){
+  if(e.target.value === "デッキ編集"){
+    openDeckEdit(e.target);
+  } else if(e.target.value === "-"){
+    // "-" 選択時 → 戻すだけ
+    e.target.selectedIndex = 0;
+  } else {
+    // 通常デッキ切替 → リセット
+    resetBattleState();
+  }
+}
+  
+  
 // 初期化
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
-  const opts = [...select.options].slice(0,3);
+  // 既存3つ保持 + 「デッキ編集」「-」付与
+  const opts = [...select.options].slice(0,3).map(o=>o.textContent);
+  
   select.innerHTML = "";
-  opts.forEach(o=>select.appendChild(o));
+  opts.forEach(t=>{
+    const opt = document.createElement("option");
+    opt.textContent = t;
+    select.appendChild(opt);
+  });
 
   addDeckEditOption(select);
+  
   select.addEventListener("change", bladeSelectChanged);
 });
 

@@ -556,70 +556,44 @@ updateScore(leftBlock);
 updateScore(rightBlock);
 
 
-let currentDeckSelect = null;
-let deck1 = "";
-let deck2 = "";
-let deck3 = "";
+const modal = document.getElementById("edit-modal");
+const deckInputs = [document.getElementById("deck1"), document.getElementById("deck2"), document.getElementById("deck3")];
 
-// === デッキ編集関連 === 
+let currentDeckSelect = null; // 編集対象select
 
-let editingSelect = null;
+function openDeckEdit(select) {
+  currentDeckSelect = select;
 
-function addDeckEditOption(select){
-  const dash = document.createElement('option');
-  dash.value = "--dash--";
-  dash.textContent = "-";
-  select.appendChild(dash);
+  const options = [...select.options].slice(0,3).map(o=>o.text);
+  deckInputs.forEach((input, i)=> input.value = options[i] || "");
 
-  const edit = document.createElement('option');
-  edit.value = "--edit--";
-  edit.textContent = "デッキ編集";
-  select.appendChild(edit);
+  modal.classList.remove("hidden");
 }
 
-function bladeSelectChanged(e){
-  const select = e.target;
-  if(select.value === "--edit--"){
-    editingSelect = select;
-    const options = [...select.options];
-    const presets = options.slice(0, 3).map(o=>o.textContent);
+document.getElementById("cancel-edit").onclick = () => {
+  modal.classList.add("hidden");
+};
 
-    document.getElementById("deck1").value = presets[0] || "";
-    document.getElementById("deck2").value = presets[1] || "";
-    document.getElementById("deck3").value = presets[2] || "";
+document.getElementById("save-deck").onclick = () => {
+  const newDecks = deckInputs.map(i=>i.value.trim() || "デッキ");
 
-    document.getElementById("deckModal").style.display = "flex";
-    select.value = presets[0];
-  }
-}
+  // セレクト内容更新
+  currentDeckSelect.innerHTML = `
+    <option>${newDecks[0]}</option>
+    <option>${newDecks[1]}</option>
+    <option>${newDecks[2]}</option>
+    <option>デッキ編集</option>
+    <option>-</option>
+  `;
 
-document.getElementById("deckSave").addEventListener("click", ()=>{
-  if(!editingSelect) return;
+  // 最初のデッキにセット
+  currentDeckSelect.value = newDecks[0];
 
-  const d1 = document.getElementById("deck1").value.trim();
-  const d2 = document.getElementById("deck2").value.trim();
-  const d3 = document.getElementById("deck3").value.trim();
+  modal.classList.add("hidden");
 
-  if(!d1 || !d2 || !d3){
-    alert("未入力項目があります");
-    return;
-  }
-
-  // デッキ更新（ローカル保存しない版）
-  const opts = [...editingSelect.options];
-  const reserved = opts.slice(-2);
-
-  editingSelect.innerHTML = "";
-  [d1, d2, d3].forEach(txt=>{
-    const opt = document.createElement("option");
-    opt.textContent = txt;
-    editingSelect.appendChild(opt);
-  });
-
-  reserved.forEach(o=>editingSelect.appendChild(o));
-
-  document.getElementById("deckModal").style.display = "none";
-});
+  // リセット適用
+  resetBattleState();
+};
 
 // 初期化
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {

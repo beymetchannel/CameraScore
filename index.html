@@ -120,10 +120,32 @@ background:#FF33D4;
 color: #000 !important;
 }
 
-
-
 .deck-input.right {
   border-color: #FF33D4 !important;
+
+/* ==== HUD サイバーエフェクト ==== */
+.hud-ring.cyber-effect {
+  animation: hudGlitch 1s infinite alternate, hudSpin 3s linear infinite;
+}
+
+@keyframes hudGlitch {
+  0% { filter: drop-shadow(0 0 5px #0ff); opacity: 0.7; }
+  25% { filter: drop-shadow(0 0 20px #0ff); opacity: 1; }
+  50% { filter: drop-shadow(0 0 10px #0ff); opacity: 0.8; }
+  75% { filter: drop-shadow(0 0 25px #0ff); opacity: 1; }
+  100% { filter: drop-shadow(0 0 5px #0ff); opacity: 0.7; }
+}
+
+/* ==== スコア脈打ちエフェクト ==== */
+.score.pulse {
+  animation: scorePulse 1.5s infinite;
+}
+
+@keyframes scorePulse {
+  0% { transform: scale(1); color: #ffdd99; }
+  50% { transform: scale(1.1); color: #fff56e; }
+  100% { transform: scale(1); color: #ffdd99; }
+}
 
 </style>
 </head>
@@ -271,17 +293,24 @@ document.querySelectorAll(".blade-select").forEach(sel=>{
   });
 });
 
-saveDeckBtn.onclick=()=>{
-  const deckValues = [deck1.value||"デッキ", deck2.value||"デッキ", deck3.value||"デッキ"];
-  
+saveDeckBtn.onclick = () => {
+  const deckValues = [deck1.value.trim(), deck2.value.trim(), deck3.value.trim()];
+
+  // 未入力チェック
+  if(deckValues.some(v => v === "")) {
+    alert("未入力があります");
+    return; // 保存中止
+  }
+
   if(currentSelect.dataset.side === "left"){
     leftDeck = deckValues;
   } else {
     rightDeck = deckValues;
   }
+
   document.querySelectorAll(".blade-select").forEach(setSelectOptions);
   currentSelect.value = "-";
-  deckModal.style.display="none";
+  deckModal.style.display = "none";
   resetBattleState();
 };
 
@@ -302,29 +331,43 @@ function resetBattleState() {
 
 /* ==== HUD & SCORE ==== */
 function updateScore(container){
-  const count=container.querySelectorAll(".hud-ring").length;
-  container.querySelector(".score").textContent=count;
-  if(count===4){
-    const name=container.querySelector(".blader-name").textContent;
-    const div=document.createElement("div");
-    div.className="win-overlay"; div.textContent=`${name}\nWIN‼︎`;
-    document.body.append(div); setTimeout(()=>div.remove(),2000);
-    
+  const scoreEl = container.querySelector(".score");
+  const count = container.querySelectorAll(".hud-ring").length;
+
+  // スコア変動エフェクト
+  if(scoreEl.textContent != count){ // 前回と異なる場合
+    scoreEl.textContent = count;
+    scoreEl.style.transform = "scale(1.5)";
+    scoreEl.style.transition = "transform 0.3s";
+    setTimeout(() => {
+      scoreEl.style.transform = "scale(1)";
+    }, 50);
   }
-  scoreChangePending = true;
+
+  // WIN判定
+  if(count === 4){
+    const name = container.querySelector(".blader-name").textContent;
+    const div = document.createElement("div");
+    div.className = "win-overlay";
+    div.textContent = `${name}\nWIN‼︎`;
+    document.body.append(div);
+    setTimeout(() => div.remove(), 2000);
+  }
+
+  scoreChangePending = true; // rank用フラグ
 }
 
 function handleFrameTap(block,frame){
   const isRemove = frame.querySelector(".hud-ring");
   if(isRemove){
-    const huds=[...block.querySelectorAll(".hud-ring")];
-    huds.sort((a,b)=>b.parentElement.offsetTop-a.parentElement.offsetTop)[0].remove();
-  }else{
-    const empty=[...block.querySelectorAll(".frame")].find(f=>!f.querySelector(".hud-ring"));
+    const huds = [...block.querySelectorAll(".hud-ring")];
+    huds.sort((a,b)=>b.parentElement.offsetTop - a.parentElement.offsetTop)[0].remove();
+  } else {
+    const empty = [...block.querySelectorAll(".frame")].find(f => !f.querySelector(".hud-ring"));
     if(!empty) return;
-    const img=document.createElement("img");
-    img.className="hud-ring";
-    img.src=block.classList.contains("right-block")?"HudLing-pink.png":"HudLing.png";
+    const img = document.createElement("img");
+    img.className = "hud-ring cyber-effect";
+    img.src = block.classList.contains("right-block") ? "HudLing-pink.png" : "HudLing.png";
     empty.append(img);
   }
   updateScore(block);

@@ -669,22 +669,36 @@ function openDeckModal(side) {
   
   
 // 初期化
+// 初期化
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
-  // 既存3つ保持 + 「デッキ編集」「-」付与
-  const opts = [...select.options].slice(0,3).map(o=>o.textContent);
   
-  select.innerHTML = "";
-  opts.forEach(t=>{
-    const opt = document.createElement("option");
-    opt.textContent = t;
-    select.appendChild(opt);
+  // 元の3デッキ名を保持
+  const baseOptions = [...select.options].slice(0, 3).map(o => o.text);
+
+  // セレクト内容を作り直す
+  select.innerHTML = `
+    <option>${baseOptions[0]}</option>
+    <option>${baseOptions[1]}</option>
+    <option>${baseOptions[2]}</option>
+    <option>デッキ編集</option>
+    <option>-</option>
+  `;
+
+  // 変更時の処理
+  select.addEventListener("change", e => {
+    if (e.target.value === "デッキ編集") {
+      const side = select.classList.contains("right-select") ? "right" : "left";
+      openDeckModal(side);
+    } else if (e.target.value === "-") {
+      // "-" を選んだら元に戻す
+      e.target.selectedIndex = 0;
+    } else {
+      // デッキ変更したら戦闘状態リセット
+      resetBattleState();
+    }
   });
-
-  addDeckEditOption(select);
-  
-  select.addEventListener("change", bladeSelectChanged);
 });
-
+  
 function saveDeckPresets(select){
   const side = select.dataset.side;
   const decks = Array.from(select.options).slice(0,-2).map(o => o.textContent);

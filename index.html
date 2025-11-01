@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" sizes="180x180" href="CameraIcon.png"><!-- iOSホーム画面用アイコン -->
+<link rel="apple-touch-icon" sizes="180x180" href="CameraIcon.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#00D4FF">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -160,7 +160,7 @@ color: #000 !important;
   100% { filter: drop-shadow(0 0 5px #0ff); opacity: 0.7; }
 }
 
-/* ==== スコア脈打ちエフェクト ==== */
+
 .score.pulse {
   animation: scorePulse 1.5s infinite;
 }
@@ -223,7 +223,7 @@ color: #000 !important;
 </div>
 
 <script>
-/* ==== カメラ + マイク ==== */
+/* ==== カメラ  ==== */
 navigator.mediaDevices.getUserMedia({
   video: { facingMode: "environment" } // 背面カメラのみ
 })
@@ -262,9 +262,9 @@ document.querySelectorAll(".blade-select").forEach(sel=>{
   sel.addEventListener("change",e=>{
     const v=e.target.value;
     
-    // ✅ スコア後の最初の選択変更なら rank を1つ進める
+
     if(scoreChangePending && v !== "デッキ編集" && v !== "-"){
-      scoreChangePending = false; // 1回だけ
+      scoreChangePending = false;
       r = (r + 1) % ranks.length;
       centerRank.textContent = ranks[r];
     }
@@ -275,19 +275,11 @@ document.querySelectorAll(".blade-select").forEach(sel=>{
 
       const modal = document.getElementById("deckModalContent");
       const saveBtn = document.getElementById("saveDeckBtn");
-
-      // ✅ 選択ボックスのボーダーカラーを取得
       const borderColor = window.getComputedStyle(currentSelect).borderColor;
-
-      // ✅ モーダル枠の色適用
       modal.style.borderColor = borderColor;
-
-      // ✅ 保存ボタンに色を反映
       saveBtn.style.borderColor = borderColor;
       saveBtn.style.color = "#ffffff"; 
-      saveBtn.style.backgroundColor = borderColor; // ← 追加
-
-      // ✅ 入力欄に色を反映
+      saveBtn.style.backgroundColor = borderColor; 
       const inputs = [deck1, deck2, deck3];
       inputs.forEach((inp,i)=>{
         inp.value = currentSelect.options[i]?.text || "";
@@ -302,11 +294,9 @@ document.querySelectorAll(".blade-select").forEach(sel=>{
 
 saveDeckBtn.onclick = () => {
   const deckValues = [deck1.value.trim(), deck2.value.trim(), deck3.value.trim()];
-
-  // 未入力チェック
   if(deckValues.some(v => v === "")) {
     alert("未入力があります");
-    return; // 保存中止
+    return; 
   }
 
   if(currentSelect.dataset.side === "left"){
@@ -342,7 +332,7 @@ function updateScore(container){
   const count = container.querySelectorAll(".hud-ring").length;
 
   // スコア変動エフェクト
-  if(scoreEl.textContent != count){ // 前回と異なる場合
+  if(scoreEl.textContent != count){ 
     scoreEl.textContent = count;
     scoreEl.style.transform = "scale(1.5)";
     scoreEl.style.transition = "transform 0.3s";
@@ -361,7 +351,7 @@ function updateScore(container){
     setTimeout(() => div.remove(), 2000);
   }
 
-  scoreChangePending = true; // rank用フラグ
+  scoreChangePending = true;
 }
 
 function handleFrameTap(block,frame){
@@ -383,8 +373,7 @@ function handleFrameTap(block,frame){
 document.querySelectorAll(".left-block .frame, .right-block .frame").forEach(f=>{
   f.onclick=e=>handleFrameTap(f.closest(".left-block, .right-block"),f);
 });
-
-/* ==== ランク ==== */
+  
 const ranks=["1st","2nd","3rd","4th","5th","6th","7th"];
 let r=0;
 const centerRank=document.getElementById("center-rank");
@@ -402,7 +391,7 @@ centerRank.onclick = () => {
         r = r - 1; // 1つ戻す
         centerRank.textContent = ranks[r];
       }
-    }, 500); // 500ms以上で発火
+    }, 500); // 500ms以上
   });
 
   // 長押し解除
@@ -419,14 +408,14 @@ centerRank.onclick = () => {
       document.getElementById("score-left").textContent = "0";
       document.getElementById("score-right").textContent = "0";
 
-      // Rank を1stに戻す
+      // 1stに戻す
       r = 0;
       centerRank.textContent = ranks[r];
     }
-    return; // 以降 rank変更処理は行わない
+    return; // 以降変更処理は行わない
   }
 
-  // 通常の rank 進め処理
+  // 通常の1進め処理
   r = (r + 1) % ranks.length;
   centerRank.textContent = ranks[r];
 };

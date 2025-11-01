@@ -295,15 +295,53 @@ select, select option {
   display: none;
 }
 
+/* ★ モーダルの背景を透明60%に */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6); /* 透明度60% */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* 共通：モーダルボックス */
 .modal-content {
-  background: rgba(0,0,0,0.7);
-  border: 2px solid #00eaff;
-  border-radius: 12px;
+  background: #0B0E1A;
+  border: 2px solid #00D4FF; /* 左側デフォルト色 */
   padding: 20px;
-  width: 80vw;
-  max-width: 400px;
-  box-shadow: 0 0 25px #00eaff;
-  animation: popIn .25s ease;
+  width: 90%;
+  max-width: 420px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,212,255,0.5);
+}
+
+/* ★ 右側の時（ピンク） */
+.modal-content.right {
+  border-color: #FF33D4;
+  box-shadow: 0 0 15px rgba(255,51,212,0.5);
+}
+
+/* 保存ボタン共通 */
+.modal-save-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  background: #00D4FF;
+}
+
+/* ★ 右側時ボタン色をピンクに */
+.modal-save-btn.right {
+  background: #FF33D4;
 }
 
 .modal-content h2 {
@@ -412,18 +450,10 @@ select, select option {
   </div>
 </div>
 <!-- デッキ編集モーダル -->
-<div id="edit-modal" class="modal hidden">
-  <div class="modal-content">
-    <h2>デッキ編集</h2>
-    
-    <input id="deck1" placeholder="デッキ1">
-    <input id="deck2" placeholder="デッキ2">
-    <input id="deck3" placeholder="デッキ3">
-
-    <div class="modal-buttons">
-      <button id="save-deck">保存</button>
-      <button id="cancel-edit">キャンセル</button>
-    </div>
+<div id="deckModal" class="modal-overlay" style="display:none;">
+  <div id="deckModalContent" class="modal-content">
+      <!-- デッキ編集UI -->
+      <button id="saveDeckBtn" class="modal-save-btn">保存</button>
   </div>
 </div>
   
@@ -616,6 +646,24 @@ function bladeSelectChanged(e){
   } else {
     // 通常デッキ切替 → リセット
     resetBattleState();
+  }
+}
+
+function openDeckModal(side) {
+  const modal = document.getElementById("deckModal");
+  const modalContent = document.getElementById("deckModalContent");
+  const saveBtn = document.getElementById("saveDeckBtn");
+
+  modal.style.display = "flex";
+
+  // 既存クラス削除
+  modalContent.classList.remove("right");
+  saveBtn.classList.remove("right");
+
+  // ★ 右側選択時のみピンク化
+  if (side === "right") {
+    modalContent.classList.add("right");
+    saveBtn.classList.add("right");
   }
 }
   

@@ -625,6 +625,11 @@ document.getElementById("save-deck").onclick = () => {
   resetBattleState();
 };
 
+document.getElementById("deckModal").addEventListener("click", (e) => {
+  if(e.target.id === "deckModal"){ 
+    e.target.style.display = "none";
+  }
+});
 
 function addDeckEditOption(select){
   const edit = document.createElement("option");
@@ -638,15 +643,19 @@ function addDeckEditOption(select){
 }
 
 function bladeSelectChanged(e){
+  const side = e.target.classList.contains("right-select") ? "right" : "left";
+
   if(e.target.value === "デッキ編集"){
-    openDeckEdit(e.target);
-  } else if(e.target.value === "-"){
-    // "-" 選択時 → 戻すだけ
-    e.target.selectedIndex = 0;
-  } else {
-    // 通常デッキ切替 → リセット
-    resetBattleState();
+    openDeckModal(side); // ← モーダルを呼ぶ
+    return;
   }
+
+  if(e.target.value === "-"){
+    e.target.selectedIndex = 0;
+    return;
+  }
+
+  resetBattleState();
 }
 
 function openDeckModal(side) {
@@ -669,9 +678,9 @@ function openDeckModal(side) {
   
   
 // 初期化
-// 初期化
 document.querySelectorAll('.left-block select, .right-block select').forEach(select => {
-  
+
+  addDeckEditOption(select);
   // 元の3デッキ名を保持
   const baseOptions = [...select.options].slice(0, 3).map(o => o.text);
 

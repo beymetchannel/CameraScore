@@ -61,11 +61,17 @@ select,select option {font-family:'CyberFont'!important;letter-spacing:1px;}
   pointer-events:auto;
   background:rgba(0,0,0,.7);
   backdrop-filter:blur(4px);
-  box-shadow:0 0 15px,inset 0 0 30px;
+  /* box-shadow:0 0 15px,inset 0 0 30px; */
 }
 
-.frame.blue{border-color:#aaffff;box-shadow:0 0 15px #aaffff,inset 0 0 30px #aaffff;}
-.frame.pink{border-color:#ffaaaa;box-shadow:0 0 15px #ffaaaa,inset 0 0 30px #ffaaaa;}
+.frame.blue{
+  border-color:#aaffff;
+  /* box-shadow:0 0 15px #aaffff,inset 0 0 30px #aaffff; */
+}
+.frame.pink{
+  border-color:#ffaaaa;
+  /* box-shadow:0 0 15px #ffaaaa,inset 0 0 30px #ffaaaa; */
+ }
 
 .hud-ring{
 position:absolute;
@@ -212,7 +218,7 @@ color: #000 !important;
   .frame {
     height: auto;                  /* フレーム高さを可変に */
     flex: 1;                       /* 均等に拡張 */
-    margin: .5vh 0;                /* 少し余白 */
+    margin: 0;                /* 少し余白 */
   }
 
   .score-container {
@@ -462,6 +468,20 @@ function updateScore(container){
   scoreChangePending = true;
 }
 
+function updateBladerVisibility() {
+  const leftBlader = document.getElementById("left-blader");
+  const rightBlader = document.getElementById("right-blader");
+
+  leftBlader.style.display = leftBlader.textContent.trim() === "" ? "none" : "block";
+  rightBlader.style.display = rightBlader.textContent.trim() === "" ? "none" : "block";
+}
+
+// 初期表示時にも呼ぶ
+updateBladerVisibility();
+
+// 編集後や入力時に呼ぶ
+document.getElementById("left-blader").addEventListener("input", updateBladerVisibility);
+document.getElementById("right-blader").addEventListener("input", updateBladerVisibility);
 
 function showWinEffect(winnerSide) {
   const leftArea = document.getElementById("leftArea");
@@ -535,6 +555,11 @@ centerRank.onclick = () => {
     // 1stに戻す
     r = 0;
     centerRank.textContent = ranks[r];
+    
+    // 4ptでない時はgrow解除
+    leftArea.classList.remove("active");
+    rightArea.classList.remove("active");
+    
     return; // 以降変更処理は行わない
   }
 
@@ -542,6 +567,10 @@ centerRank.onclick = () => {
   r = (r + 1) % ranks.length;
   centerRank.textContent = ranks[r];
 };
+
+
+
+
 </script>
 </body>
 </html>

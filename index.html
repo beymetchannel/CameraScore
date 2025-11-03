@@ -98,21 +98,45 @@ pointer-events:none;
 
 /* ==== WIN ==== */
 .win-overlay{
-  position:fixed;inset:0;display:flex;justify-content:center;align-items:center;
-  background:rgba(255,255,255,.2);color:#ffea50;font-size:8vw;white-space:pre-line;
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  color:#ffea50;
+  font-size:8vw;
+  white-space:pre-line;
   text-shadow:0 0 10px #fff59e,0 0 20px #ffea50,0 0 40px #ffdd33;z-index:1000;
-  animation:winFlash 4s forwards;
+  animation:winFlash 5s forwards;
 }
-@keyframes winFlash{0%{transform:scale(.5);opacity:0}20%{transform:scale(1.5);opacity:1}100%{transform:scale(1);opacity:0}}
+@keyframes 
+winFlash{
+0%{transform:scale(.5);
+opacity:0}10%{transform:scale(1.5);
+opacity:1}100%{transform:scale(1);
+opacity:0}}
+
 
 /* ==== モーダル ==== */
 .modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
-  display:none;align-items:center;justify-content:center;z-index:2000;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(6px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
 }
 .modal-content{
-  background:#0B0E1A;border:2px solid #00D4FF;width:90%;max-width:420px;
-  padding:20px;border-radius:12px;color:#fff;
+  background:#0B0E1A;
+  border:2px solid #00D4FF;
+  width:90%;
+  max-width:420px;
+  padding:20px;
+  border-radius:12px;
+  color:#fff;
 }
 .modal-content.right{border-color:#FF33D4;}
 .modal-content h2{text-align:center;margin-bottom:10px;}
@@ -121,7 +145,7 @@ pointer-events:none;
 {width:100%;
 padding:12px;
 margin-bottom:10px;
-font-size:1.1rem;
+font-size:1.3rem;
 font-family:'CyberFont',sans-serif;
 background:rgba(0,0,0,.6);
 border:2px solid #00eaff;
@@ -131,9 +155,11 @@ box-sizing: border-box;
 
 .modal-save-btn{
 width:100%;
-padding:12px;margin-top:12px;font-size:1.1rem;
+padding:12px;
+margin-top:12px;
+font-size:1.3rem;
 font-family:'CyberFont',sans-serif;
-background:#00D4FF;
+background:rgba(0, 212, 255, 0.6)
 font-weight:bold;
 border-radius:6px;
 cursor:pointer;
@@ -141,12 +167,14 @@ color: #000 !important;
 }
 
 .modal-save-btn.right{
-background:#FF33D4;
+background:rgba(255, 51, 212, 0.6)
 color: #000 !important;
 }
 
 .deck-input.right {
   border-color: #FF33D4 !important;
+}
+
 
 /* ==== HUD サイバーエフェクト ==== */
 .hud-ring.cyber-effect {
@@ -162,14 +190,83 @@ color: #000 !important;
 }
 
 
-.score.pulse {
-  animation: scorePulse 1.5s infinite;
+/* ==== 16:9など横長時、下の隙間を埋める ==== */
+@media screen and (orientation: landscape) {
+  .left-block,
+  .right-block {
+    top: 2vh;                       /* 上の余白を調整 */
+    bottom: 2vh;                    /* 下にも余白あける */
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 上→スコアUI、下まで伸ばす */
+  }
+
+  .frame-container {
+    flex-grow: 1;                   /* フレームを縦に伸ばす */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .frame {
+    height: auto;                  /* フレーム高さを可変に */
+    flex: 1;                       /* 均等に拡張 */
+    margin: .5vh 0;                /* 少し余白 */
+  }
+
+  .score-container {
+    margin-top: 1vh;
+  }
 }
 
-@keyframes scorePulse {
-  0% { transform: scale(1); color: #ffdd99; }
-  50% { transform: scale(1.1); color: #fff56e; }
-  100% { transform: scale(1); color: #ffdd99; }
+/* サイドグロー */
+.side-glow {
+  position: fixed;     /* absolute → fixed の方が画面端追従に強い */
+  top: 0;
+  bottom: 0;
+  width: 20vw;
+  pointer-events: none;
+  /* z-index: 9999; */
+}
+
+
+.side-glow::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  pointer-events: none;
+
+  /* 横方向（画面端→中央） */
+  background: linear-gradient(
+    to right,
+    rgba(255, 230, 50, 0.9),
+    rgba(255, 230, 50, 0.2),
+    rgba(255, 230, 50, 0)
+  );
+
+  filter: blur(50px); /* 光の広がり */
+  opacity: 0;
+  animation: glowPulse 2s infinite ease-in-out;
+  animation-play-state: paused;
+}
+
+/* 勝った時だけ有効化 */
+.side-glow.active::before {
+  opacity: 1 !important;
+  animation-play-state: running; 
+}
+
+#leftArea { left: 0; }
+#rightArea { right: 0; }
+
+
+@keyframes glowPulse {
+  0%   { opacity: 0.1; transform: scaleX(0.5) }
+  50%  { opacity: 0.5; transform: scaleX(2) }
+  100% { opacity: 0.1; transform: scaleX(0.5) }
 }
 
 </style>
@@ -178,7 +275,8 @@ color: #000 !important;
 
 <video id="camera" autoplay playsinline></video>
 <div class="bi-border"></div>
-
+<div id="leftArea" class="side-glow"></div>
+<div id="rightArea" class="side-glow"></div>
 <div class="ui-layer">
   
   <!-- LEFT -->
@@ -215,7 +313,7 @@ color: #000 !important;
 <!-- Deck Modal -->
 <div id="deckModal" class="modal-overlay">
   <div id="deckModalContent" class="modal-content">
-    <h2>デッキ編集</h2>
+    <h2>Deck Edit</h2>
     <input class="deck-input" id="deck1">
     <input class="deck-input" id="deck2">
     <input class="deck-input" id="deck3">
@@ -345,14 +443,40 @@ function updateScore(container){
   // WIN判定
   if(count === 4){
     const name = container.querySelector(".blader-name").textContent;
+    scoreEl.classList.add("score-pulse");
     const div = document.createElement("div");
     div.className = "win-overlay";
-    div.textContent = `${name}\nWIN‼︎`;
+    div.textContent = `${name}\nWIN!!`;
     document.body.append(div);
-    setTimeout(() => div.remove(), 2000);
+    setTimeout(() => div.remove(), 5000);
+    
+    // 勝った側の光エフェクト
+    const winnerSide = container.closest(".left-block") ? "left" : "right";
+    showWinEffect(winnerSide);
+  } else {
+    // 4ptでない時はgrow解除
+    leftArea.classList.remove("active");
+    rightArea.classList.remove("active");
   }
 
   scoreChangePending = true;
+}
+
+
+function showWinEffect(winnerSide) {
+  const leftArea = document.getElementById("leftArea");
+  const rightArea = document.getElementById("rightArea");
+
+  // 一旦リセット
+  leftArea.classList.remove("active");
+  rightArea.classList.remove("active");
+
+  // 該当側だけactive
+  if (winnerSide === "left") {
+    leftArea.classList.add("active");
+  } else {
+    rightArea.classList.add("active");
+  }
 }
 
 function handleFrameTap(block,frame){
@@ -401,18 +525,16 @@ centerRank.onclick = () => {
 
   // 条件：どちらかが4点
   if(leftScore === 4 || rightScore === 4){
-    if(confirm("クリアしますか？")){
-      // HUD削除
-      document.querySelectorAll(".hud-ring").forEach(h=>h.remove());
+    // HUD削除
+    document.querySelectorAll(".hud-ring").forEach(h=>h.remove());
 
-      // スコアリセット
-      document.getElementById("score-left").textContent = "0";
-      document.getElementById("score-right").textContent = "0";
+    // スコアリセット
+    document.getElementById("score-left").textContent = "0";
+    document.getElementById("score-right").textContent = "0";
 
-      // 1stに戻す
-      r = 0;
-      centerRank.textContent = ranks[r];
-    }
+    // 1stに戻す
+    r = 0;
+    centerRank.textContent = ranks[r];
     return; // 以降変更処理は行わない
   }
 

@@ -493,30 +493,70 @@ function updateScore(container){
       scoreEl.style.transform = "scale(1)";
     }, 80);
   }
-  
 
+  // 要素参照（必要な要素をここで取得）
+  const nameEl = container.querySelector(".blader-name");
+  const selectEl = container.querySelector(".blade-select");
+  const leftArea = document.getElementById("leftArea");
+  const rightArea = document.getElementById("rightArea");
 
   // WIN判定
   if(count === 4){
-    const name = container.querySelector(".blader-name").textContent;
-    scoreEl.classList.add("score-pulse");
+    const name = nameEl ? nameEl.textContent : "";
+    scoreEl.classList.add("pulse");
+
+    // 既存の win-overlay が残っていたら消す（連続処理対策）
+    document.querySelectorAll(".win-overlay").forEach(d => d.remove());
+
     const div = document.createElement("div");
     div.className = "win-overlay";
-    div.textContent = `${name}\nWIN!!`;
-    document.body.append(div);
-    setTimeout(() => div.remove(), 5000);
+
+    let winnerText = "";
+    const trimmedName = name.trim();
+    const selText = (selectEl && selectEl.options[selectEl.selectedIndex]) 
+                    ? selectEl.options[selectEl.selectedIndex].text 
+                    : "-";
+
+    const isLeftWin = container.classList.contains("left-block");
+
+    if (!nameEl || nameEl.style.display === "none" || trimmedName === ""){
+      if (selText === "-") {
+        winnerText = isLeftWin ? "L Blader\nWIN!!" : "R Blader\nWIN!!";
+      } else {
+        winnerText = `${selText}\nWIN!!`;
+      }
+    } else {
+      winnerText = `${trimmedName}\nWIN!!`;
+    } 
+
+    div.textContent = winnerText;
+
+    // DOM に追加して表示させる
+    document.body.appendChild(div);
+
+    // 自動で5秒後に消す
+    setTimeout(() => {
+      div.remove();
+    }, 5000);
+
+    // 光エフェクトと停止解除
     leftArea.classList.remove("stop");
-    rightArea.classList.remove("stop"); 
-    
+    rightArea.classList.remove("stop");
+
     // 勝った側の光エフェクト
-    const winnerSide = container.closest(".left-block") ? "left" : "right";
+    const winnerSide = container.classList.contains("left-block") ? "left" : "right";
     showWinEffect(winnerSide);
+
+
   } else {
     // 4ptでない時はgrow解除
     leftArea.classList.remove("active");
     rightArea.classList.remove("active");
     leftArea.classList.add("stop");
     rightArea.classList.add("stop");
+
+    // 発光クラスも外す（必要なら）
+    scoreEl.classList.remove("pulse");
   }
 
   scoreChangePending = true;
@@ -621,13 +661,10 @@ centerRank.onclick = () => {
     return; // 以降変更処理は行わない
   }
 
-  // 通常の1進め処理
+  // 通常の+1処理
   r = (r + 1) % ranks.length;
   centerRank.textContent = ranks[r];
 };
-
-
-
 
 </script>
 </body>

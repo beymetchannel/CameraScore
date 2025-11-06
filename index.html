@@ -191,11 +191,11 @@ color: #000 !important;
 }
 
 @keyframes hudGlitch {
-  0% { filter: drop-shadow(0 0 5px #0ff); opacity: 0.7; }
-  25% { filter: drop-shadow(0 0 20px #0ff); opacity: 1; }
-  50% { filter: drop-shadow(0 0 10px #0ff); opacity: 0.8; }
-  75% { filter: drop-shadow(0 0 25px #0ff); opacity: 1; }
-  100% { filter: drop-shadow(0 0 5px #0ff); opacity: 0.7; }
+  0% { filter: drop-shadow(0 0 10px #0ff); opacity: 0.7; }
+  25% { filter: drop-shadow(0 0 25px #0ff); opacity: 1; }
+  50% { filter: drop-shadow(0 0 15px #0ff); opacity: 0.8; }
+  75% { filter: drop-shadow(0 0 30px #0ff); opacity: 1; }
+  100% { filter: drop-shadow(0 0 20px #0ff); opacity: 0.7; }
 }
 
 /* 右HUD用ピンク光彩 */
@@ -204,11 +204,11 @@ color: #000 !important;
 }
 
 @keyframes hudGlitchPink {
-  0% { filter: drop-shadow(0 0 5px #ff77ff); opacity: 0.7; }
-  25% { filter: drop-shadow(0 0 20px #ff77ff); opacity: 1; }
-  50% { filter: drop-shadow(0 0 10px #ff77ff); opacity: 0.8; }
-  75% { filter: drop-shadow(0 0 25px #ff77ff); opacity: 1; }
-  100% { filter: drop-shadow(0 0 5px #ff77ff); opacity: 0.7; }
+  0% { filter: drop-shadow(0 0 10px #ff77ff); opacity: 0.7; }
+  25% { filter: drop-shadow(0 0 25px #ff77ff); opacity: 1; }
+  50% { filter: drop-shadow(0 0 15px #ff77ff); opacity: 0.8; }
+  75% { filter: drop-shadow(0 0 30px #ff77ff); opacity: 1; }
+  100% { filter: drop-shadow(0 0 20px #ff77ff); opacity: 0.7; }
 }
 
 
@@ -329,8 +329,8 @@ color: #000 !important;
 .outline {
   stroke: cyan;
   stroke-width: 2px;
-  stroke-dasharray: 1200;
-  stroke-dashoffset: 1200;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
   animation: draw 1s ease forwards;
   filter: drop-shadow(0 0 10px cyan) drop-shadow(0 0 22px cyan);
 }
@@ -343,7 +343,7 @@ color: #000 !important;
 }
 
 @keyframes draw {
-  0% { stroke-dashoffset: 1200; opacity: .2; }
+  0% { stroke-dashoffset: 1000; opacity: .2; }
   80% { opacity: 1; }
   100% { stroke-dashoffset: 0; opacity: 1; }
 }
@@ -366,7 +366,7 @@ color: #000 !important;
 
 @keyframes reverseDraw {
   0% { stroke-dashoffset: 0; opacity: 1; }
-  100% { stroke-dashoffset: 1200; opacity: 0; filter: brightness(0) blur(6px); }
+  100% { stroke-dashoffset: 1000; opacity: 0; filter: brightness(0) blur(6px); }
 }
 
 @keyframes fadeOut {
@@ -374,7 +374,7 @@ color: #000 !important;
   100% { opacity: 0; filter: brightness(0) blur(6px); }
 }
 
-.big { font-size: 120px; }
+.big { font-size: 150px; }
 .small { font-size: 50px; }
 
 
@@ -752,7 +752,7 @@ function showRankUpEffect(rank) {
   container.style.zIndex = 9999;
   container.style.pointerEvents = 'none';
   container.innerHTML = `
-    <svg width="1200" height="250">
+    <svg width="1000" height="250">
       <text x="50%" y="40%" class="outline big" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">${rank}</text>
       <text x="50%" y="75%" class="outline small" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">Battle</text>
       <text x="50%" y="40%" class="fill big" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">${rank}</text>

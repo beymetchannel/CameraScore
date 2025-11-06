@@ -329,8 +329,8 @@ color: #000 !important;
 .outline {
   stroke: cyan;
   stroke-width: 2px;
-  stroke-dasharray: 600;
-  stroke-dashoffset: 600;
+  stroke-dasharray: 800;
+  stroke-dashoffset: 800;
   animation: draw 1s ease forwards;
   filter: drop-shadow(0 0 10px cyan) drop-shadow(0 0 22px cyan);
 }
@@ -343,7 +343,7 @@ color: #000 !important;
 }
 
 @keyframes draw {
-  0% { stroke-dashoffset: 600; opacity: .2; }
+  0% { stroke-dashoffset: 800; opacity: .2; }
   80% { opacity: 1; }
   100% { stroke-dashoffset: 0; opacity: 1; }
 }
@@ -366,7 +366,7 @@ color: #000 !important;
 
 @keyframes reverseDraw {
   0% { stroke-dashoffset: 0; opacity: 1; }
-  100% { stroke-dashoffset: 600; opacity: 0; filter: brightness(0) blur(6px); }
+  100% { stroke-dashoffset: 800; opacity: 0; filter: brightness(0) blur(6px); }
 }
 
 @keyframes fadeOut {

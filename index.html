@@ -21,6 +21,10 @@
   font-family: 'DS-DIGIB';
   src: url('DS-DIGIB.ttf') format('truetype');
 }
+@font-face {
+  font-family: 'EvogriaItalic';
+  src: url('Evogria-Italic.otf') format('opentype');
+}
 
 /* ==== 基本 ==== */
 body,html { margin:0;padding:0;height:100%;background:black;font-family:'CyberFont',sans-serif; }
@@ -164,7 +168,7 @@ padding:12px;
 margin-top:12px;
 font-size:1.3rem;
 font-family:'CyberFont',sans-serif;
-background:rgba(0, 212, 255, 0.6)
+background:rgba(0, 212, 255, 0.6);
 font-weight:bold;
 border-radius:6px;
 cursor:pointer;
@@ -172,7 +176,7 @@ color: #000 !important;
 }
 
 .modal-save-btn.right{
-background:rgba(255, 51, 212, 0.6)
+background:rgba(255, 51, 212, 0.6);
 color: #000 !important;
 }
 
@@ -322,6 +326,58 @@ color: #000 !important;
   }
 }
 
+.outline {
+  stroke: cyan;
+  stroke-width: 2px;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: draw 1s ease forwards;
+  filter: drop-shadow(0 0 10px cyan) drop-shadow(0 0 22px cyan);
+}
+
+.fill {
+  fill: white;
+  opacity: 0;
+  animation: appear 1s ease forwards 1s,
+             rgbGlitch 1.5s infinite 0.5s;
+}
+
+@keyframes draw {
+  0% { stroke-dashoffset: 600; opacity: .2; }
+  80% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes appear {
+  0%   { opacity: 0; filter: brightness(4) blur(4px); }
+  60%  { opacity: 1; filter: brightness(2) blur(1px); }
+  100% { opacity: 1; filter: brightness(1) blur(0); }
+}
+
+@keyframes rgbGlitch {
+  0%, 100% { text-shadow: none; filter: none; }
+  8%   { text-shadow: -2px 0 red, 2px 0 cyan; filter: brightness(1.5); }
+  15%  { text-shadow: -4px 0 magenta, 4px 0 lime; filter: brightness(2.2) contrast(1.8); }
+  25%  { text-shadow: -6px 0 cyan, 6px 0 red; filter: brightness(1.8) contrast(2); }
+  38%  { text-shadow: -3px 0 lime, 3px 0 magenta; filter: brightness(2.5); }
+  52%  { text-shadow: -1px 0 red, 1px 0 cyan; filter: brightness(1.6); }
+  75%  { text-shadow: -5px 0 cyan, 5px 0 magenta; filter: brightness(2.3) blur(0.5px); }
+}
+
+@keyframes reverseDraw {
+  0% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 600; opacity: 0; filter: brightness(0) blur(6px); }
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; filter: brightness(0) blur(6px); }
+}
+
+.big { font-size: 160px; }
+.small { font-size: 60px; }
+
+
 </style>
 </head>
 <body>
@@ -384,6 +440,11 @@ navigator.mediaDevices.getUserMedia({
   video.srcObject = stream;
 })
 .catch(err => console.error("カメラ起動失敗:", err));
+
+/* ==== スコア保管用 ==== */
+let lastScores = { left: 0, right: 0 };
+let scoreTimer = null;
+
 
 /* ==== 初期デッキ ==== */
 let leftDeck = ["BayBlade A","BayBlade B","BayBlade C"];
@@ -466,9 +527,13 @@ saveDeckBtn.onclick = () => {
 
 
 function resetBattleState() {
+  
   // スコアリセット
   document.getElementById("score-left").textContent = "0";
   document.getElementById("score-right").textContent = "0";
+  // lastScoresリセット
+  lastScores.left = 0;s
+  lastScores.right = 0;
 
   // HUD削除
   document.querySelectorAll(".hud-ring").forEach(h => h.remove());
@@ -476,35 +541,48 @@ function resetBattleState() {
   // ランクを1stにリセット
   r = 0;
   centerRank.textContent = ranks[r];
+  
 }
 
 /* ==== HUD & SCORE ==== */
 function updateScore(container){
   const scoreEl = container.querySelector(".score");
   const count = container.querySelectorAll(".hud-ring").length;
-  
+
+  // ランクアップ判定前に、スコア変化をチェック
+  const leftScore = parseInt(document.getElementById("score-left").textContent);
+  const rightScore = parseInt(document.getElementById("score-right").textContent);
+
+  // スコア増加なら lastScores 更新
+  if(leftScore != lastScores.left || rightScore != lastScores.right){
+    lastScores.left = leftScore;
+    lastScores.right = rightScore;
+    checkScoreForRank(container);
+  }
+
   // スコア変動エフェクト
   if(scoreEl.textContent != count){ 
     scoreEl.textContent = count;
-    scoreEl.style.transform = "scale(4)";
+    scoreEl.style.transform = "scale(5)";
     scoreEl.style.transition = "transform 0.5s";
     setTimeout(() => {
       scoreEl.style.transform = "scale(1)";
     }, 80);
   }
 
-  // 要素参照（必要な要素をここで取得）
+  // ランクアップ判定
+  checkScoreForRank();
+
+  // 以下は既存の WIN 判定処理そのまま
   const nameEl = container.querySelector(".blader-name");
   const selectEl = container.querySelector(".blade-select");
   const leftArea = document.getElementById("leftArea");
   const rightArea = document.getElementById("rightArea");
 
-  // WIN判定
   if(count === 4){
     const name = nameEl ? nameEl.textContent : "";
     scoreEl.classList.add("pulse");
 
-    // 既存の win-overlay が残っていたら消す（連続処理対策）
     document.querySelectorAll(".win-overlay").forEach(d => d.remove());
 
     const div = document.createElement("div");
@@ -519,47 +597,32 @@ function updateScore(container){
     const isLeftWin = container.classList.contains("left-block");
 
     if (!nameEl || nameEl.style.display === "none" || trimmedName === ""){
-      if (selText === "-") {
-        winnerText = isLeftWin ? "L Blader\nWIN!!" : "R Blader\nWIN!!";
-      } else {
-        winnerText = `${selText}\nWIN!!`;
-      }
+      winnerText = selText === "-" ? (isLeftWin ? "L Blader\nWIN!!" : "R Blader\nWIN!!") : `${selText}\nWIN!!`;
     } else {
       winnerText = `${trimmedName}\nWIN!!`;
-    } 
+    }
 
     div.textContent = winnerText;
-
-    // DOM に追加して表示させる
     document.body.appendChild(div);
+    setTimeout(() => div.remove(), 5000);
 
-    // 自動で5秒後に消す
-    setTimeout(() => {
-      div.remove();
-    }, 5000);
-
-    // 光エフェクトと停止解除
     leftArea.classList.remove("stop");
     rightArea.classList.remove("stop");
 
-    // 勝った側の光エフェクト
     const winnerSide = container.classList.contains("left-block") ? "left" : "right";
     showWinEffect(winnerSide);
 
-
   } else {
-    // 4ptでない時はgrow解除
     leftArea.classList.remove("active");
     rightArea.classList.remove("active");
     leftArea.classList.add("stop");
     rightArea.classList.add("stop");
-
-    // 発光クラスも外す（必要なら）
     scoreEl.classList.remove("pulse");
   }
 
   scoreChangePending = true;
 }
+
 
 function updateBladerVisibility() {
   const leftBlader = document.getElementById("left-blader");
@@ -621,49 +684,105 @@ const centerRank=document.getElementById("center-rank");
 centerRank.onclick = () => {
   const leftScore = parseInt(document.getElementById("score-left").textContent);
   const rightScore = parseInt(document.getElementById("score-right").textContent);
-  
-  let rankPressTimer = null;
-    
-  // 長押し判定開始
-  centerRank.addEventListener("mousedown", () => {
-    rankPressTimer = setTimeout(() => {
-      if(r > 0){ // 1st以下には戻さない
-        r = r - 1; // 1つ戻す
-        centerRank.textContent = ranks[r];
-      }
-    }, 500); // 500ms以上
-  });
 
-  // 長押し解除
-  centerRank.addEventListener("mouseup", () => clearTimeout(rankPressTimer));
-  centerRank.addEventListener("mouseleave", () => clearTimeout(rankPressTimer));
+  // 両方スコア0ならランクアップせずにアニメーションだけ
+  if (leftScore === 0 && rightScore === 0) {
+    showRankUpEffect(ranks[r]);
+    return;
+  }
 
-  // 条件：どちらかが4点
+  // 条件：どちらかが4点ならHUDリセット＆1st
   if(leftScore === 4 || rightScore === 4){
-    // HUD削除
-    document.querySelectorAll(".hud-ring").forEach(h=>h.remove());
-
-    // スコアリセット
+    document.querySelectorAll(".hud-ring").forEach(h => h.remove());
     document.getElementById("score-left").textContent = "0";
     document.getElementById("score-right").textContent = "0";
-
-    // 1stに戻す
     r = 0;
     centerRank.textContent = ranks[r];
-    
-    // 4ptでない時はgrow解除
     leftArea.classList.remove("active");
     rightArea.classList.remove("active");
     leftArea.classList.add("stop");
-    rightArea.classList.add("stop"); 
-    
-    return; // 以降変更処理は行わない
+    rightArea.classList.add("stop");
+    return;
   }
 
-  // 通常の+1処理
+  // 通常のランクアップ処理
   r = (r + 1) % ranks.length;
   centerRank.textContent = ranks[r];
+  showRankUpEffect(ranks[r]);
 };
+
+
+// タイマー判定で増加時にランクアップ
+function checkScoreForRank(){
+  if(scoreTimer) clearTimeout(scoreTimer);
+
+  scoreTimer = setTimeout(() => {
+    const newLeft = parseInt(document.getElementById("score-left").textContent);
+    const newRight = parseInt(document.getElementById("score-right").textContent);
+    
+    // どちらかが4点ならランクアップ処理を行わない
+    if(newLeft === 4 || newRight === 4){
+      scoreTimer = null;
+      return;
+    }
+
+    if(newLeft > lastScores.left || newRight > lastScores.right) {
+      r = (r + 1) % ranks.length;
+      centerRank.textContent = ranks[r];
+      
+      showRankUpEffect(ranks[r]);
+
+      // 更新後の値を lastScores に反映
+      lastScores.left = newLeft;
+      lastScores.right = newRight;
+    }
+
+    scoreTimer = null;
+  }, 4000);
+}
+
+
+function showRankUpEffect(rank) {
+  const container = document.createElement('div');
+  container.className = 'rankup-container';
+  container.style.position = 'fixed';
+  container.style.top = '50%';
+  container.style.left = '50%';
+  container.style.transform = 'translate(-50%, -50%)';
+  container.style.zIndex = 9999;
+  container.style.pointerEvents = 'none';
+  container.innerHTML = `
+    <svg width="600" height="250">
+      <text x="50%" y="40%" class="outline big" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">${rank}</text>
+      <text x="50%" y="75%" class="outline small" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">Battle</text>
+      <text x="50%" y="40%" class="fill big" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">${rank}</text>
+      <text x="50%" y="75%" class="fill small" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">Battle</text>
+    </svg>
+  `;
+  document.body.appendChild(container);
+
+  const fills = container.querySelectorAll('.fill');
+
+  // 3秒後にアニメーションで消す
+  setTimeout(() => {
+    container.querySelectorAll('.outline').forEach(el => {
+      el.style.animation = 'reverseDraw 1s ease forwards';
+    });
+    container.querySelectorAll('.fill').forEach(el => {
+      el.style.animation = 'fadeOut 1s ease forwards';
+    });
+
+    setTimeout(() => container.remove(), 1000);
+  }, 3000);
+
+  return container; 
+
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  showRankUpEffect(ranks[r]); // 初期ランク1stのアニメーション表示
+});
+
 
 </script>
 </body>

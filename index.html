@@ -26,7 +26,6 @@
   src: url('Evogria-Italic.otf') format('opentype');
 }
 
-/* ==== 基本 ==== */
 body,html { margin:0;padding:0;height:100%;background:black;font-family:'CyberFont',sans-serif; }
 video#camera { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
 .bi-border{position:absolute;inset:0;pointer-events:none;background:url('bi.png')center/contain no-repeat;opacity:.6;filter:drop-shadow(0 0 20px #0ff);animation:glow 2s infinite alternate;z-index:1;}
@@ -34,7 +33,6 @@ video#camera { position:absolute; inset:0; width:100%; height:100%; object-fit:c
 
 .ui-layer{position:absolute;inset:0;z-index:2;}
 
-/* ==== 選択ボックス ==== */
 select,select option {font-family:'CyberFont'!important;letter-spacing:1px;}
 .left-block select,.right-block select {
   font-size:1.3rem;width:40vw;max-width:400px;min-width:120px;
@@ -88,7 +86,6 @@ pointer-events:none;
 }
 @keyframes hudSpin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 
-/* ==== スコア ==== */
 .score{font-family:'DS-DIGIB'!important;font-size:25vh;color:#ffdd99;text-shadow:0 0 10px #ffaa33,0 0 20px #ffaa33,0 0 40px #ff4400;pointer-events:auto;}
 .score-container{display:flex;align-items:center;gap:.8vw;}
 
@@ -100,12 +97,10 @@ pointer-events:none;
   font-size:1.6rem;cursor:text;white-space:nowrap;
 }
 
-/* ==== ラウンド ==== */
 .center-block{position:absolute;top:10px;left:50%;transform:translateX(-50%);text-align:center;z-index:3;}
 .center-battle{font-size:1rem;color:#fff;}
 .center-rank{font-size:2rem;color:#fff;border-bottom:2px solid #fff;cursor:pointer;user-select:none;}
 
-/* ==== WIN ==== */
 .win-overlay{
   position:fixed;
   inset:0;
@@ -127,7 +122,7 @@ opacity:1}100%{transform:scale(1);
 opacity:0}}
 
 
-/* ==== モーダル ==== */
+
 .modal-overlay{
   position:fixed;
   inset:0;
@@ -184,8 +179,6 @@ color: #000 !important;
   border-color: #FF33D4 !important;
 }
 
-
-/* ==== HUD サイバーエフェクト ==== */
 .hud-ring.cyber-effect {
   animation: hudGlitch 1s infinite alternate, hudSpin 3s linear infinite;
 }
@@ -198,7 +191,6 @@ color: #000 !important;
   100% { filter: drop-shadow(0 0 20px #0ff); opacity: 0.7; }
 }
 
-/* 右HUD用ピンク光彩 */
 .hud-ring.right.cyber-effect {
   animation: hudGlitchPink 1s infinite alternate, hudSpin 3s linear infinite;
 }
@@ -211,30 +203,28 @@ color: #000 !important;
   100% { filter: drop-shadow(0 0 20px #ff77ff); opacity: 0.7; }
 }
 
-
-/* ==== 16:9など横長時、下の隙間を埋める ==== */
 @media screen and (orientation: landscape) {
   .left-block,
   .right-block {
-    top: 2vh;                       /* 上の余白を調整 */
-    bottom: 2vh;                    /* 下にも余白あける */
+    top: 2vh;    
+    bottom: 2vh;    
     height: auto;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* 上→スコアUI、下まで伸ばす */
+    justify-content: space-between; 
   }
 
   .frame-container {
-    flex-grow: 1;                   /* フレームを縦に伸ばす */
+    flex-grow: 1;       
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
 
   .frame {
-    height: auto;                  /* フレーム高さを可変に */
-    flex: 1;                       /* 均等に拡張 */
-    margin: 0;                /* 少し余白 */
+    height: auto;     
+    flex: 1;          
+    margin: 0; 
   }
 
   .score-container {
@@ -244,12 +234,11 @@ color: #000 !important;
 
 /* サイドグロー */
 .side-glow {
-  position: fixed;     /* absolute → fixed の方が画面端追従に強い */
+  position: fixed; 
   top: 0;
   bottom: 0;
   width: 20vw;
   pointer-events: none;
-  /* z-index: 9999; */
 }
 
 
@@ -261,7 +250,6 @@ color: #000 !important;
   width: 100%;
   pointer-events: none;
 
-  /* 横方向（画面端→中央） */
   background: linear-gradient(
     to right,
     rgba(255, 230, 50, 0.9),
@@ -269,13 +257,12 @@ color: #000 !important;
     rgba(255, 230, 50, 0)
   );
 
-  filter: blur(50px); /* 光の広がり */
+  filter: blur(50px); 
   opacity: 0;
   animation: glowPulse 2s infinite ease-in-out;
   animation-play-state: paused;
 }
 
-/* 勝った時だけ有効化 */
 .side-glow.active::before {
   opacity: 1 !important;
   animation-play-state: running; 
@@ -433,7 +420,7 @@ color: #000 !important;
 <script>
 /* ==== カメラ  ==== */
 navigator.mediaDevices.getUserMedia({
-  video: { facingMode: "environment" } // 背面カメラのみ
+  video: { facingMode: "environment" } 
 })
 .then(stream => {
   const video = document.getElementById("camera");
@@ -441,12 +428,9 @@ navigator.mediaDevices.getUserMedia({
 })
 .catch(err => console.error("カメラ起動失敗:", err));
 
-/* ==== スコア保管用 ==== */
 let lastScores = { left: 0, right: 0 };
 let scoreTimer = null;
 
-
-/* ==== 初期デッキ ==== */
 let leftDeck = ["BayBlade A","BayBlade B","BayBlade C"];
 let rightDeck = ["BayBlade A","BayBlade B","BayBlade C"];
 let scoreChangePending = false;
@@ -467,7 +451,6 @@ function setSelectOptions(select){
 
 document.querySelectorAll(".blade-select").forEach(setSelectOptions);
 
-/* ==== デッキ編集 ==== */
 const deckModal=document.getElementById("deckModal");
 let currentSelect=null;
 
@@ -528,39 +511,30 @@ saveDeckBtn.onclick = () => {
 
 function resetBattleState() {
   
-  // スコアリセット
   document.getElementById("score-left").textContent = "0";
   document.getElementById("score-right").textContent = "0";
-  // lastScoresリセット
   lastScores.left = 0;s
   lastScores.right = 0;
-
-  // HUD削除
   document.querySelectorAll(".hud-ring").forEach(h => h.remove());
 
-  // ランクを1stにリセット
   r = 0;
   centerRank.textContent = ranks[r];
   
 }
 
-/* ==== HUD & SCORE ==== */
 function updateScore(container){
   const scoreEl = container.querySelector(".score");
   const count = container.querySelectorAll(".hud-ring").length;
 
-  // ランクアップ判定前に、スコア変化をチェック
   const leftScore = parseInt(document.getElementById("score-left").textContent);
   const rightScore = parseInt(document.getElementById("score-right").textContent);
 
-  // スコア増加なら lastScores 更新
   if(leftScore != lastScores.left || rightScore != lastScores.right){
     lastScores.left = leftScore;
     lastScores.right = rightScore;
     checkScoreForRank(container);
   }
 
-  // スコア変動エフェクト
   if(scoreEl.textContent != count){ 
     scoreEl.textContent = count;
     scoreEl.style.transform = "scale(5)";
@@ -570,10 +544,8 @@ function updateScore(container){
     }, 80);
   }
 
-  // ランクアップ判定
   checkScoreForRank();
 
-  // 以下は既存の WIN 判定処理そのまま
   const nameEl = container.querySelector(".blader-name");
   const selectEl = container.querySelector(".blade-select");
   const leftArea = document.getElementById("leftArea");
@@ -632,10 +604,8 @@ function updateBladerVisibility() {
   rightBlader.style.display = rightBlader.textContent.trim() === "" ? "none" : "block";
 }
 
-// 初期表示時にも呼ぶ
 updateBladerVisibility();
 
-// 編集後や入力時に呼ぶ
 document.getElementById("left-blader").addEventListener("input", updateBladerVisibility);
 document.getElementById("right-blader").addEventListener("input", updateBladerVisibility);
 
@@ -643,11 +613,9 @@ function showWinEffect(winnerSide) {
   const leftArea = document.getElementById("leftArea");
   const rightArea = document.getElementById("rightArea");
 
-  // 一旦リセット
   leftArea.classList.remove("active");
   rightArea.classList.remove("active");
 
-  // 該当側だけactive
   if (winnerSide === "left") {
     leftArea.classList.add("active");
   } else {
@@ -685,13 +653,11 @@ centerRank.onclick = () => {
   const leftScore = parseInt(document.getElementById("score-left").textContent);
   const rightScore = parseInt(document.getElementById("score-right").textContent);
 
-  // 両方スコア0ならランクアップせずにアニメーションだけ
   if (leftScore === 0 && rightScore === 0) {
     showRankUpEffect(ranks[r]);
     return;
   }
 
-  // 条件：どちらかが4点ならHUDリセット＆1st
   if(leftScore === 4 || rightScore === 4){
     document.querySelectorAll(".hud-ring").forEach(h => h.remove());
     document.getElementById("score-left").textContent = "0";
@@ -705,22 +671,19 @@ centerRank.onclick = () => {
     return;
   }
 
-  // 通常のランクアップ処理
   r = (r + 1) % ranks.length;
   centerRank.textContent = ranks[r];
   showRankUpEffect(ranks[r]);
 };
 
 
-// タイマー判定で増加時にランクアップ
 function checkScoreForRank(){
   if(scoreTimer) clearTimeout(scoreTimer);
 
   scoreTimer = setTimeout(() => {
     const newLeft = parseInt(document.getElementById("score-left").textContent);
     const newRight = parseInt(document.getElementById("score-right").textContent);
-    
-    // どちらかが4点ならランクアップ処理を行わない
+
     if(newLeft === 4 || newRight === 4){
       scoreTimer = null;
       return;
@@ -732,7 +695,6 @@ function checkScoreForRank(){
       
       showRankUpEffect(ranks[r]);
 
-      // 更新後の値を lastScores に反映
       lastScores.left = newLeft;
       lastScores.right = newRight;
     }
@@ -763,7 +725,6 @@ function showRankUpEffect(rank) {
 
   const fills = container.querySelectorAll('.fill');
 
-  // 3秒後にアニメーションで消す
   setTimeout(() => {
     container.querySelectorAll('.outline').forEach(el => {
       el.style.animation = 'reverseDraw 1s ease forwards';
@@ -780,7 +741,7 @@ function showRankUpEffect(rank) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  showRankUpEffect(ranks[r]); // 初期ランク1stのアニメーション表示
+  showRankUpEffect(ranks[r]); 
 });
 
 

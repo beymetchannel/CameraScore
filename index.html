@@ -12,7 +12,6 @@
 <meta name="apple-mobile-web-app-title" content="CameraScore">
 <title>CameraScore</title>
 <style>
-/* ==== フォント ==== */
 @font-face {
   font-family: 'CyberFont';
   src: url('CyberFont.ttf') format('truetype');
@@ -368,7 +367,7 @@ color: #000 !important;
 </head>
 <body>
 
-<video id="camera" autoplay playsinline></video>
+<video id="camera" autoplay playsinline muted></video>
 <div class="bi-border"></div>
 <div id="leftArea" class="side-glow"></div>
 <div id="rightArea" class="side-glow"></div>
@@ -417,9 +416,10 @@ color: #000 !important;
 </div>
 
 <script>
-/* ==== カメラ  ==== */
+
 navigator.mediaDevices.getUserMedia({
-  video: { facingMode: "environment" } 
+  video: { facingMode: "environment" },
+  audio: true
 })
 .then(stream => {
   const video = document.getElementById("camera");

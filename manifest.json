@@ -3,16 +3,17 @@
   "short_name": "CamScore",
   "start_url": "./index.html",
   "display": "standalone",
+  "orientation": "landscape",
   "background_color": "#000000",
   "theme_color": "#00D4FF",
   "icons": [
     {
-      "src": "https://i.imgur.com/gljnX0R.png",
+      "src": "CameraIcon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://i.imgur.com/gljnX0R.png",
+      "src": "CameraIcon.png",
       "sizes": "512x512",
       "type": "image/png"
     }

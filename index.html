@@ -667,7 +667,7 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
 
 <script>
 
-navigator.mediaDevices.getUserMedia({ video:{ facingMode:"environment" }, audio:true })
+navigator.mediaDevices.getUserMedia({ video:{ facingMode:"environment" } })
   .then(s => { document.getElementById("camera").srcObject = s; })
   .catch(e => console.error("カメラ起動失敗:", e));
 

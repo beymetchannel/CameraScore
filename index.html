@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#00D4FF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CameraScore">
+<meta name="apple-mobile-web-app-title" content="BEYバトルカメラ">
 <title>BEYバトルカメラ</title>
 <style>
 @font-face { font-family:'CyberFont';   src:url('CyberFont.ttf') format('truetype'); }
@@ -1229,6 +1229,68 @@ document.addEventListener("mouseup", e => {
   clearTimeout(rightPressTimer); rightPressTimer = null;
   if (!rightLongFired) addPoint("left");
   rightLongFired = false;
+});
+
+/* ── タッチ操作 ──────────────────────────────────────────
+   - 左半分タップ → 左に得点
+   - 右半分タップ → 右に得点
+   - HUDリング（表示済みフレーム）タップ → そのサイドを減点
+   - BladerName入力欄・center-rank・mode-selectは除外
+─────────────────────────────────────────────────────── */
+let touchTimer    = null;
+let touchLongFired = false;
+let touchSide     = null;
+
+document.addEventListener("touchstart", e => {
+  if (!currentMode) return;
+  const touch = e.touches[0];
+  const target = touch.target;
+
+  // 除外対象
+  if (isInteractiveTarget(target)) return;
+
+  // タップ対象がHUDリング、またはHUDを含むフレームかを判定
+  const hudEl = target.closest(".hud-ring") || (target.classList.contains("frame") && target.querySelector(".hud-ring") ? target : null);
+  if (hudEl) {
+    // HUDが属するブロックからサイドを取得
+    const block = hudEl.closest("#left-block, #right-block");
+    if (block) {
+      const side = block.id === "left-block" ? "left" : "right";
+      e.preventDefault();
+      removePoint(side);
+    }
+    return;
+  }
+
+  // 画面の左右どちらかを判定
+  const half = window.innerWidth / 2;
+  touchSide = touch.clientX < half ? "left" : "right";
+  touchLongFired = false;
+
+  touchTimer = setTimeout(() => {
+    touchLongFired = true;
+    // 長押し → 相手サイドを減点（マウス操作と同じロジック）
+    removePoint(touchSide === "left" ? "right" : "left");
+  }, LONG_PRESS_MS);
+
+  e.preventDefault();
+}, { passive: false });
+
+document.addEventListener("touchend", e => {
+  if (!currentMode || touchSide === null) return;
+  clearTimeout(touchTimer); touchTimer = null;
+  if (!touchLongFired) {
+    addPoint(touchSide);
+  }
+  touchLongFired = false;
+  touchSide = null;
+  e.preventDefault();
+}, { passive: false });
+
+document.addEventListener("touchcancel", () => {
+  clearTimeout(touchTimer); touchTimer = null;
+  touchLongFired = false;
+  touchSide = null;
 });
 </script>
 </body>

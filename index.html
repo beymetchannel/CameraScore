@@ -33,7 +33,7 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
   font-family:'EvogriaItalic',sans-serif;
   font-size:clamp(2rem,6vw,4rem);
   color:#00d4ff;
-  text-shadow:0 0 20px #00d4ff,0 0 40px #00d4ff;
+  text-shadow:0 0 20px rgba(0,212,255,.7),0 0 40px rgba(0,212,255,.7);
   letter-spacing:4px;margin:0 0 10px;
 }
 #mode-select p { color:#aaa;font-size:1rem;margin:0 0 20px; }
@@ -243,46 +243,46 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
 }
 
 @keyframes frameWinBlue {
-  0%  { box-shadow:0 0 4px #0ff, 0 0 10px rgba(0,255,255,.3), inset 0 0 6px rgba(0,255,255,.15);
+  0%  { box-shadow:0 0 4px rgba(0,255,255,.7), 0 0 10px rgba(0,255,255,.21), inset 0 0 6px rgba(0,255,255,.105);
         border-color:#aaffff; filter:brightness(1.1); }
-  50% { box-shadow:0 0 10px #0ff, 0 0 22px rgba(0,255,255,.5), inset 0 0 12px rgba(0,255,255,.3);
+  50% { box-shadow:0 0 10px rgba(0,255,255,.7), 0 0 22px rgba(0,255,255,.35), inset 0 0 12px rgba(0,255,255,.21);
         border-color:#0ff; filter:brightness(1.6); }
-  100%{ box-shadow:0 0 6px #0ff, 0 0 14px rgba(0,255,255,.35), inset 0 0 8px rgba(0,255,255,.2);
+  100%{ box-shadow:0 0 6px rgba(0,255,255,.7), 0 0 14px rgba(0,255,255,.245), inset 0 0 8px rgba(0,255,255,.14);
         border-color:#aaffff; filter:brightness(1.2); }
 }
 @keyframes frameWinPink {
-  0%  { box-shadow:0 0 4px #f0f, 0 0 10px rgba(255,100,255,.3), inset 0 0 6px rgba(255,100,255,.15);
+  0%  { box-shadow:0 0 4px rgba(255,0,255,.7), 0 0 10px rgba(255,100,255,.21), inset 0 0 6px rgba(255,100,255,.105);
         border-color:#ffaaaa; filter:brightness(1.1); }
-  50% { box-shadow:0 0 10px #f0f, 0 0 22px rgba(255,100,255,.5), inset 0 0 12px rgba(255,100,255,.3);
+  50% { box-shadow:0 0 10px rgba(255,0,255,.7), 0 0 22px rgba(255,100,255,.35), inset 0 0 12px rgba(255,100,255,.21);
         border-color:#ff77ff; filter:brightness(1.6); }
-  100%{ box-shadow:0 0 6px #f0f, 0 0 14px rgba(255,100,255,.35), inset 0 0 8px rgba(255,100,255,.2);
+  100%{ box-shadow:0 0 6px rgba(255,0,255,.7), 0 0 14px rgba(255,100,255,.245), inset 0 0 8px rgba(255,100,255,.14);
         border-color:#ffaaaa; filter:brightness(1.2); }
 }
 @keyframes nameWinBlue {
-  0%  { box-shadow:0 0 6px #0ff, 0 0 15px rgba(0,255,255,.4);
-        text-shadow:0 0 8px #0ff; filter:brightness(1.1); }
-  50% { box-shadow:0 0 18px #0ff, 0 0 40px rgba(0,255,255,.6), 0 0 60px #0af;
-        text-shadow:0 0 15px #0ff, 0 0 30px #0ff; filter:brightness(2.2); }
-  100%{ box-shadow:0 0 8px #0ff, 0 0 20px rgba(0,255,255,.4);
-        text-shadow:0 0 10px #0ff; filter:brightness(1.4); }
+  0%  { box-shadow:0 0 6px rgba(0,255,255,.7), 0 0 15px rgba(0,255,255,.28);
+        text-shadow:0 0 8px rgba(0,255,255,.7); filter:brightness(1.1); }
+  50% { box-shadow:0 0 18px rgba(0,255,255,.7), 0 0 40px rgba(0,255,255,.42), 0 0 60px rgba(0,170,255,.7);
+        text-shadow:0 0 15px rgba(0,255,255,.7), 0 0 30px rgba(0,255,255,.7); filter:brightness(2.2); }
+  100%{ box-shadow:0 0 8px rgba(0,255,255,.7), 0 0 20px rgba(0,255,255,.28);
+        text-shadow:0 0 10px rgba(0,255,255,.7); filter:brightness(1.4); }
 }
 @keyframes nameWinPink {
-  0%  { box-shadow:0 0 6px #f0f, 0 0 15px rgba(255,100,255,.4);
-        text-shadow:0 0 8px #f0f; filter:brightness(1.1); }
-  50% { box-shadow:0 0 18px #f0f, 0 0 40px rgba(255,100,255,.6), 0 0 60px #f5f;
-        text-shadow:0 0 15px #f0f, 0 0 30px #ff77ff; filter:brightness(2.2); }
-  100%{ box-shadow:0 0 8px #f0f, 0 0 20px rgba(255,100,255,.4);
-        text-shadow:0 0 10px #f0f; filter:brightness(1.4); }
+  0%  { box-shadow:0 0 6px rgba(255,0,255,.7), 0 0 15px rgba(255,100,255,.28);
+        text-shadow:0 0 8px rgba(255,0,255,.7); filter:brightness(1.1); }
+  50% { box-shadow:0 0 18px rgba(255,0,255,.7), 0 0 40px rgba(255,100,255,.42), 0 0 60px rgba(255,85,255,.7);
+        text-shadow:0 0 15px rgba(255,0,255,.7), 0 0 30px rgba(255,119,255,.7); filter:brightness(2.2); }
+  100%{ box-shadow:0 0 8px rgba(255,0,255,.7), 0 0 20px rgba(255,100,255,.28);
+        text-shadow:0 0 10px rgba(255,0,255,.7); filter:brightness(1.4); }
 }
 @keyframes hudWinBlue {
-  0%  { filter:drop-shadow(0 0 6px #0ff) drop-shadow(0 0 12px rgba(0,255,255,.5)); opacity:.75; }
-  50% { filter:drop-shadow(0 0 14px #0ff) drop-shadow(0 0 28px #0ff); opacity:1; }
-  100%{ filter:drop-shadow(0 0 8px #0ff) drop-shadow(0 0 18px rgba(0,255,255,.6)); opacity:.85; }
+  0%  { filter:drop-shadow(0 0 6px rgba(0,255,255,.7)) drop-shadow(0 0 12px rgba(0,255,255,.35)); opacity:.75; }
+  50% { filter:drop-shadow(0 0 14px rgba(0,255,255,.7)) drop-shadow(0 0 28px rgba(0,255,255,.7)); opacity:1; }
+  100%{ filter:drop-shadow(0 0 8px rgba(0,255,255,.7)) drop-shadow(0 0 18px rgba(0,255,255,.42)); opacity:.85; }
 }
 @keyframes hudWinPink {
-  0%  { filter:drop-shadow(0 0 6px #f0f) drop-shadow(0 0 12px rgba(255,100,255,.5)); opacity:.75; }
-  50% { filter:drop-shadow(0 0 14px #f0f) drop-shadow(0 0 28px #ff77ff); opacity:1; }
-  100%{ filter:drop-shadow(0 0 8px #f0f) drop-shadow(0 0 18px rgba(255,100,255,.6)); opacity:.85; }
+  0%  { filter:drop-shadow(0 0 6px rgba(255,0,255,.7)) drop-shadow(0 0 12px rgba(255,100,255,.35)); opacity:.75; }
+  50% { filter:drop-shadow(0 0 14px rgba(255,0,255,.7)) drop-shadow(0 0 28px rgba(255,119,255,.7)); opacity:1; }
+  100%{ filter:drop-shadow(0 0 8px rgba(255,0,255,.7)) drop-shadow(0 0 18px rgba(255,100,255,.42)); opacity:.85; }
 }
 
 .win-scanline {
@@ -302,7 +302,7 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
 
 .outline {
   stroke:cyan;stroke-width:2px;stroke-dasharray:1000;stroke-dashoffset:1000;
-  animation:draw 1s ease forwards;filter:drop-shadow(0 0 10px cyan) drop-shadow(0 0 22px cyan);
+  animation:draw 1s ease forwards;filter:drop-shadow(0 0 10px rgba(0,255,255,.7)) drop-shadow(0 0 22px rgba(0,255,255,.7));
 }
 .fill { fill:white;opacity:0;animation:appear 1s ease forwards 1s,rgbGlitch 1.5s infinite .5s; }
 @keyframes draw { 0%{stroke-dashoffset:1000;opacity:.2} 80%{opacity:1} 100%{stroke-dashoffset:0;opacity:1} }
@@ -390,24 +390,24 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
 .team-win-text.blue-win {
   color:#fff;
   text-shadow:
-    0 0 10px #0ff,
-    0 0 25px #0ff,
-    0 0 60px #0ff,
-    0 0 120px #0af,
-    -3px 0 #f0f,
-    3px 0 #0ff;
+    0 0 10px rgba(0,255,255,.8),
+    0 0 25px rgba(0,255,255,.8),
+    0 0 60px rgba(0,255,255,.8),
+    0 0 120px rgba(0,170,255,.8),
+    -3px 0 rgba(255,0,255,.8),
+    3px 0 rgba(0,255,255,.8);
   animation: teamWinAppear 0.6s cubic-bezier(0.22,1,0.36,1) forwards,
              teamWinGlitchBlue 2.4s steps(1) infinite 0.8s;
 }
 .team-win-text.pink-win {
   color:#fff;
   text-shadow:
-    0 0 10px #f0f,
-    0 0 25px #ff77ff,
-    0 0 60px #f0f,
-    0 0 120px #f5f,
-    -3px 0 #0ff,
-    3px 0 #f0f;
+    0 0 10px rgba(255,0,255,.8),
+    0 0 25px rgba(255,119,255,.8),
+    0 0 60px rgba(255,0,255,.8),
+    0 0 120px rgba(255,85,255,.8),
+    -3px 0 rgba(0,255,255,.8),
+    3px 0 rgba(255,0,255,.8);
   animation: teamWinAppear 0.6s cubic-bezier(0.22,1,0.36,1) forwards,
              teamWinGlitchPink 2.4s steps(1) infinite 0.8s;
 }
@@ -420,23 +420,23 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
   100%{ transform:scale(1) skewX(0); opacity:1; filter:brightness(1); }
 }
 @keyframes teamWinGlitchBlue {
-  0%,88%,100% { text-shadow:0 0 10px #0ff,0 0 25px #0ff,0 0 60px #0ff,0 0 120px #0af,-3px 0 #f0f,3px 0 #0ff;
+  0%,88%,100% { text-shadow:0 0 10px rgba(0,255,255,.8),0 0 25px rgba(0,255,255,.8),0 0 60px rgba(0,255,255,.8),0 0 120px rgba(0,170,255,.8),-3px 0 rgba(255,0,255,.8),3px 0 rgba(0,255,255,.8);
                 transform:translate(0); filter:brightness(1); }
-  90% { text-shadow:-6px 2px #f0f,6px -2px #0ff,0 0 40px #fff;
+  90% { text-shadow:-6px 2px rgba(255,0,255,.8),6px -2px rgba(0,255,255,.8),0 0 40px rgba(255,255,255,.8);
         transform:translate(-4px,0) skewX(4deg); filter:brightness(2.5); }
-  92% { text-shadow:5px 0 #0ff,-5px 0 #f0f,0 0 80px #0ff;
+  92% { text-shadow:5px 0 rgba(0,255,255,.8),-5px 0 rgba(255,0,255,.8),0 0 80px rgba(0,255,255,.8);
         transform:translate(3px,0); filter:brightness(1.8); }
-  94% { text-shadow:-2px 0 #fff,2px 0 #0ff,0 0 30px #0ff;
+  94% { text-shadow:-2px 0 rgba(255,255,255,.8),2px 0 rgba(0,255,255,.8),0 0 30px rgba(0,255,255,.8);
         transform:translate(0); filter:brightness(1.2); }
 }
 @keyframes teamWinGlitchPink {
-  0%,88%,100% { text-shadow:0 0 10px #f0f,0 0 25px #ff77ff,0 0 60px #f0f,0 0 120px #f5f,-3px 0 #0ff,3px 0 #f0f;
+  0%,88%,100% { text-shadow:0 0 10px rgba(255,0,255,.8),0 0 25px rgba(255,119,255,.8),0 0 60px rgba(255,0,255,.8),0 0 120px rgba(255,85,255,.8),-3px 0 rgba(0,255,255,.8),3px 0 rgba(255,0,255,.8);
                 transform:translate(0); filter:brightness(1); }
-  90% { text-shadow:-6px 2px #0ff,6px -2px #f0f,0 0 40px #fff;
+  90% { text-shadow:-6px 2px rgba(0,255,255,.8),6px -2px rgba(255,0,255,.8),0 0 40px rgba(255,255,255,.8);
         transform:translate(-4px,0) skewX(4deg); filter:brightness(2.5); }
-  92% { text-shadow:5px 0 #f0f,-5px 0 #0ff,0 0 80px #f0f;
+  92% { text-shadow:5px 0 rgba(255,0,255,.8),-5px 0 rgba(0,255,255,.8),0 0 80px rgba(255,0,255,.8);
         transform:translate(3px,0); filter:brightness(1.8); }
-  94% { text-shadow:-2px 0 #fff,2px 0 #f0f,0 0 30px #f0f;
+  94% { text-shadow:-2px 0 rgba(255,255,255,.8),2px 0 rgba(255,0,255,.8),0 0 30px rgba(255,0,255,.8);
         transform:translate(0); filter:brightness(1.2); }
 }
 
@@ -1173,9 +1173,9 @@ function checkScoreForRank() {
 
 function showRankUpEffect(rank) {
   const container = document.createElement("div");
-  container.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;";
+  container.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;width:min(1000px,100vw);max-width:100vw;overflow:visible;";
   container.innerHTML = `
-    <svg width="1000" height="250">
+    <svg viewBox="0 0 1000 250" width="100%" height="auto" style="overflow:visible;display:block;">
       <text x="50%" y="40%" class="outline big"  style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">${rank}</text>
       <text x="50%" y="75%" class="outline small" style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">Battle</text>
       <text x="50%" y="40%" class="fill big"     style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">${rank}</text>

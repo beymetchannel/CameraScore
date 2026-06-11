@@ -11,740 +11,1225 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CameraScore">
-<title>CameraScore</title>
+<title>BEYバトルカメラ</title>
 <style>
-@font-face {
-  font-family: 'CyberFont';
-  src: url('CyberFont.ttf') format('truetype');
+@font-face { font-family:'CyberFont';   src:url('CyberFont.ttf') format('truetype'); }
+@font-face { font-family:'DS-DIGIB';    src:url('DS-DIGIB.ttf') format('truetype'); }
+@font-face { font-family:'EvogriaItalic'; src:url('Evogria-Italic.otf') format('opentype'); }
+
+*,*::before,*::after { box-sizing:border-box; user-select:none; -webkit-user-select:none; }
+body,html { margin:0;padding:0;height:100%;background:#000;font-family:'CyberFont',sans-serif; overflow:hidden; }
+input { user-select:text; -webkit-user-select:text; }
+video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0; }
+.bi-border { position:absolute;inset:0;pointer-events:none;background:url('bi.png')center/contain no-repeat;opacity:.6;filter:drop-shadow(0 0 20px #0ff);animation:glow 2s infinite alternate;z-index:1; }
+@keyframes glow { 0%{filter:drop-shadow(0 0 10px #0ff)} 50%{filter:drop-shadow(0 0 25px #0ff)} 100%{filter:drop-shadow(0 0 10px #0ff)} }
+
+#mode-select {
+  position:fixed;inset:0;z-index:9000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
 }
-@font-face {
-  font-family: 'DS-DIGIB';
-  src: url('DS-DIGIB.ttf') format('truetype');
+#mode-select h1 {
+  font-family:'EvogriaItalic',sans-serif;
+  font-size:clamp(2rem,6vw,4rem);
+  color:#00d4ff;
+  text-shadow:0 0 20px #00d4ff,0 0 40px #00d4ff;
+  letter-spacing:4px;margin:0 0 10px;
 }
-@font-face {
-  font-family: 'EvogriaItalic';
-  src: url('Evogria-Italic.otf') format('opentype');
+#mode-select p { color:#aaa;font-size:1rem;margin:0 0 20px; }
+.mode-btn {
+  width:clamp(220px,50vw,360px);padding:20px 0;
+  font-family:'CyberFont',sans-serif;font-size:1.4rem;letter-spacing:2px;
+  border-radius:10px;border:2px solid;cursor:pointer;background:rgba(0,0,0,.7);
+  color:#fff;transition:transform .15s,box-shadow .15s;
 }
+.mode-btn:hover { transform:scale(1.04); }
+.mode-btn.single { border-color:#aaffff;box-shadow:0 0 14px #aaffff44; }
+.mode-btn.single:hover { box-shadow:0 0 28px #aaffff; }
+.mode-btn.team   { border-color:#ffaaff;box-shadow:0 0 14px #ffaaff44; }
+.mode-btn.team:hover   { box-shadow:0 0 28px #ffaaff; }
+.mode-btn-sub { font-size:.85rem;color:#aaa;margin-top:6px; }
 
-body,html { margin:0;padding:0;height:100%;background:black;font-family:'CyberFont',sans-serif; }
-video#camera { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
-.bi-border{position:absolute;inset:0;pointer-events:none;background:url('bi.png')center/contain no-repeat;opacity:.6;filter:drop-shadow(0 0 20px #0ff);animation:glow 2s infinite alternate;z-index:1;}
-@keyframes glow{0%{filter:drop-shadow(0 0 10px #0ff)}50%{filter:drop-shadow(0 0 25px #0ff)}100%{filter:drop-shadow(0 0 10px #0ff)}}
+.ui-layer { position:absolute;inset:0;z-index:2; }
 
-.ui-layer{position:absolute;inset:0;z-index:2;}
-
-select,select option {font-family:'CyberFont'!important;letter-spacing:1px;}
-.left-block select,.right-block select {
-  font-size:1.3rem;width:40vw;max-width:400px;min-width:120px;
-  padding:10px 12px;margin-bottom:10px;background:rgba(0,0,0,.6);
-  color:#fff;border-radius:8px;border:2px solid;appearance:none;cursor:pointer;
-}
-.left-block select{border-color:#aaffff;}
-.right-block select{border-color:#ffaaaa;text-align-last:right;}
-
-.left-block select option,.right-block select option{font-size:1.3rem;}
-
-.left-block,.right-block{
-  position:absolute;top:20px;display:flex;flex-direction:column;pointer-events:auto;
-}
-.left-block{left:20px;}
-.right-block{right:20px;align-items:flex-end;}
-
-.frame-container{display:flex;flex-direction:column;gap:0;}
-
-.frame{
-  width:60px;
-  height:10vh;
-  border:2px solid;
-  position:relative;
-  overflow: hidden;
+.left-block,.right-block {
+  position:absolute;
+  top:20px;bottom:20px;
+  display:flex;flex-direction:column;
+  justify-content:space-between;   
   pointer-events:auto;
-  background:rgba(0,0,0,.7);
-  backdrop-filter:blur(4px);
-  /* box-shadow:0 0 15px,inset 0 0 30px; */
 }
+.left-block  { left:20px; }
+.right-block { right:20px;align-items:flex-end; }
 
-.frame.blue{
-  border-color:#aaffff;
-  /* box-shadow:0 0 15px #aaffff,inset 0 0 30px #aaffff; */
+.block-top {
+  display:flex;flex-direction:column;
 }
-.frame.pink{
-  border-color:#ffaaaa;
-  /* box-shadow:0 0 15px #ffaaaa,inset 0 0 30px #ffaaaa; */
- }
+.right-block .block-top { align-items:flex-end; }
 
-.hud-ring{
-position:absolute;
-top:50%;
-left:50%;
-width:70px;
-height:70px;
-transform:translate(-50%,-50%);
-animation:hudSpin 3s linear infinite;
-pointer-events:none;
+.block-bottom {
+  display:flex;flex-direction:column;
+  align-items:flex-start;
 }
-@keyframes hudSpin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+.right-block .block-bottom { align-items:flex-end; }
 
-.score{font-family:'DS-DIGIB'!important;font-size:25vh;color:#ffdd99;text-shadow:0 0 10px #ffaa33,0 0 20px #ffaa33,0 0 40px #ff4400;pointer-events:auto;}
-.score-container{display:flex;align-items:center;gap:.8vw;}
-
-.left-score-container .blader-name{border:2px solid #aaffff;}
-.right-score-container .blader-name{border:2px solid #ffaaaa;}
-
-.blader-name{
-  padding:8px 12px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;
-  font-size:1.6rem;cursor:text;white-space:nowrap;
+.frame-container { display:flex;flex-direction:column;gap:0; }
+.frame {
+  width:60px;height:60px;
+  border:2px solid;position:relative;overflow:hidden;
+  pointer-events:auto;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  flex-shrink:0;
 }
+.frame.blue { border-color:#aaffff; }
+.frame.pink { border-color:#ffaaaa; }
 
-.center-block{position:absolute;top:10px;left:50%;transform:translateX(-50%);text-align:center;z-index:3;}
-.center-battle{font-size:1rem;color:#fff;}
-.center-rank{font-size:2rem;color:#fff;border-bottom:2px solid #fff;cursor:pointer;user-select:none;}
-
-.win-overlay{
-  position:fixed;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  color:#ffea50;
-  font-size:8vw;
-  white-space:pre-line;
-  text-shadow:0 0 10px #fff59e,0 0 20px #ffea50,0 0 40px #ffdd33;z-index:1000;
-  animation:winFlash 5s forwards;
+.hud-ring {
+  position:absolute;top:50%;left:50%;width:70px;height:70px;
+  transform:translate(-50%,-50%);animation:hudSpin 3s linear infinite;pointer-events:none;
 }
-@keyframes 
-winFlash{
-0%{transform:scale(.5);
-opacity:0}10%{transform:scale(1.5);
-opacity:1}100%{transform:scale(1);
-opacity:0}}
-
-
-
-.modal-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  backdrop-filter:blur(6px);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:2000;
-}
-.modal-content{
-  background:#0B0E1A;
-  border:2px solid #00D4FF;
-  width:90%;
-  max-width:420px;
-  padding:20px;
-  border-radius:12px;
-  color:#fff;
-}
-.modal-content.right{border-color:#FF33D4;}
-.modal-content h2{text-align:center;margin-bottom:10px;}
-
-.deck-input
-{width:100%;
-padding:12px;
-margin-bottom:10px;
-font-size:1.3rem;
-font-family:'CyberFont',sans-serif;
-background:rgba(0,0,0,.6);
-border:2px solid #00eaff;
-color:#fff;
-box-sizing: border-box;
-}
-
-.modal-save-btn{
-width:100%;
-padding:12px;
-margin-top:12px;
-font-size:1.3rem;
-font-family:'CyberFont',sans-serif;
-background:rgba(0, 212, 255, 0.6);
-font-weight:bold;
-border-radius:6px;
-cursor:pointer;
-color: #000 !important;
-}
-
-.modal-save-btn.right{
-background:rgba(255, 51, 212, 0.6);
-color: #000 !important;
-}
-
-.deck-input.right {
-  border-color: #FF33D4 !important;
-}
-
-.hud-ring.cyber-effect {
-  animation: hudGlitch 1s infinite alternate, hudSpin 3s linear infinite;
-}
-
+@keyframes hudSpin { from{transform:translate(-50%,-50%) rotate(0)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+.hud-ring.cyber-effect      { animation:hudGlitch 1s infinite alternate, hudSpin 3s linear infinite; }
+.hud-ring.right.cyber-effect { animation:hudGlitchPink 1s infinite alternate, hudSpin 3s linear infinite; }
 @keyframes hudGlitch {
-  0% { filter: drop-shadow(0 0 10px #0ff); opacity: 0.7; }
-  25% { filter: drop-shadow(0 0 25px #0ff); opacity: 1; }
-  50% { filter: drop-shadow(0 0 15px #0ff); opacity: 0.8; }
-  75% { filter: drop-shadow(0 0 30px #0ff); opacity: 1; }
-  100% { filter: drop-shadow(0 0 20px #0ff); opacity: 0.7; }
+  0%{filter:drop-shadow(0 0 10px #0ff);opacity:.7} 25%{filter:drop-shadow(0 0 25px #0ff);opacity:1}
+  50%{filter:drop-shadow(0 0 15px #0ff);opacity:.8} 75%{filter:drop-shadow(0 0 30px #0ff);opacity:1}
+  100%{filter:drop-shadow(0 0 20px #0ff);opacity:.7}
 }
-
-.hud-ring.right.cyber-effect {
-  animation: hudGlitchPink 1s infinite alternate, hudSpin 3s linear infinite;
-}
-
 @keyframes hudGlitchPink {
-  0% { filter: drop-shadow(0 0 10px #ff77ff); opacity: 0.7; }
-  25% { filter: drop-shadow(0 0 25px #ff77ff); opacity: 1; }
-  50% { filter: drop-shadow(0 0 15px #ff77ff); opacity: 0.8; }
-  75% { filter: drop-shadow(0 0 30px #ff77ff); opacity: 1; }
-  100% { filter: drop-shadow(0 0 20px #ff77ff); opacity: 0.7; }
+  0%{filter:drop-shadow(0 0 10px #ff77ff);opacity:.7} 25%{filter:drop-shadow(0 0 25px #ff77ff);opacity:1}
+  50%{filter:drop-shadow(0 0 15px #ff77ff);opacity:.8} 75%{filter:drop-shadow(0 0 30px #ff77ff);opacity:1}
+  100%{filter:drop-shadow(0 0 20px #ff77ff);opacity:.7}
+}
+
+.score {
+  font-family:'DS-DIGIB'!important;font-size:25vh;color:#ffdd99;
+  text-shadow:0 0 10px #ffaa33,0 0 20px #ffaa33,0 0 40px #ff4400;pointer-events:auto;
+}
+.score-container { display:flex;align-items:center;gap:.8vw; }
+.left-score-container  .blader-name { border:2px solid #aaffff; }
+.right-score-container .blader-name { border:2px solid #ffaaaa; }
+.blader-name {
+  padding:8px 12px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;
+  font-size:1.6rem;white-space:nowrap;
+}
+.score.pulse { animation:scoreGlowWave 2.2s ease-in-out infinite; }
+@keyframes scoreGlowWave {
+  0%  { text-shadow:0 0 6px #ffaa33,0 0 14px #ffaa33,0 0 24px #ff4400;filter:brightness(1); }
+  50% { text-shadow:0 0 10px #ffaa33,0 0 30px #ffaa33,0 0 45px #ff3300;filter:brightness(1.3); }
+  100%{ text-shadow:0 0 6px #ffaa33,0 0 14px #ffaa33,0 0 24px #ff4400;filter:brightness(1); }
+}
+
+.score-burst {
+  animation: scoreCyberBurst 0.7s ease-out forwards !important;
+  transform-origin: center center;
+}
+@keyframes scoreCyberBurst {
+  0%   { transform:scale(6);  opacity:0;   filter:brightness(5) blur(6px); color:#fff;
+         text-shadow:-6px 0 #0ff, 6px 0 #f0f, 0 0 40px #fff, 0 0 80px #ffaa33; }
+  15%  { transform:scale(4.5);opacity:1;   filter:brightness(4) blur(2px); color:#ffe;
+         text-shadow:-4px 2px #0ff, 4px -2px #f0f, 0 0 60px #ffaa33; }
+  30%  { transform:scale(3);  opacity:1;   filter:brightness(3);
+         text-shadow:-3px 0 #0ff, 3px 0 #f0f, 0 0 40px #ff4400; }
+  45%  { transform:scale(2);  opacity:1;   filter:brightness(2.5) contrast(1.5);
+         text-shadow: 3px 0 #0ff,-3px 0 #f0f, 0 0 20px #ffaa33; }
+  60%  { transform:scale(1.4);opacity:1;   filter:brightness(1.8);
+         text-shadow: 2px 0 #0ff,-2px 0 #ff6600; }
+  75%  { transform:scale(1.1);opacity:1;   filter:brightness(1.4); }
+  100% { transform:scale(1);  opacity:1;   filter:brightness(1);
+         text-shadow:0 0 10px #ffaa33,0 0 20px #ffaa33,0 0 40px #ff4400; }
+}
+
+.score-burst::before {
+  content: attr(data-val);
+  position:absolute; left:0; top:-4px; width:100%;
+  color:#0ff; opacity:.6; clip-path:inset(0 0 70% 0);
+  animation: scoreGlitchSlice 0.6s steps(1) forwards;
+  pointer-events:none;
+}
+.score-burst::after {
+  content: attr(data-val);
+  position:absolute; left:3px; top:5px; width:100%;
+  color:#f0f; opacity:.5; clip-path:inset(40% 0 30% 0);
+  animation: scoreGlitchSlice 0.6s steps(1) forwards 0.05s;
+  pointer-events:none;
+}
+@keyframes scoreGlitchSlice {
+  0%,20%  { transform:translateX(-6px); opacity:.7; }
+  10%,30% { transform:translateX(4px);  opacity:.5; }
+  50%     { transform:translateX(-2px); opacity:.3; }
+  80%     { transform:translateX(1px);  opacity:.1; }
+  100%    { transform:translateX(0);    opacity:0;  }
+}
+
+.score-ring-burst {
+  position:fixed; pointer-events:none; z-index:3000;
+  width:0; height:0;
+  animation: scoreRingExpand 0.5s ease-out forwards;
+}
+.score-ring-burst::before {
+  content:"";
+  position:absolute; border-radius:50%;
+  border:3px solid #ffaa33;
+  width:30vw; height:30vw;
+  transform:translate(-50%,-50%);
+  animation: scoreRingPulse 0.5s ease-out forwards;
+  box-shadow:0 0 20px #ffaa33, inset 0 0 20px #ffaa33;
+}
+.score-ring-burst::after {
+  content:"";
+  position:absolute; border-radius:50%;
+  border:2px solid #0ff;
+  width:20vw; height:20vw;
+  transform:translate(-50%,-50%);
+  animation: scoreRingPulse 0.5s ease-out forwards 0.08s;
+  box-shadow:0 0 10px #0ff;
+}
+@keyframes scoreRingPulse {
+  0%   { transform:translate(-50%,-50%) scale(0.2); opacity:1; }
+  60%  { transform:translate(-50%,-50%) scale(1.2); opacity:.5; }
+  100% { transform:translate(-50%,-50%) scale(1.8); opacity:0; }
+}
+
+.blade-name-input {
+  font-family:'CyberFont',sans-serif;font-size:1.3rem;
+  width:40vw;max-width:400px;min-width:120px;
+  padding:10px 12px;margin-bottom:10px;
+  background:rgba(0,0,0,.6);color:#fff;border-radius:8px;border:2px solid;
+  pointer-events:auto;outline:none;letter-spacing:1px;
+}
+.left-name-input  { border-color:#aaffff; }
+.right-name-input { border-color:#ffaaaa;text-align:right; }
+.blade-name-input::placeholder { color:rgba(255,255,255,.35); }
+
+.center-block { position:absolute;top:10px;left:50%;transform:translateX(-50%);text-align:center;z-index:3; }
+.center-battle { font-size:1rem;color:#fff; }
+.center-rank   { font-size:2rem;color:#fff;border-bottom:2px solid #fff;cursor:pointer; }
+
+.win-overlay {
+  position:fixed;inset:0;display:flex;justify-content:center;align-items:center;
+  text-align:center;color:#ffea50;font-size:8vw;white-space:pre-line;
+  text-shadow:0 0 10px #fff59e,0 0 20px #ffea50,0 0 40px #ffdd33;
+  z-index:1000;animation:winFlash 5s forwards;pointer-events:none;
+}
+@keyframes winFlash {
+  0%{transform:scale(.5);opacity:0} 10%{transform:scale(1.5);opacity:1} 100%{transform:scale(1);opacity:0}
+}
+
+.frame.win-glow-blue {
+  animation: frameWinBlue 0.9s ease-in-out infinite alternate !important;
+  border-color:#0ff !important;
+}
+.frame.win-glow-pink {
+  animation: frameWinPink 0.9s ease-in-out infinite alternate !important;
+  border-color:#ff77ff !important;
+}
+
+.win-glow-name-blue {
+  animation: nameWinBlue 1.1s ease-in-out infinite alternate !important;
+  border-color:#0ff !important;
+  color:#aaffff !important;
+}
+.win-glow-name-pink {
+  animation: nameWinPink 1.1s ease-in-out infinite alternate !important;
+  border-color:#ff77ff !important;
+  color:#ffaaff !important;
+}
+
+.win-glow-hud-blue {
+  animation: hudWinBlue 1.8s ease-in-out infinite alternate, hudSpin 3s linear infinite !important;
+}
+.win-glow-hud-pink {
+  animation: hudWinPink 1.8s ease-in-out infinite alternate, hudSpin 3s linear infinite !important;
+}
+
+@keyframes frameWinBlue {
+  0%  { box-shadow:0 0 4px #0ff, 0 0 10px rgba(0,255,255,.3), inset 0 0 6px rgba(0,255,255,.15);
+        border-color:#aaffff; filter:brightness(1.1); }
+  50% { box-shadow:0 0 10px #0ff, 0 0 22px rgba(0,255,255,.5), inset 0 0 12px rgba(0,255,255,.3);
+        border-color:#0ff; filter:brightness(1.6); }
+  100%{ box-shadow:0 0 6px #0ff, 0 0 14px rgba(0,255,255,.35), inset 0 0 8px rgba(0,255,255,.2);
+        border-color:#aaffff; filter:brightness(1.2); }
+}
+@keyframes frameWinPink {
+  0%  { box-shadow:0 0 4px #f0f, 0 0 10px rgba(255,100,255,.3), inset 0 0 6px rgba(255,100,255,.15);
+        border-color:#ffaaaa; filter:brightness(1.1); }
+  50% { box-shadow:0 0 10px #f0f, 0 0 22px rgba(255,100,255,.5), inset 0 0 12px rgba(255,100,255,.3);
+        border-color:#ff77ff; filter:brightness(1.6); }
+  100%{ box-shadow:0 0 6px #f0f, 0 0 14px rgba(255,100,255,.35), inset 0 0 8px rgba(255,100,255,.2);
+        border-color:#ffaaaa; filter:brightness(1.2); }
+}
+@keyframes nameWinBlue {
+  0%  { box-shadow:0 0 6px #0ff, 0 0 15px rgba(0,255,255,.4);
+        text-shadow:0 0 8px #0ff; filter:brightness(1.1); }
+  50% { box-shadow:0 0 18px #0ff, 0 0 40px rgba(0,255,255,.6), 0 0 60px #0af;
+        text-shadow:0 0 15px #0ff, 0 0 30px #0ff; filter:brightness(2.2); }
+  100%{ box-shadow:0 0 8px #0ff, 0 0 20px rgba(0,255,255,.4);
+        text-shadow:0 0 10px #0ff; filter:brightness(1.4); }
+}
+@keyframes nameWinPink {
+  0%  { box-shadow:0 0 6px #f0f, 0 0 15px rgba(255,100,255,.4);
+        text-shadow:0 0 8px #f0f; filter:brightness(1.1); }
+  50% { box-shadow:0 0 18px #f0f, 0 0 40px rgba(255,100,255,.6), 0 0 60px #f5f;
+        text-shadow:0 0 15px #f0f, 0 0 30px #ff77ff; filter:brightness(2.2); }
+  100%{ box-shadow:0 0 8px #f0f, 0 0 20px rgba(255,100,255,.4);
+        text-shadow:0 0 10px #f0f; filter:brightness(1.4); }
+}
+@keyframes hudWinBlue {
+  0%  { filter:drop-shadow(0 0 6px #0ff) drop-shadow(0 0 12px rgba(0,255,255,.5)); opacity:.75; }
+  50% { filter:drop-shadow(0 0 14px #0ff) drop-shadow(0 0 28px #0ff); opacity:1; }
+  100%{ filter:drop-shadow(0 0 8px #0ff) drop-shadow(0 0 18px rgba(0,255,255,.6)); opacity:.85; }
+}
+@keyframes hudWinPink {
+  0%  { filter:drop-shadow(0 0 6px #f0f) drop-shadow(0 0 12px rgba(255,100,255,.5)); opacity:.75; }
+  50% { filter:drop-shadow(0 0 14px #f0f) drop-shadow(0 0 28px #ff77ff); opacity:1; }
+  100%{ filter:drop-shadow(0 0 8px #f0f) drop-shadow(0 0 18px rgba(255,100,255,.6)); opacity:.85; }
+}
+
+.win-scanline {
+  position:fixed;inset:0;pointer-events:none;z-index:999;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(255,230,50,.04) 3px,
+    rgba(255,230,50,.04) 4px
+  );
+  animation:scanlineScroll 3s linear infinite;
+  opacity:0;
+}
+.win-scanline.active { opacity:1; }
+@keyframes scanlineScroll { 0%{background-position:0 0} 100%{background-position:0 40px} }
+
+.outline {
+  stroke:cyan;stroke-width:2px;stroke-dasharray:1000;stroke-dashoffset:1000;
+  animation:draw 1s ease forwards;filter:drop-shadow(0 0 10px cyan) drop-shadow(0 0 22px cyan);
+}
+.fill { fill:white;opacity:0;animation:appear 1s ease forwards 1s,rgbGlitch 1.5s infinite .5s; }
+@keyframes draw { 0%{stroke-dashoffset:1000;opacity:.2} 80%{opacity:1} 100%{stroke-dashoffset:0;opacity:1} }
+@keyframes appear { 0%{opacity:0;filter:brightness(4) blur(4px)} 60%{opacity:1;filter:brightness(2) blur(1px)} 100%{opacity:1;filter:brightness(1) blur(0)} }
+@keyframes rgbGlitch {
+  0%,100%{text-shadow:none;filter:none}
+  8%{text-shadow:-2px 0 red,2px 0 cyan;filter:brightness(1.5)}
+  15%{text-shadow:-4px 0 magenta,4px 0 lime;filter:brightness(2.2) contrast(1.8)}
+  25%{text-shadow:-6px 0 cyan,6px 0 red;filter:brightness(1.8) contrast(2)}
+  38%{text-shadow:-3px 0 lime,3px 0 magenta;filter:brightness(2.5)}
+  52%{text-shadow:-1px 0 red,1px 0 cyan;filter:brightness(1.6)}
+  75%{text-shadow:-5px 0 cyan,5px 0 magenta;filter:brightness(2.3) blur(.5px)}
+}
+@keyframes reverseDraw { 0%{stroke-dashoffset:0;opacity:1} 100%{stroke-dashoffset:1000;opacity:0;filter:brightness(0) blur(6px)} }
+@keyframes fadeOut { 0%{opacity:1} 100%{opacity:0;filter:brightness(0) blur(6px)} }
+.big   { font-size:150px; }
+.small { font-size:50px; }
+
+.lives-row {
+  display:flex;gap:6px;margin-bottom:10px;
+  pointer-events:none;
+}
+.right-block .lives-row { justify-content:flex-end; }
+
+.life-icon {
+  width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .4s, filter .4s;
+}
+.life-icon svg { width:100%;height:100%; }
+
+.life-icon.active svg { fill:#fff; filter:drop-shadow(0 0 6px #fff); }
+
+.life-icon.dead svg   { fill:#333; filter:none; }
+
+.team-blader-label {
+  font-family:'CyberFont',sans-serif;
+  font-size:1.3rem;
+  width:40vw;max-width:400px;min-width:120px;
+  padding:10px 12px;margin-bottom:10px;
+  background:rgba(0,0,0,.6);color:#fff;
+  border-radius:8px;border:2px solid;
+  white-space:nowrap;letter-spacing:1px;
+  pointer-events:none;
+}
+.left-block  .team-blader-label { border-color:#aaffff;color:#aaffff; }
+.right-block .team-blader-label { border-color:#ffaaaa;color:#ffaaaa;text-align:right; }
+
+.team-win-overlay {
+  position:fixed;inset:0;display:flex;justify-content:center;align-items:center;
+  text-align:center;white-space:pre-line;
+  z-index:1001;pointer-events:none;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(1px);
+}
+
+.team-win-overlay::before {
+  content:"";
+  position:absolute;inset:0;
+  background:
+    linear-gradient(rgba(0,255,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,255,.06) 1px, transparent 1px);
+  background-size:40px 40px;
+  animation:gridPulse 3s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes gridPulse {
+  0%,100%{opacity:.4} 50%{opacity:1}
+}
+
+.team-win-overlay::after {
+  content:"";
+  position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.25) 3px,rgba(0,0,0,.25) 4px);
+  animation:scanRoll 1.2s linear infinite;
+}
+.team-win-text {
+  position:relative;z-index:1;
+  font-family:'EvogriaItalic',sans-serif;
+  font-size:clamp(4rem,10vw,9rem);
+  letter-spacing:6px;
+  line-height:1.15;
+  animation: teamWinAppear 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+.team-win-text.blue-win {
+  color:#fff;
+  text-shadow:
+    0 0 10px #0ff,
+    0 0 25px #0ff,
+    0 0 60px #0ff,
+    0 0 120px #0af,
+    -3px 0 #f0f,
+    3px 0 #0ff;
+  animation: teamWinAppear 0.6s cubic-bezier(0.22,1,0.36,1) forwards,
+             teamWinGlitchBlue 2.4s steps(1) infinite 0.8s;
+}
+.team-win-text.pink-win {
+  color:#fff;
+  text-shadow:
+    0 0 10px #f0f,
+    0 0 25px #ff77ff,
+    0 0 60px #f0f,
+    0 0 120px #f5f,
+    -3px 0 #0ff,
+    3px 0 #f0f;
+  animation: teamWinAppear 0.6s cubic-bezier(0.22,1,0.36,1) forwards,
+             teamWinGlitchPink 2.4s steps(1) infinite 0.8s;
+}
+@keyframes teamWinAppear {
+  0%  { transform:scale(0.2) skewX(-15deg); opacity:0;
+        filter:brightness(8) blur(12px); }
+  40% { transform:scale(1.18) skewX(3deg); opacity:1;
+        filter:brightness(4) blur(2px); }
+  70% { transform:scale(0.96) skewX(-1deg); filter:brightness(2); }
+  100%{ transform:scale(1) skewX(0); opacity:1; filter:brightness(1); }
+}
+@keyframes teamWinGlitchBlue {
+  0%,88%,100% { text-shadow:0 0 10px #0ff,0 0 25px #0ff,0 0 60px #0ff,0 0 120px #0af,-3px 0 #f0f,3px 0 #0ff;
+                transform:translate(0); filter:brightness(1); }
+  90% { text-shadow:-6px 2px #f0f,6px -2px #0ff,0 0 40px #fff;
+        transform:translate(-4px,0) skewX(4deg); filter:brightness(2.5); }
+  92% { text-shadow:5px 0 #0ff,-5px 0 #f0f,0 0 80px #0ff;
+        transform:translate(3px,0); filter:brightness(1.8); }
+  94% { text-shadow:-2px 0 #fff,2px 0 #0ff,0 0 30px #0ff;
+        transform:translate(0); filter:brightness(1.2); }
+}
+@keyframes teamWinGlitchPink {
+  0%,88%,100% { text-shadow:0 0 10px #f0f,0 0 25px #ff77ff,0 0 60px #f0f,0 0 120px #f5f,-3px 0 #0ff,3px 0 #f0f;
+                transform:translate(0); filter:brightness(1); }
+  90% { text-shadow:-6px 2px #0ff,6px -2px #f0f,0 0 40px #fff;
+        transform:translate(-4px,0) skewX(4deg); filter:brightness(2.5); }
+  92% { text-shadow:5px 0 #f0f,-5px 0 #0ff,0 0 80px #f0f;
+        transform:translate(3px,0); filter:brightness(1.8); }
+  94% { text-shadow:-2px 0 #fff,2px 0 #f0f,0 0 30px #f0f;
+        transform:translate(0); filter:brightness(1.2); }
+}
+
+.team-win-sub {
+  position:relative;z-index:1;
+  font-family:'CyberFont',sans-serif;
+  font-size:clamp(0.9rem,2vw,1.5rem);
+  letter-spacing:10px;
+  margin-top:1.5vh;
+  animation: teamWinSubAppear 0.5s ease-out forwards 0.4s;
+  opacity:0;
+}
+.team-win-sub.blue-win {
+  color:#0ff;
+  text-shadow:0 0 10px #0ff, 0 0 20px #0ff;
+}
+.team-win-sub.pink-win {
+  color:#f0f;
+  text-shadow:0 0 10px #f0f, 0 0 20px #f0f;
+}
+@keyframes teamWinSubAppear {
+  0%  { opacity:0; transform:scaleX(0.3) translateY(10px); letter-spacing:30px; }
+  100%{ opacity:1; transform:scaleX(1) translateY(0); letter-spacing:10px; }
+}
+
+.team-win-sideline {
+  position:fixed;top:0;bottom:0;width:4px;pointer-events:none;z-index:1002;
+  animation:sidelineFlash 1.5s ease-in-out infinite;
+}
+.team-win-sideline.left-line  { left:clamp(20px,5vw,60px); }
+.team-win-sideline.right-line { right:clamp(20px,5vw,60px); }
+.team-win-sideline.blue-line  { background:linear-gradient(to bottom,transparent,#0ff,#0ff,transparent);
+                                 box-shadow:0 0 12px #0ff, 0 0 30px #0af; }
+.team-win-sideline.pink-line  { background:linear-gradient(to bottom,transparent,#f0f,#f0f,transparent);
+                                 box-shadow:0 0 12px #f0f, 0 0 30px #f5f; }
+@keyframes sidelineFlash {
+  0%,100%{opacity:.5;transform:scaleY(1)}
+  50%{opacity:1;transform:scaleY(1.03)}
+}
+
+#lives-overlay {
+  position:fixed;inset:0;z-index:5000;pointer-events:none;
+  display:none;
+  background:rgba(0,0,0,.92);
+  backdrop-filter:blur(2px);
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:5vh;
+}
+#lives-overlay.show { display:flex; }
+
+#lives-overlay::before {
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 0%,rgba(0,255,255,.03) 50%,transparent 100%);
+  animation:overlayGlitch 0.12s steps(1) infinite;
+  pointer-events:none;
+}
+@keyframes overlayGlitch {
+  0%  { transform:translateY(0);   opacity:1; }
+  20% { transform:translateY(-3px);opacity:.8; background:rgba(255,0,255,.04); }
+  40% { transform:translateY(2px); opacity:1; }
+  60% { transform:translateY(-1px);opacity:.9; background:rgba(0,255,255,.04); }
+  80% { transform:translateY(1px); opacity:1; }
+  100%{ transform:translateY(0);   opacity:1; }
+}
+
+#lives-overlay::after {
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 4px,rgba(0,0,0,.3) 4px,rgba(0,0,0,.3) 5px);
+  animation:scanRoll 1.5s linear infinite;
+}
+@keyframes scanRoll { 0%{transform:translateY(0)} 100%{transform:translateY(40px)} }
+
+.lov-side {
+  display:flex;flex-direction:column;align-items:center;gap:2vh;
+  min-width:30vw;
+}
+.lov-label {
+  font-family:'CyberFont',sans-serif;font-size:clamp(1rem,3vw,1.8rem);
+  letter-spacing:4px;text-transform:uppercase;
+  text-shadow:0 0 10px currentColor;
+}
+.lov-label.blue { color:#0ff; }
+.lov-label.pink { color:#f0f; }
+
+.lov-lives {
+  display:flex;gap:3vw;
+}
+.lov-icon {
+  width:clamp(40px,8vw,70px);height:clamp(40px,8vw,70px);
+  display:flex;align-items:center;justify-content:center;
+  transition:none;
+}
+.lov-icon svg { width:100%;height:100%; }
+.lov-icon.active svg   { fill:#fff; filter:drop-shadow(0 0 10px #fff); }
+.lov-icon.dead   svg   { fill:#222; filter:none; opacity:.4; }
+.lov-icon.losing svg   { fill:#fff; filter:drop-shadow(0 0 10px #fff); }
+
+.lov-icon.glitch-out {
+  animation: liveLoseGlitch 1.0s steps(1) forwards;
+}
+@keyframes liveLoseGlitch {
+  0%   { filter:drop-shadow(0 0 12px #fff);transform:scale(1);opacity:1; }
+  8%   { filter:drop-shadow(0 0 20px #f00) drop-shadow(-4px 0 #0ff);transform:translateX(-5px) scale(1.1); }
+  16%  { filter:drop-shadow(0 0 20px #0ff) drop-shadow(4px 0 #f0f);transform:translateX(4px) scale(1.05); }
+  24%  { filter:drop-shadow(0 0 30px #ff0) drop-shadow(-2px 0 #f00);transform:translateX(-3px) scale(1.08);opacity:.8; }
+  32%  { filter:drop-shadow(0 0 15px #f0f) drop-shadow(3px 0 #0ff);transform:translateX(3px) scale(.95); }
+  40%  { filter:drop-shadow(0 0 25px #f00);transform:translateX(-2px) skewX(10deg);opacity:.6; }
+  48%  { filter:drop-shadow(0 0 10px #0ff);transform:translateX(2px) skewX(-8deg);opacity:.5; }
+  56%  { filter:brightness(3) drop-shadow(0 0 20px #fff);transform:scale(1.2) skewX(0);opacity:.4; }
+  64%  { filter:brightness(.3);transform:scale(.8);opacity:.3; }
+  72%  { filter:brightness(2) drop-shadow(0 0 5px #f00);transform:scale(1.1);opacity:.2; }
+  80%  { filter:none;transform:scale(.5) skewX(20deg);opacity:.15; }
+  90%  { filter:none;transform:scale(.2);opacity:.08; }
+  100% { filter:none;transform:scale(0);opacity:0; }
+}
+
+.lov-label.damaged {
+  animation: labelDamage 0.8s steps(1) forwards;
+}
+@keyframes labelDamage {
+  0%   { text-shadow:0 0 10px currentColor; }
+  10%  { text-shadow:-4px 0 #f00, 4px 0 #0ff, 0 0 20px #fff; transform:translateX(-3px); }
+  20%  { text-shadow: 4px 0 #f0f,-4px 0 #0ff, 0 0 30px #f00; transform:translateX(3px); }
+  30%  { text-shadow:-2px 0 #0ff, 2px 0 #f0f; transform:translateX(-1px); color:#f00; }
+  50%  { text-shadow: 0 0 20px #f00; color:#f00; }
+  70%  { text-shadow: 0 0 10px currentColor; color:inherit; }
+  100% { text-shadow: 0 0 10px currentColor; }
+}
+.lov-separator {
+  font-family:'DS-DIGIB',sans-serif;font-size:clamp(2rem,6vw,4rem);
+  color:#444;align-self:center;padding:0 2vw;
+  text-shadow:none;
+}
+.lov-row {
+  display:flex;align-items:center;gap:4vw;
+}
+
+.lov-vs {
+  font-family:'EvogriaItalic',sans-serif;
+  font-size:clamp(1.5rem,5vw,3.5rem);
+  color:#ffaa33;
+  text-shadow:0 0 15px #ffaa33, 0 0 30px #ff6600;
+  letter-spacing:6px;
+  align-self:center;
 }
 
 @media screen and (orientation: landscape) {
-  .left-block,
-  .right-block {
-    top: 2vh;    
-    bottom: 2vh;    
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; 
-  }
-
-  .frame-container {
-    flex-grow: 1;       
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .frame {
-    height: auto;     
-    flex: 1;          
-    margin: 0; 
-  }
-
-  .score-container {
-    margin-top: 1vh;
-  }
+  .left-block,.right-block { top:2vh;bottom:2vh; }
+  .frame { width:60px;height:60px; }
+  .score-container { margin-top:1vh; }
 }
-
-/* サイドグロー */
-.side-glow {
-  position: fixed; 
-  top: 0;
-  bottom: 0;
-  width: 20vw;
-  pointer-events: none;
-}
-
-
-.side-glow::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 100%;
-  pointer-events: none;
-
-  background: linear-gradient(
-    to right,
-    rgba(255, 230, 50, 0.9),
-    rgba(255, 230, 50, 0.2),
-    rgba(255, 230, 50, 0)
-  );
-
-  filter: blur(50px); 
-  opacity: 0;
-  animation: glowPulse 2s infinite ease-in-out;
-  animation-play-state: paused;
-}
-
-.side-glow.active::before {
-  opacity: 1 !important;
-  animation-play-state: running; 
-}
-
-#leftArea { left:0; }
-#rightArea { right:-100px; }
-
-
-.side-glow.stop::before {
-  opacity: 0 !important;
-  animation: none !important;
-  filter: none !important;
-}
-
-
-@keyframes glowPulse {
-  0%   { opacity: 0; transform: scaleX(0.5) }
-  50%  { opacity: 0.5; transform: scaleX(2) }
-  100% { opacity: 0; transform: scaleX(0.5) }
-}
-
-.score.pulse {
-  animation: scoreGlowWave 2.2s ease-in-out infinite;
-}
-
-@keyframes scoreGlowWave {
-  0% {
-    text-shadow:
-      0 0 6px #ffaa33,
-      0 0 14px #ffaa33,
-      0 0 24px #ff4400;
-    filter: brightness(1);
-  }
-  50% {
-    text-shadow:
-      0 0 10px #ffaa33,
-      0 0 30px #ffaa33,
-      0 0 45px #ff3300;
-    filter: brightness(1.3);
-  }
-  100% {
-    text-shadow:
-      0 0 6px #ffaa33,
-      0 0 14px #ffaa33,
-      0 0 24px #ff4400;
-    filter: brightness(1);
-  }
-}
-
-.outline {
-  stroke: cyan;
-  stroke-width: 2px;
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: draw 1s ease forwards;
-  filter: drop-shadow(0 0 10px cyan) drop-shadow(0 0 22px cyan);
-}
-
-.fill {
-  fill: white;
-  opacity: 0;
-  animation: appear 1s ease forwards 1s,
-             rgbGlitch 1.5s infinite 0.5s;
-}
-
-@keyframes draw {
-  0% { stroke-dashoffset: 1000; opacity: .2; }
-  80% { opacity: 1; }
-  100% { stroke-dashoffset: 0; opacity: 1; }
-}
-
-@keyframes appear {
-  0%   { opacity: 0; filter: brightness(4) blur(4px); }
-  60%  { opacity: 1; filter: brightness(2) blur(1px); }
-  100% { opacity: 1; filter: brightness(1) blur(0); }
-}
-
-@keyframes rgbGlitch {
-  0%, 100% { text-shadow: none; filter: none; }
-  8%   { text-shadow: -2px 0 red, 2px 0 cyan; filter: brightness(1.5); }
-  15%  { text-shadow: -4px 0 magenta, 4px 0 lime; filter: brightness(2.2) contrast(1.8); }
-  25%  { text-shadow: -6px 0 cyan, 6px 0 red; filter: brightness(1.8) contrast(2); }
-  38%  { text-shadow: -3px 0 lime, 3px 0 magenta; filter: brightness(2.5); }
-  52%  { text-shadow: -1px 0 red, 1px 0 cyan; filter: brightness(1.6); }
-  75%  { text-shadow: -5px 0 cyan, 5px 0 magenta; filter: brightness(2.3) blur(0.5px); }
-}
-
-@keyframes reverseDraw {
-  0% { stroke-dashoffset: 0; opacity: 1; }
-  100% { stroke-dashoffset: 1000; opacity: 0; filter: brightness(0) blur(6px); }
-}
-
-@keyframes fadeOut {
-  0% { opacity: 1; }
-  100% { opacity: 0; filter: brightness(0) blur(6px); }
-}
-
-.big { font-size: 150px; }
-.small { font-size: 50px; }
-
-
 </style>
 </head>
 <body>
 
 <video id="camera" autoplay playsinline muted></video>
 <div class="bi-border"></div>
-<div id="leftArea" class="side-glow"></div>
-<div id="rightArea" class="side-glow"></div>
-<div class="ui-layer">
-  
-  <!-- LEFT -->
-  <div class="left-block">
-    <select class="blade-select" data-side="left"></select>
-    <div class="frame-container left-frames">
-      <div class="frame blue"></div><div class="frame blue"></div><div class="frame blue"></div><div class="frame blue"></div>
-    </div>
-    <div class="score-container left-score-container">
-      <div class="score pulse" id="score-left">0</div>
-      <div class="blader-name" id="left-blader" contenteditable>BLADER A</div>
-    </div>
-  </div>
 
-  <!-- CENTER -->
-  <div class="center-block">
-    <div class="center-battle">Battle</div>
-    <div class="center-rank" id="center-rank">1st</div>
-  </div>
-
-  <!-- RIGHT -->
-  <div class="right-block">
-    <select class="blade-select" data-side="right"></select>
-    <div class="frame-container right-frames">
-      <div class="frame pink"></div><div class="frame pink"></div><div class="frame pink"></div><div class="frame pink"></div>
+<div id="lives-overlay">
+  <div class="lov-row">
+    <div class="lov-side" id="lov-left">
+      <div class="lov-label blue" id="lov-label-left">TEAM A</div>
+      <div class="lov-lives" id="lov-lives-left"></div>
     </div>
-    <div class="score-container right-score-container">
-      <div class="blader-name" id="right-blader" contenteditable>BLADER B</div>
-      <div class="score pulse" id="score-right">0</div>
+    <div class="lov-vs">VS</div>
+    <div class="lov-side" id="lov-right">
+      <div class="lov-label pink" id="lov-label-right">TEAM B</div>
+      <div class="lov-lives" id="lov-lives-right"></div>
     </div>
   </div>
 </div>
 
-<!-- Deck Modal -->
-<div id="deckModal" class="modal-overlay">
-  <div id="deckModalContent" class="modal-content">
-    <h2>Deck Edit</h2>
-    <input class="deck-input" id="deck1">
-    <input class="deck-input" id="deck2">
-    <input class="deck-input" id="deck3">
-    <button id="saveDeckBtn" class="modal-save-btn">Save</button>
+<div id="mode-select">
+  <h1>BEYBattle Cam</h1>
+  <p>Choose Battle Mode</p>
+  <button class="mode-btn single" id="btn-single">
+    SINGLE BATTLE
+    <div class="mode-btn-sub">1vs1 / 4ポイント先取</div>
+  </button>
+  <button class="mode-btn team" id="btn-team">
+    TEAM BATTLE
+    <div class="mode-btn-sub">3vs3 / 勝ち残り・2ポイント先取</div>
+  </button>
+</div>
+
+<div class="ui-layer" id="game-ui" style="display:none;">
+
+  <div class="left-block" id="left-block">
+    
+    <div class="block-top">
+      <input class="blade-name-input left-name-input" id="blade-name-left" type="text" placeholder="L Blader" autocomplete="off" style="display:none;">
+      <div class="team-blader-label" id="team-label-left" style="display:none;">Blader 1</div>
+      <div class="lives-row" id="lives-left" style="display:none;"></div>
+    </div>
+    
+    <div class="block-bottom">
+      <div class="frame-container left-frames" id="frames-left"></div>
+      <div class="score-container left-score-container">
+        <div class="score pulse" id="score-left">0</div>
+        <div class="blader-name" id="left-blader" style="display:none;"></div>
+      </div>
+    </div>
   </div>
+
+  <div class="center-block">
+    <div class="center-battle" id="center-label">Battle</div>
+    <div class="center-rank"   id="center-rank">1st</div>
+  </div>
+
+  <div class="right-block" id="right-block">
+    
+    <div class="block-top">
+      <input class="blade-name-input right-name-input" id="blade-name-right" type="text" placeholder="R Blader" autocomplete="off" style="display:none;">
+      <div class="team-blader-label" id="team-label-right" style="display:none;">Blader 1</div>
+      <div class="lives-row" id="lives-right" style="display:none;"></div>
+    </div>
+    
+    <div class="block-bottom">
+      <div class="frame-container right-frames" id="frames-right"></div>
+      <div class="score-container right-score-container">
+        <div class="blader-name" id="right-blader" style="display:none;"></div>
+        <div class="score pulse" id="score-right">0</div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
 
-navigator.mediaDevices.getUserMedia({
-  video: { facingMode: "environment" },
-  audio: true
-})
-.then(stream => {
-  const video = document.getElementById("camera");
-  video.srcObject = stream;
-})
-.catch(err => console.error("カメラ起動失敗:", err));
+navigator.mediaDevices.getUserMedia({ video:{ facingMode:"environment" }, audio:true })
+  .then(s => { document.getElementById("camera").srcObject = s; })
+  .catch(e => console.error("カメラ起動失敗:", e));
 
-let lastScores = { left: 0, right: 0 };
-let scoreTimer = null;
+const LONG_PRESS_MS = 600;
+const WIN_POINT_SINGLE = 4;
+const WIN_POINT_TEAM   = 2;
+const TEAM_SIZE        = 3;
 
-let leftDeck = ["BayBlade A","BayBlade B","BayBlade C"];
-let rightDeck = ["BayBlade A","BayBlade B","BayBlade C"];
-let scoreChangePending = false;
+const ranks     = ["1st","2nd","3rd","4th","5th","6th","7th"];
+let r           = 0;
+let currentMode = null;   
+let gameBlocked = false;  
 
-function setSelectOptions(select){
-  select.innerHTML = "";
-  const deck = select.dataset.side === "left" ? leftDeck : rightDeck;
+const centerRank  = document.getElementById("center-rank");
+const gameUI      = document.getElementById("game-ui");
+const modeSelect  = document.getElementById("mode-select");
 
-  deck.forEach(v=>{
-    const o=document.createElement("option");
-    o.textContent=v;
-    select.appendChild(o);
-  });
-
-  select.append(new Option("-"), new Option("デッキ編集"));
-  select.value = "-";
-}
-
-document.querySelectorAll(".blade-select").forEach(setSelectOptions);
-
-const deckModal=document.getElementById("deckModal");
-let currentSelect=null;
-
-document.querySelectorAll(".blade-select").forEach(sel=>{
-  sel.addEventListener("change",e=>{
-    const v=e.target.value;
-    
-
-    if(scoreChangePending && v !== "デッキ編集" && v !== "-"){
-      scoreChangePending = false;
-      r = (r + 1) % ranks.length;
-      centerRank.textContent = ranks[r];
-    }
-    
-    if(v === "デッキ編集"){
-      currentSelect = e.target;
-      deckModal.style.display = "flex";
-
-      const modal = document.getElementById("deckModalContent");
-      const saveBtn = document.getElementById("saveDeckBtn");
-      const borderColor = window.getComputedStyle(currentSelect).borderColor;
-      modal.style.borderColor = borderColor;
-      saveBtn.style.borderColor = borderColor;
-      saveBtn.style.color = "#ffffff"; 
-      saveBtn.style.backgroundColor = borderColor; 
-      const inputs = [deck1, deck2, deck3];
-      inputs.forEach((inp,i)=>{
-        inp.value = currentSelect.options[i]?.text || "";
-        inp.style.borderColor = borderColor;
-      });
-    }
-    if(v==="-"){
-      e.target.selectedIndex=0;
-    }
-  });
-});
-
-saveDeckBtn.onclick = () => {
-  const deckValues = [deck1.value.trim(), deck2.value.trim(), deck3.value.trim()];
-  if(deckValues.some(v => v === "")) {
-    alert("未入力があります");
-    return; 
-  }
-
-  if(currentSelect.dataset.side === "left"){
-    leftDeck = deckValues;
-  } else {
-    rightDeck = deckValues;
-  }
-
-  document.querySelectorAll(".blade-select").forEach(setSelectOptions);
-  currentSelect.value = "-";
-  deckModal.style.display = "none";
-  resetBattleState();
+let teamState = {
+  left:  { current:0, wins:[false,false,false] },  
+  right: { current:0, wins:[false,false,false] }
 };
 
+document.getElementById("btn-single").addEventListener("click", () => startMode("single"));
+document.getElementById("btn-team").addEventListener("click",   () => startMode("team"));
 
-
-function resetBattleState() {
-  
-  document.getElementById("score-left").textContent = "0";
-  document.getElementById("score-right").textContent = "0";
-  lastScores.left = 0;s
-  lastScores.right = 0;
-  document.querySelectorAll(".hud-ring").forEach(h => h.remove());
+function startMode(mode) {
+  currentMode = mode;
+  modeSelect.style.display = "none";
+  gameUI.style.display = "block";
 
   r = 0;
   centerRank.textContent = ranks[r];
-  
+  gameBlocked = false;
+
+  if (mode === "single") {
+    setupSingle();
+  } else {
+    setupTeam();
+  }
+
+  showRankUpEffect(ranks[r]);
 }
 
-function updateScore(container){
-  const scoreEl = container.querySelector(".score");
-  const count = container.querySelectorAll(".hud-ring").length;
+function setupSingle() {
+  buildFrames("left",  WIN_POINT_SINGLE, "blue");
+  buildFrames("right", WIN_POINT_SINGLE, "pink");
 
-  const leftScore = parseInt(document.getElementById("score-left").textContent);
-  const rightScore = parseInt(document.getElementById("score-right").textContent);
+  const inL = document.getElementById("blade-name-left");
+  const inR = document.getElementById("blade-name-right");
+  inL.value = "";
+  inR.value = "";
+  inL.style.display = "block";
+  inR.style.display = "block";
+  document.getElementById("team-label-left").style.display  = "none";
+  document.getElementById("team-label-right").style.display = "none";
+  document.getElementById("lives-left").style.display       = "none";
+  document.getElementById("lives-right").style.display      = "none";
 
-  if(leftScore != lastScores.left || rightScore != lastScores.right){
-    lastScores.left = leftScore;
-    lastScores.right = rightScore;
-    checkScoreForRank(container);
-  }
+  document.getElementById("center-label").textContent = "Battle";
 
-  if(scoreEl.textContent != count){ 
-    scoreEl.textContent = count;
-    scoreEl.style.transform = "scale(5)";
-    scoreEl.style.transition = "transform 0.5s";
-    setTimeout(() => {
-      scoreEl.style.transform = "scale(1)";
-    }, 80);
-  }
+  syncBladerName("blade-name-left",  "left-blader");
+  syncBladerName("blade-name-right", "right-blader");
 
-  checkScoreForRank();
+  resetScoreDisplay();
+}
 
-  const nameEl = container.querySelector(".blader-name");
-  const selectEl = container.querySelector(".blade-select");
-  const leftArea = document.getElementById("leftArea");
-  const rightArea = document.getElementById("rightArea");
+function syncBladerName(inputId, displayId) {
+  const input   = document.getElementById(inputId);
+  const display = document.getElementById(displayId);
+  
+  const fresh = input.cloneNode(true);
+  input.parentNode.replaceChild(fresh, input);
+  fresh.addEventListener("input", () => {
+    display.textContent  = fresh.value;
+    display.style.display = fresh.value.trim() === "" ? "none" : "block";
+  });
+  display.style.display = "none";
+  display.textContent   = "";
+}
 
-  if(count === 4){
-    const name = nameEl ? nameEl.textContent : "";
-    scoreEl.classList.add("pulse");
+function setupTeam() {
+  teamState = {
+    left:  { current:0, wins:[false,false,false] },
+    right: { current:0, wins:[false,false,false] }
+  };
 
-    document.querySelectorAll(".win-overlay").forEach(d => d.remove());
+  buildFrames("left",  WIN_POINT_TEAM, "blue");
+  buildFrames("right", WIN_POINT_TEAM, "pink");
 
+  document.getElementById("blade-name-left").style.display  = "none";
+  document.getElementById("blade-name-right").style.display = "none";
+  document.getElementById("team-label-left").style.display  = "block";
+  document.getElementById("team-label-right").style.display = "block";
+  document.getElementById("lives-left").style.display       = "flex";
+  document.getElementById("lives-right").style.display      = "flex";
+
+  document.getElementById("center-label").textContent = "Battle";
+
+  buildLives("lives-left");
+  buildLives("lives-right");
+  updateTeamLabels();
+  resetScoreDisplay();
+}
+
+function buildLives(containerId) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = "";
+  for (let i = 0; i < TEAM_SIZE; i++) {
     const div = document.createElement("div");
-    div.className = "win-overlay";
+    div.className = "life-icon active";
+    div.dataset.index = i;
+    div.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="7" r="4"/>
+      <path d="M12 13c-5 0-8 2.5-8 4v1h16v-1c0-1.5-3-4-8-4z"/>
+    </svg>`;
+    el.appendChild(div);
+  }
+}
 
-    let winnerText = "";
-    const trimmedName = name.trim();
-    const selText = (selectEl && selectEl.options[selectEl.selectedIndex]) 
-                    ? selectEl.options[selectEl.selectedIndex].text 
-                    : "-";
+function updateTeamLabels() {
+  const li = teamState.left.current  + 1;
+  const ri = teamState.right.current + 1;
+  document.getElementById("team-label-left").textContent  = `Blader ${li}`;
+  document.getElementById("team-label-right").textContent = `Blader ${ri}`;
+}
 
-    const isLeftWin = container.classList.contains("left-block");
+function buildFrames(side, count, colorClass) {
+  const el = document.getElementById(`frames-${side}`);
+  el.innerHTML = "";
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement("div");
+    d.className = `frame ${colorClass}`;
+    el.appendChild(d);
+  }
+}
 
-    if (!nameEl || nameEl.style.display === "none" || trimmedName === ""){
-      winnerText = selText === "-" ? (isLeftWin ? "L Blader\nWIN!!" : "R Blader\nWIN!!") : `${selText}\nWIN!!`;
-    } else {
-      winnerText = `${trimmedName}\nWIN!!`;
+function resetScoreDisplay() {
+  document.querySelectorAll(".hud-ring").forEach(h => h.remove());
+  document.getElementById("score-left").textContent  = "0";
+  document.getElementById("score-right").textContent = "0";
+  document.getElementById("score-left").classList.remove("pulse");
+  document.getElementById("score-right").classList.remove("pulse");
+  clearWinEffect();
+}
+
+function addPoint(side) {
+  if (gameBlocked) return;
+  const block  = document.getElementById(`${side}-block`);
+  const frames = [...block.querySelectorAll(".frame")];
+  const empty  = frames.find(f => !f.querySelector(".hud-ring"));
+  if (!empty) return;
+
+  const img = document.createElement("img");
+  img.className = side === "right"
+    ? "hud-ring right cyber-effect"
+    : "hud-ring cyber-effect";
+  img.src = side === "right" ? "HudLing-pink.png" : "HudLing.png";
+  empty.appendChild(img);
+  updateScore(block, side);
+}
+
+function removePoint(side) {
+  if (gameBlocked) return;
+  const block = document.getElementById(`${side}-block`);
+  const huds  = [...block.querySelectorAll(".hud-ring")];
+  if (huds.length === 0) return;
+  huds.sort((a,b) => b.parentElement.offsetTop - a.parentElement.offsetTop)[0].remove();
+  updateScore(block, side);
+}
+
+let lastScores  = { left:0, right:0 };
+let scoreTimer  = null;
+
+function updateScore(container, side) {
+  const scoreEl  = container.querySelector(".score");
+  const count    = container.querySelectorAll(".hud-ring").length;
+  const winPoint = currentMode === "team" ? WIN_POINT_TEAM : WIN_POINT_SINGLE;
+
+  if (parseInt(scoreEl.textContent) !== count) {
+    scoreEl.textContent = count;
+    scoreEl.dataset.val = count;
+    
+    scoreEl.classList.remove("score-burst");
+    void scoreEl.offsetWidth; 
+    scoreEl.classList.add("score-burst");
+    scoreEl.style.position = "relative";
+    setTimeout(() => { scoreEl.classList.remove("score-burst"); }, 700);
+    
+    const rect = scoreEl.getBoundingClientRect();
+    const ring = document.createElement("div");
+    ring.className = "score-ring-burst";
+    ring.style.left = (rect.left + rect.width/2) + "px";
+    ring.style.top  = (rect.top  + rect.height/2) + "px";
+    document.body.appendChild(ring);
+    setTimeout(() => ring.remove(), 600);
+  }
+
+  if (count === winPoint) {
+    handleWin(side);
+  } else {
+    checkScoreForRank();  
+  }
+}
+
+function handleWin(winningSide) {
+  gameBlocked = true;
+  const losingSide = winningSide === "left" ? "right" : "left";
+
+  showWinEffect(winningSide);
+
+  if (currentMode === "single") {
+    
+    const winBlock = document.getElementById(`${winningSide}-block`);
+    winBlock.querySelector(".score").classList.add("pulse");
+
+    const inputId  = winningSide === "left" ? "blade-name-left" : "blade-name-right";
+    const inputEl  = document.getElementById(inputId);
+    const inputVal = inputEl ? inputEl.value.trim() : "";
+    const label    = inputVal || (winningSide === "left" ? "L Blader" : "R Blader");
+
+    showWinText(`${label}\nWIN!!`);
+    setTimeout(() => {
+      gameBlocked = false;
+    }, 5000);
+
+  } else {
+    
+    const loserState = teamState[losingSide];
+    const defeated   = loserState.current;
+    loserState.wins[defeated] = true;
+
+    const winnerIdx = teamState[winningSide].current + 1;
+    const winLabel  = `Blader ${winnerIdx}\nWIN!!`;
+    showWinText(winLabel, 5000);
+
+    setTimeout(() => {
+      
+      dimLife(losingSide, defeated);
+
+      const allDefeated = loserState.wins.every(v => v);
+
+      showLivesLossOverlay(losingSide, () => {
+        if (allDefeated) {
+          
+          const teamName = winningSide === "left" ? "TEAM A" : "TEAM B";
+          setTimeout(() => {
+            showTeamWin(`${teamName}\nWIN!!`);
+            
+          }, 300);
+        } else {
+          
+          advanceBlader(losingSide);
+          
+          resetScoreDisplay();
+          lastScores = { left:0, right:0 };
+          r = 0;
+          centerRank.textContent = ranks[r];
+          showRankUpEffect(ranks[r]);
+          gameBlocked = false;
+        }
+      });
+    }, 5000);
+  }
+}
+
+function showLivesLossOverlay(losingSide, onDone) {
+  const overlay = document.getElementById("lives-overlay");
+
+  const leftWins  = teamState.left.wins;
+  const rightWins = teamState.right.wins;
+
+  function buildOverlayIcons(containerId, wins, side) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = "";
+    const indices = side === "left"
+      ? [2, 1, 0]   
+      : [0, 1, 2];  
+    for (const i of indices) {
+      const div = document.createElement("div");
+      div.className = "lov-icon " + (wins[i] ? "dead" : "active");
+      div.dataset.idx = i;
+      div.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="7" r="4"/>
+        <path d="M12 13c-5 0-8 2.5-8 4v1h16v-1c0-1.5-3-4-8-4z"/>
+      </svg>`;
+      el.appendChild(div);
+    }
+  }
+
+  buildOverlayIcons("lov-lives-left",  leftWins,  "left");
+  buildOverlayIcons("lov-lives-right", rightWins, "right");
+
+  const lbl = document.getElementById(`lov-label-${losingSide}`);
+  lbl.classList.remove("damaged");
+  void lbl.offsetWidth;
+  lbl.classList.add("damaged");
+
+  overlay.classList.add("show");
+
+  setTimeout(() => {
+    const livesContainer = document.getElementById(`lov-lives-${losingSide}`);
+    const allIcons = [...livesContainer.querySelectorAll(".lov-icon")];
+    const activeIcons = allIcons.filter(ic => ic.classList.contains("active"));
+
+    const deadIcons = allIcons.filter(ic => ic.classList.contains("dead"));
+
+    const defeatedIdx = teamState[losingSide].current;
+    const targetIcon = allIcons.find(ic => parseInt(ic.dataset.idx) === defeatedIdx && ic.classList.contains("dead")) || null;
+
+    if (targetIcon) {
+      
+      targetIcon.classList.remove("dead");
+      targetIcon.classList.add("losing");
+      setTimeout(() => {
+        targetIcon.classList.add("glitch-out");
+        setTimeout(() => {
+          targetIcon.classList.remove("losing","glitch-out");
+          targetIcon.classList.add("dead");
+        }, 1000);
+      }, 200);
     }
 
-    div.textContent = winnerText;
-    document.body.appendChild(div);
-    setTimeout(() => div.remove(), 5000);
+    setTimeout(() => {
+      overlay.classList.remove("show");
+      lbl.classList.remove("damaged");
+      onDone && onDone();
+    }, 2500);
+  }, 400);
+}
 
-    leftArea.classList.remove("stop");
-    rightArea.classList.remove("stop");
+function dimLife(side, defeated) {
+  const row   = document.getElementById(`lives-${side}`);
+  const icons = [...row.querySelectorAll(".life-icon")];
 
-    const winnerSide = container.classList.contains("left-block") ? "left" : "right";
-    showWinEffect(winnerSide);
-
+  const actives = icons.filter(ic => ic.classList.contains("active"));
+  let target;
+  if (side === "left") {
+    
+    target = actives[actives.length - 1];
   } else {
-    leftArea.classList.remove("active");
-    rightArea.classList.remove("active");
-    leftArea.classList.add("stop");
-    rightArea.classList.add("stop");
-    scoreEl.classList.remove("pulse");
+    
+    target = actives[0];
   }
-
-  scoreChangePending = true;
+  if (target) {
+    target.classList.remove("active");
+    target.classList.add("dead");
+  }
 }
 
-
-function updateBladerVisibility() {
-  const leftBlader = document.getElementById("left-blader");
-  const rightBlader = document.getElementById("right-blader");
-
-  leftBlader.style.display = leftBlader.textContent.trim() === "" ? "none" : "block";
-  rightBlader.style.display = rightBlader.textContent.trim() === "" ? "none" : "block";
+function advanceBlader(side) {
+  const state = teamState[side];
+  
+  for (let i = state.current + 1; i < TEAM_SIZE; i++) {
+    if (!state.wins[i]) {
+      state.current = i;
+      break;
+    }
+  }
+  updateTeamLabels();
 }
 
-updateBladerVisibility();
+function showWinText(text, duration) {
+  document.querySelectorAll(".win-overlay").forEach(d => d.remove());
+  const div = document.createElement("div");
+  div.className   = "win-overlay";
+  div.textContent = text;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), duration || 5000);
+}
 
-document.getElementById("left-blader").addEventListener("input", updateBladerVisibility);
-document.getElementById("right-blader").addEventListener("input", updateBladerVisibility);
+function showTeamWin(text) {
+  document.querySelectorAll(".team-win-overlay,.win-overlay,.team-win-sideline").forEach(d => d.remove());
+
+  const isBlue   = text.includes("TEAM A");
+  const colorCls = isBlue ? "blue-win" : "pink-win";
+  const lineCls  = isBlue ? "blue-line" : "pink-line";
+
+  const lines = text.split("\n");
+
+  const div = document.createElement("div");
+  div.className = "team-win-overlay";
+  div.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;">
+      <div class="team-win-text ${colorCls}">${lines[0] || ""}</div>
+      <div class="team-win-text ${colorCls}" style="animation-delay:0.15s">${lines[1] || ""}</div>
+      <div class="team-win-sub ${colorCls}">VICTORY</div>
+    </div>`;
+  document.body.appendChild(div);
+
+  ["left-line","right-line"].forEach(pos => {
+    const line = document.createElement("div");
+    line.className = `team-win-sideline ${pos} ${lineCls}`;
+    document.body.appendChild(line);
+  });
+}
 
 function showWinEffect(winnerSide) {
-  const leftArea = document.getElementById("leftArea");
-  const rightArea = document.getElementById("rightArea");
+  const isBlue      = winnerSide === "left";
+  const frameGlow   = isBlue ? "win-glow-blue"      : "win-glow-pink";
+  const nameGlow    = isBlue ? "win-glow-name-blue"  : "win-glow-name-pink";
+  const hudGlow     = isBlue ? "win-glow-hud-blue"   : "win-glow-hud-pink";
+  const block       = document.getElementById(`${winnerSide}-block`);
 
-  leftArea.classList.remove("active");
-  rightArea.classList.remove("active");
+  block.querySelectorAll(".frame").forEach(f => f.classList.add(frameGlow));
 
-  if (winnerSide === "left") {
-    leftArea.classList.add("active");
-  } else {
-    rightArea.classList.add("active");
+  [
+    block.querySelector(".blade-name-input"),
+    block.querySelector(".team-blader-label"),
+    block.querySelector(".blader-name"),
+  ].forEach(el => { if (el) el.classList.add(nameGlow); });
+
+  block.querySelectorAll(".hud-ring").forEach(h => h.classList.add(hudGlow));
+
+  let sl = document.querySelector(".win-scanline");
+  if (!sl) {
+    sl = document.createElement("div");
+    sl.className = "win-scanline";
+    document.body.appendChild(sl);
   }
+  sl.classList.add("active");
 }
 
-function handleFrameTap(block,frame){
-  const isRemove = frame.querySelector(".hud-ring");
-  if(isRemove){
-    const huds = [...block.querySelectorAll(".hud-ring")];
-    huds.sort((a,b)=>b.parentElement.offsetTop - a.parentElement.offsetTop)[0].remove();
-  } else {
-    const empty = [...block.querySelectorAll(".frame")].find(f => !f.querySelector(".hud-ring"));
-    if(!empty) return;
-    const img = document.createElement("img");
-    img.className = block.classList.contains("right-block") 
-  ? "hud-ring right cyber-effect"
-  : "hud-ring cyber-effect";
-    img.src = block.classList.contains("right-block") ? "HudLing-pink.png" : "HudLing.png";
-    empty.append(img);
-  }
-  updateScore(block);
+function clearWinEffect() {
+  document.querySelectorAll(".frame").forEach(f => {
+    f.classList.remove("win-glow-blue","win-glow-pink");
+  });
+  document.querySelectorAll(".blade-name-input,.team-blader-label,.blader-name").forEach(el => {
+    el.classList.remove("win-glow-name-blue","win-glow-name-pink");
+  });
+  document.querySelectorAll(".hud-ring").forEach(h => {
+    h.classList.remove("win-glow-hud-blue","win-glow-hud-pink");
+  });
+  const sl = document.querySelector(".win-scanline");
+  if (sl) sl.classList.remove("active");
+  document.querySelectorAll(".team-win-sideline").forEach(l => l.remove());
 }
 
-document.querySelectorAll(".left-block .frame, .right-block .frame").forEach(f=>{
-  f.onclick=e=>handleFrameTap(f.closest(".left-block, .right-block"),f);
-});
-  
-const ranks=["1st","2nd","3rd","4th","5th","6th","7th"];
-let r=0;
-const centerRank=document.getElementById("center-rank");
+function returnToModeSelect() {
+  gameUI.style.display      = "none";
+  modeSelect.style.display  = "flex";
+  currentMode  = null;
+  gameBlocked  = false;
+  document.querySelectorAll(".win-overlay,.team-win-overlay,.team-win-sideline").forEach(d => d.remove());
+  resetScoreDisplay();
+}
 
-centerRank.onclick = () => {
-  const leftScore = parseInt(document.getElementById("score-left").textContent);
+centerRank.addEventListener("click", () => {
+  if (!currentMode) return;
+
+  const leftScore  = parseInt(document.getElementById("score-left").textContent);
   const rightScore = parseInt(document.getElementById("score-right").textContent);
+  const winPt      = currentMode === "team" ? WIN_POINT_TEAM : WIN_POINT_SINGLE;
+  const isTeamWon  = document.querySelector(".team-win-overlay") !== null;
+  const isRoundWon = leftScore === winPt || rightScore === winPt;
+
+  if (gameBlocked || isTeamWon || isRoundWon) {
+    resetScoreDisplay();
+    lastScores = { left:0, right:0 };
+    r = 0;
+    centerRank.textContent = ranks[r];
+    gameBlocked = false;
+    document.querySelectorAll(".win-overlay,.team-win-overlay,.team-win-sideline").forEach(d => d.remove());
+
+    if (currentMode === "team") {
+      teamState = {
+        left:  { current:0, wins:[false,false,false] },
+        right: { current:0, wins:[false,false,false] }
+      };
+      updateTeamLabels();
+      buildLives("lives-left");
+      buildLives("lives-right");
+    }
+    return;
+  }
 
   if (leftScore === 0 && rightScore === 0) {
     showRankUpEffect(ranks[r]);
     return;
   }
 
-  if(leftScore === 4 || rightScore === 4){
-    document.querySelectorAll(".hud-ring").forEach(h => h.remove());
-    document.getElementById("score-left").textContent = "0";
-    document.getElementById("score-right").textContent = "0";
-    r = 0;
-    centerRank.textContent = ranks[r];
-    leftArea.classList.remove("active");
-    rightArea.classList.remove("active");
-    leftArea.classList.add("stop");
-    rightArea.classList.add("stop");
-    return;
-  }
-
   r = (r + 1) % ranks.length;
   centerRank.textContent = ranks[r];
   showRankUpEffect(ranks[r]);
-};
+});
 
-
-function checkScoreForRank(){
-  if(scoreTimer) clearTimeout(scoreTimer);
-
+function checkScoreForRank() {
+  if (scoreTimer) clearTimeout(scoreTimer);
   scoreTimer = setTimeout(() => {
-    const newLeft = parseInt(document.getElementById("score-left").textContent);
-    const newRight = parseInt(document.getElementById("score-right").textContent);
-
-    if(newLeft === 4 || newRight === 4){
-      scoreTimer = null;
-      return;
-    }
-
-    if(newLeft > lastScores.left || newRight > lastScores.right) {
+    const nl = parseInt(document.getElementById("score-left").textContent);
+    const nr = parseInt(document.getElementById("score-right").textContent);
+    const winPt = currentMode === "team" ? WIN_POINT_TEAM : WIN_POINT_SINGLE;
+    if (nl === winPt || nr === winPt) { scoreTimer = null; return; }
+    if (nl > lastScores.left || nr > lastScores.right) {
       r = (r + 1) % ranks.length;
       centerRank.textContent = ranks[r];
-      
       showRankUpEffect(ranks[r]);
-
-      lastScores.left = newLeft;
-      lastScores.right = newRight;
+      lastScores.left = nl;
+      lastScores.right = nr;
     }
-
     scoreTimer = null;
   }, 4000);
 }
 
-
 function showRankUpEffect(rank) {
-  const container = document.createElement('div');
-  container.className = 'rankup-container';
-  container.style.position = 'fixed';
-  container.style.top = '50%';
-  container.style.left = '50%';
-  container.style.transform = 'translate(-50%, -50%)';
-  container.style.zIndex = 9999;
-  container.style.pointerEvents = 'none';
+  const container = document.createElement("div");
+  container.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;";
   container.innerHTML = `
     <svg width="1000" height="250">
-      <text x="50%" y="40%" class="outline big" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">${rank}</text>
-      <text x="50%" y="75%" class="outline small" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">Battle</text>
-      <text x="50%" y="40%" class="fill big" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">${rank}</text>
-      <text x="50%" y="75%" class="fill small" style="font-family:'EvogriaItalic', sans-serif; text-anchor:middle; dominant-baseline:middle;">Battle</text>
-    </svg>
-  `;
+      <text x="50%" y="40%" class="outline big"  style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">${rank}</text>
+      <text x="50%" y="75%" class="outline small" style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">Battle</text>
+      <text x="50%" y="40%" class="fill big"     style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">${rank}</text>
+      <text x="50%" y="75%" class="fill small"   style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">Battle</text>
+    </svg>`;
   document.body.appendChild(container);
-
-  const fills = container.querySelectorAll('.fill');
-
   setTimeout(() => {
-    container.querySelectorAll('.outline').forEach(el => {
-      el.style.animation = 'reverseDraw 1s ease forwards';
-    });
-    container.querySelectorAll('.fill').forEach(el => {
-      el.style.animation = 'fadeOut 1s ease forwards';
-    });
-
+    container.querySelectorAll(".outline").forEach(el => el.style.animation = "reverseDraw 1s ease forwards");
+    container.querySelectorAll(".fill").forEach(el    => el.style.animation = "fadeOut 1s ease forwards");
     setTimeout(() => container.remove(), 1000);
   }, 3000);
-
-  return container; 
-
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  showRankUpEffect(ranks[r]); 
+let leftPressTimer = null, rightPressTimer = null;
+let leftLongFired  = false, rightLongFired  = false;
+
+function isInteractiveTarget(el) {
+  return el.closest("input, #center-rank, #mode-select");
+}
+
+document.addEventListener("mousedown", e => {
+  if (e.button !== 0) return;
+  if (!currentMode || isInteractiveTarget(e.target)) return;
+  leftLongFired = false;
+  leftPressTimer = setTimeout(() => {
+    leftLongFired = true;
+    removePoint("right");
+  }, LONG_PRESS_MS);
+});
+document.addEventListener("mouseup", e => {
+  if (e.button !== 0) return;
+  if (!currentMode || isInteractiveTarget(e.target)) return;
+  clearTimeout(leftPressTimer); leftPressTimer = null;
+  if (!leftLongFired) addPoint("right");
+  leftLongFired = false;
 });
 
-
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("mousedown", e => {
+  if (e.button !== 2) return;
+  if (!currentMode || isInteractiveTarget(e.target)) return;
+  rightLongFired = false;
+  rightPressTimer = setTimeout(() => {
+    rightLongFired = true;
+    removePoint("left");
+  }, LONG_PRESS_MS);
+});
+document.addEventListener("mouseup", e => {
+  if (e.button !== 2) return;
+  if (!currentMode || isInteractiveTarget(e.target)) return;
+  clearTimeout(rightPressTimer); rightPressTimer = null;
+  if (!rightLongFired) addPoint("left");
+  rightLongFired = false;
+});
 </script>
 </body>
 </html>

@@ -1202,6 +1202,12 @@ let lastTouchAt = 0;
 function markTouch() { lastTouchAt = Date.now(); }
 function isGhostMouseEvent() { return Date.now() - lastTouchAt < 800; }
 
+/* 加点(quick)判定は、ブラウザが必ず一度だけ発火させる意味論的な
+   イベント（左クリック→"click"、右クリック→"contextmenu"）を使う。
+   mousedown/mouseupの button 番号だけに頼ると、OSやブラウザの
+   組み合わせによって初回クリックの判定がずれることがあるため、
+   ここでは長押し（減点）の判定にのみ mousedown/mouseup を使う。 */
+
 document.addEventListener("mousedown", e => {
   if (isGhostMouseEvent()) return;
   if (e.button !== 0) return;
@@ -1213,12 +1219,14 @@ document.addEventListener("mousedown", e => {
   }, LONG_PRESS_MS);
 });
 document.addEventListener("mouseup", e => {
-  if (isGhostMouseEvent()) return;
   if (e.button !== 0) return;
-  if (!currentMode || isInteractiveTarget(e.target)) return;
   clearTimeout(leftPressTimer); leftPressTimer = null;
-  if (!leftLongFired) addPoint("right");
-  leftLongFired = false;
+});
+document.addEventListener("click", e => {
+  if (isGhostMouseEvent()) return;
+  if (!currentMode || isInteractiveTarget(e.target)) return;
+  if (leftLongFired) { leftLongFired = false; return; }
+  addPoint("right");
 });
 
 document.addEventListener("contextmenu", e => e.preventDefault());
@@ -1233,12 +1241,14 @@ document.addEventListener("mousedown", e => {
   }, LONG_PRESS_MS);
 });
 document.addEventListener("mouseup", e => {
-  if (isGhostMouseEvent()) return;
   if (e.button !== 2) return;
-  if (!currentMode || isInteractiveTarget(e.target)) return;
   clearTimeout(rightPressTimer); rightPressTimer = null;
-  if (!rightLongFired) addPoint("left");
-  rightLongFired = false;
+});
+document.addEventListener("contextmenu", e => {
+  if (isGhostMouseEvent()) return;
+  if (!currentMode || isInteractiveTarget(e.target)) return;
+  if (rightLongFired) { rightLongFired = false; return; }
+  addPoint("left");
 });
 
 /* ── タッチ操作 ──────────────────────────────────────────

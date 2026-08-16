@@ -1196,7 +1196,14 @@ function isInteractiveTarget(el) {
   return el.closest("input, #center-rank, #mode-select");
 }
 
+/* タッチ操作の直後にブラウザが発火させる「ゴーストクリック」
+   （合成 mousedown/mouseup）による二重加点を防ぐためのガード */
+let lastTouchAt = 0;
+function markTouch() { lastTouchAt = Date.now(); }
+function isGhostMouseEvent() { return Date.now() - lastTouchAt < 800; }
+
 document.addEventListener("mousedown", e => {
+  if (isGhostMouseEvent()) return;
   if (e.button !== 0) return;
   if (!currentMode || isInteractiveTarget(e.target)) return;
   leftLongFired = false;
@@ -1206,6 +1213,7 @@ document.addEventListener("mousedown", e => {
   }, LONG_PRESS_MS);
 });
 document.addEventListener("mouseup", e => {
+  if (isGhostMouseEvent()) return;
   if (e.button !== 0) return;
   if (!currentMode || isInteractiveTarget(e.target)) return;
   clearTimeout(leftPressTimer); leftPressTimer = null;
@@ -1215,6 +1223,7 @@ document.addEventListener("mouseup", e => {
 
 document.addEventListener("contextmenu", e => e.preventDefault());
 document.addEventListener("mousedown", e => {
+  if (isGhostMouseEvent()) return;
   if (e.button !== 2) return;
   if (!currentMode || isInteractiveTarget(e.target)) return;
   rightLongFired = false;
@@ -1224,6 +1233,7 @@ document.addEventListener("mousedown", e => {
   }, LONG_PRESS_MS);
 });
 document.addEventListener("mouseup", e => {
+  if (isGhostMouseEvent()) return;
   if (e.button !== 2) return;
   if (!currentMode || isInteractiveTarget(e.target)) return;
   clearTimeout(rightPressTimer); rightPressTimer = null;
@@ -1242,6 +1252,7 @@ let touchLongFired = false;
 let touchSide     = null;
 
 document.addEventListener("touchstart", e => {
+  markTouch();
   if (!currentMode) return;
   const touch = e.touches[0];
   const target = touch.target;
@@ -1277,6 +1288,7 @@ document.addEventListener("touchstart", e => {
 }, { passive: false });
 
 document.addEventListener("touchend", e => {
+  markTouch();
   if (!currentMode || touchSide === null) return;
   clearTimeout(touchTimer); touchTimer = null;
   if (!touchLongFired) {
@@ -1288,6 +1300,7 @@ document.addEventListener("touchend", e => {
 }, { passive: false });
 
 document.addEventListener("touchcancel", () => {
+  markTouch();
   clearTimeout(touchTimer); touchTimer = null;
   touchLongFired = false;
   touchSide = null;

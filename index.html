@@ -1196,10 +1196,10 @@ function showRankUpEffect(rank) {
    Pointer Events に一本化し、1回の入力につき1つの pointerId だけを
    追跡することで、マウス操作とタッチ操作が競合しないようにする。
 
-   - マウス左クリック   → Rブレーダーに加点／長押しでRブレーダーを減点
-   - マウス右クリック   → Lブレーダーに加点／長押しでLブレーダーを減点
-   - 画面左半分タップ    → Lブレーダーに加点／長押しでRブレーダーを減点
-   - 画面右半分タップ    → Rブレーダーに加点／長押しでLブレーダーを減点
+   - マウス左クリックを長押し → Rブレーダーに加点(短いクリックは無反応)
+   - マウス右クリックを長押し → Lブレーダーに加点(短いクリックは無反応)
+   - 画面左半分を長押し      → Lブレーダーに加点(短いタップは無反応)
+   - 画面右半分を長押し      → Rブレーダーに加点(短いタップは無反応)
    - HUDリング（表示済みフレーム）タップ → そのサイドを即減点
    - BladerName入力欄・center-rank・mode-selectは除外
 ─────────────────────────────────────────────────────── */
@@ -1249,17 +1249,13 @@ document.addEventListener("pointerdown", e => {
 
   pressTimer = setTimeout(() => {
     longFired = true;
-    const removeSide = pressPointerType === "mouse"
-      ? pressSide                                   // マウス: 押した側と同じ側を減点
-      : (pressSide === "left" ? "right" : "left");   // タッチ: 逆側を減点
-    removePoint(removeSide);
+    addPoint(pressSide); // 長押しで加点。短いクリック(タップ)は何もしない
   }, LONG_PRESS_MS);
 });
 
 document.addEventListener("pointerup", e => {
   if (e.pointerId !== activePointerId) return;
   clearTimeout(pressTimer); pressTimer = null;
-  if (!longFired && pressSide) addPoint(pressSide);
   activePointerId  = null;
   pressPointerType = null;
   pressSide        = null;

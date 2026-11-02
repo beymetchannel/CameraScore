@@ -4,25 +4,25 @@
 <meta charset="UTF-8">
 <link rel="manifest" href="manifest.json">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<link rel="shortcuticon" type="image/x-icon" href="CameraIcon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="CameraIcon.png">
-<link rel="icon" href="CameraIcon.png">
+<link rel="shortcuticon" type="image/x-icon" href="image/CameraIcon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="image/CameraIcon.png">
+<link rel="icon" href="image/CameraIcon.png">
 <meta name="theme-color" content="#00D4FF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BEYバトルカメラ">
 <title>BEYバトルカメラ</title>
 <style>
-@font-face { font-family:'CyberFont';   src:url('CyberFont.ttf') format('truetype'); }
-@font-face { font-family:'DS-DIGIB';    src:url('DS-DIGIB.ttf') format('truetype'); }
-@font-face { font-family:'EvogriaItalic'; src:url('Evogria-Italic.otf') format('opentype'); }
+@font-face { font-family:'CyberFont';   src:url('font/CyberFont.ttf') format('truetype'); }
+@font-face { font-family:'DS-DIGIB';    src:url('font/DS-DIGIB.ttf') format('truetype'); }
+@font-face { font-family:'EvogriaItalic'; src:url('font/Evogria-Italic.otf') format('opentype'); }
 
 *,*::before,*::after { box-sizing:border-box; user-select:none; -webkit-user-select:none; }
 body,html { margin:0;padding:0;height:100%;background:#000;font-family:'CyberFont',sans-serif; overflow:hidden; touch-action:none; }
 input { user-select:text; -webkit-user-select:text; }
 video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0; }
-.bi-border { position:absolute;inset:0;pointer-events:none;background:url('bi.png')center/contain no-repeat;opacity:.6;filter:drop-shadow(0 0 20px #0ff);animation:glow 2s infinite alternate;z-index:1; }
-@keyframes glow { 0%{filter:drop-shadow(0 0 10px #0ff)} 50%{filter:drop-shadow(0 0 25px #0ff)} 100%{filter:drop-shadow(0 0 10px #0ff)} }
+.bi-border { position:absolute;inset:0;pointer-events:none;background:url('image/bi.png')center/contain no-repeat;opacity:.6;filter:drop-shadow(0 0 20px #0ff);animation:glow 2s infinite alternate;z-index:1; }
+@keyframes glow { 0%{opacity:.45} 100%{opacity:.75} }
 
 #mode-select {
   position:fixed;inset:0;z-index:9000;
@@ -88,17 +88,13 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
   transform:translate(-50%,-50%);animation:hudSpin 3s linear infinite;pointer-events:none;
 }
 @keyframes hudSpin { from{transform:translate(-50%,-50%) rotate(0)} to{transform:translate(-50%,-50%) rotate(360deg)} }
-.hud-ring.cyber-effect      { animation:hudGlitch 1s infinite alternate, hudSpin 3s linear infinite; }
-.hud-ring.right.cyber-effect { animation:hudGlitchPink 1s infinite alternate, hudSpin 3s linear infinite; }
+.hud-ring.cyber-effect      { filter:drop-shadow(0 0 14px #0ff); animation:hudGlitch 1s infinite alternate, hudSpin 3s linear infinite; }
+.hud-ring.right.cyber-effect { filter:drop-shadow(0 0 14px #ff77ff); animation:hudGlitchPink 1s infinite alternate, hudSpin 3s linear infinite; }
 @keyframes hudGlitch {
-  0%{filter:drop-shadow(0 0 10px #0ff);opacity:.7} 25%{filter:drop-shadow(0 0 25px #0ff);opacity:1}
-  50%{filter:drop-shadow(0 0 15px #0ff);opacity:.8} 75%{filter:drop-shadow(0 0 30px #0ff);opacity:1}
-  100%{filter:drop-shadow(0 0 20px #0ff);opacity:.7}
+  0%{opacity:.7} 25%{opacity:1} 50%{opacity:.8} 75%{opacity:1} 100%{opacity:.7}
 }
 @keyframes hudGlitchPink {
-  0%{filter:drop-shadow(0 0 10px #ff77ff);opacity:.7} 25%{filter:drop-shadow(0 0 25px #ff77ff);opacity:1}
-  50%{filter:drop-shadow(0 0 15px #ff77ff);opacity:.8} 75%{filter:drop-shadow(0 0 30px #ff77ff);opacity:1}
-  100%{filter:drop-shadow(0 0 20px #ff77ff);opacity:.7}
+  0%{opacity:.7} 25%{opacity:1} 50%{opacity:.8} 75%{opacity:1} 100%{opacity:.7}
 }
 
 .score {
@@ -124,13 +120,13 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
   transform-origin: center center;
 }
 @keyframes scoreCyberBurst {
-  0%   { transform:scale(6);  opacity:0;   filter:brightness(5) blur(6px); color:#fff;
+  0%   { transform:scale(6);  opacity:0;   filter:brightness(2.5); color:#fff;
          text-shadow:-6px 0 #0ff, 6px 0 #f0f, 0 0 40px #fff, 0 0 80px #ffaa33; }
-  15%  { transform:scale(4.5);opacity:1;   filter:brightness(4) blur(2px); color:#ffe;
+  15%  { transform:scale(4.5);opacity:1;   filter:brightness(2.2); color:#ffe;
          text-shadow:-4px 2px #0ff, 4px -2px #f0f, 0 0 60px #ffaa33; }
   30%  { transform:scale(3);  opacity:1;   filter:brightness(3);
          text-shadow:-3px 0 #0ff, 3px 0 #f0f, 0 0 40px #ff4400; }
-  45%  { transform:scale(2);  opacity:1;   filter:brightness(2.5) contrast(1.5);
+  45%  { transform:scale(2);  opacity:1;   filter:brightness(1.8);
          text-shadow: 3px 0 #0ff,-3px 0 #f0f, 0 0 20px #ffaa33; }
   60%  { transform:scale(1.4);opacity:1;   filter:brightness(1.8);
          text-shadow: 2px 0 #0ff,-2px 0 #ff6600; }
@@ -166,6 +162,7 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
   width:0; height:0;
   animation: scoreRingExpand 0.5s ease-out forwards;
 }
+.score-ring-burst::before,.score-ring-burst::after { will-change:transform,opacity; }
 .score-ring-burst::before {
   content:"";
   position:absolute; border-radius:50%;
@@ -205,14 +202,106 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
 .center-battle { font-size:1rem;color:#fff; }
 .center-rank   { font-size:2rem;color:#fff;border-bottom:2px solid #fff;cursor:pointer; }
 
-.win-overlay {
-  position:fixed;inset:0;display:flex;justify-content:center;align-items:center;
-  text-align:center;color:#ffea50;font-size:8vw;white-space:pre-line;
-  text-shadow:0 0 10px #fff59e,0 0 20px #ffea50,0 0 40px #ffdd33;
-  z-index:1000;animation:winFlash 5s forwards;pointer-events:none;
+/* ───── WIN テキスト（FINISH / ラウンド表示と同系統の演出） ───── */
+.win-overlay{
+  --dir:-1; --fc:#19e8ff; --ga:#ff2bd0; --gb:#19e8ff;
+  --base:linear-gradient(180deg,#ffffff 0%,#aef6ff 45%,#19d4ff 100%);
+  --sheen:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.95) 50%,transparent 58%);
+  --glow:drop-shadow(0 0 8px rgba(25,232,255,.85)) drop-shadow(0 0 26px rgba(25,160,255,.6));
+  position:fixed;inset:0;z-index:1000;pointer-events:none;overflow:hidden;
 }
-@keyframes winFlash {
-  0%{transform:scale(.5);opacity:0} 10%{transform:scale(1.5);opacity:1} 100%{transform:scale(1);opacity:0}
+.win-overlay.win-pink{
+  --dir:1; --fc:#ff4bd8; --ga:#19e8ff; --gb:#ff2bd0;
+  --base:linear-gradient(180deg,#ffffff 0%,#ffc4f4 45%,#ff4bd8 100%);
+  --glow:drop-shadow(0 0 8px rgba(255,60,230,.85)) drop-shadow(0 0 26px rgba(200,60,255,.6));
+}
+.win-banner{ position:absolute;left:0;right:0;top:50%;transform:translateY(-50%); }
+.win-overlay .fb-band{ flex-direction:column;gap:.2vh; }
+.win-overlay .fb-txt{ filter:var(--glow); }
+.win-overlay .win-line{ font-size:clamp(1.6rem,calc(var(--fs,8) * 1vw),7.5rem); }
+.win-overlay .win-big{
+  font-size:clamp(3rem,13vw,11rem);
+  animation-delay:.12s;
+}
+.win-overlay .win-big::before,.win-overlay .win-big::after{ animation-delay:.22s; }
+
+/* 静的ノイズ（消える直前だけ点滅） */
+.win-noise{
+  position:absolute;inset:0;pointer-events:none;opacity:0;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.6 -.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px 160px;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 16%,#000 84%,transparent 100%);
+          mask-image:linear-gradient(90deg,transparent 0%,#000 16%,#000 84%,transparent 100%);
+}
+
+/* 消える演出：RGBずれ + 横ズレ + ノイズ + ブラウン管のように潰れて消える */
+.win-overlay.out .fb-band{ animation:winBandOut 1s steps(1) forwards; }
+.win-overlay.out .fb-name{ animation:winNoiseOut 1s steps(1) forwards; }
+.win-overlay.out .fb-name.win-big{ animation-delay:.04s; }
+.win-overlay.out .fb-name::before{ animation:winSliceA 1s steps(1) forwards; }
+.win-overlay.out .fb-name::after { animation:winSliceB 1s steps(1) forwards; }
+.win-overlay.out .win-noise{ animation:winNoiseFlick 1s steps(1) forwards; }
+
+@keyframes winNoiseOut{
+  0%  { transform:none; opacity:1; filter:none; }
+  8%  { transform:translate(-14px,0) skewX(-8deg); opacity:1;  filter:brightness(2.2) contrast(1.6); }
+  16% { transform:translate(10px,2px) skewX(6deg);  opacity:.4; filter:none; }
+  24% { transform:translate(-6px,0);                opacity:1;  filter:brightness(1.8); }
+  34% { transform:translate(18px,-2px) skewX(-10deg);opacity:.25;filter:contrast(2); }
+  44% { transform:translate(-10px,1px);             opacity:.9; filter:brightness(2.4); }
+  54% { transform:translate(6px,0);                 opacity:.15;filter:none; }
+  64% { transform:translate(-22px,0) skewX(12deg);  opacity:.7; filter:brightness(2) contrast(1.8); }
+  74% { transform:translate(8px,0);                 opacity:.1; filter:none; }
+  84% { transform:translate(-4px,0);                opacity:.5; filter:brightness(2.6); }
+  92% { transform:translate(14px,0) skewX(-6deg);   opacity:.08;filter:none; }
+  100%{ transform:none; opacity:0; }
+}
+@keyframes winSliceA{
+  0%  { transform:translate(-9px,0);  clip-path:inset(0 0 70% 0); opacity:.9; }
+  10% { transform:translate(16px,-2px);clip-path:inset(40% 0 20% 0); }
+  20% { transform:translate(-22px,1px);clip-path:inset(70% 0 0 0); }
+  30% { transform:translate(12px,0);  clip-path:inset(15% 0 55% 0); }
+  42% { transform:translate(-28px,0); clip-path:inset(55% 0 10% 0); }
+  55% { transform:translate(20px,2px);clip-path:inset(5% 0 75% 0); }
+  68% { transform:translate(-34px,0); clip-path:inset(30% 0 40% 0); }
+  80% { transform:translate(26px,0);  clip-path:inset(60% 0 5% 0); }
+  92% { transform:translate(-18px,0); clip-path:inset(20% 0 60% 0); opacity:.5; }
+  100%{ opacity:0; }
+}
+@keyframes winSliceB{
+  0%  { transform:translate(9px,0);   clip-path:inset(60% 0 0 0); opacity:.9; }
+  10% { transform:translate(-16px,2px);clip-path:inset(10% 0 60% 0); }
+  20% { transform:translate(22px,-1px);clip-path:inset(0 0 70% 0); }
+  30% { transform:translate(-12px,0); clip-path:inset(45% 0 25% 0); }
+  42% { transform:translate(28px,0);  clip-path:inset(10% 0 55% 0); }
+  55% { transform:translate(-20px,-2px);clip-path:inset(70% 0 5% 0); }
+  68% { transform:translate(34px,0);  clip-path:inset(40% 0 30% 0); }
+  80% { transform:translate(-26px,0); clip-path:inset(0 0 65% 0); }
+  92% { transform:translate(18px,0);  clip-path:inset(50% 0 20% 0); opacity:.5; }
+  100%{ opacity:0; }
+}
+@keyframes winNoiseFlick{
+  0%  { opacity:0; }
+  8%  { opacity:.55; background-position:-40px 20px; }
+  16% { opacity:.15; background-position:30px -50px; }
+  26% { opacity:.6;  background-position:-80px 10px; }
+  38% { opacity:.2;  background-position:60px 70px; }
+  50% { opacity:.7;  background-position:-20px -30px; }
+  62% { opacity:.3;  background-position:90px 40px; }
+  74% { opacity:.75; background-position:-60px -70px; }
+  86% { opacity:.4;  background-position:20px 90px; }
+  100%{ opacity:0; }
+}
+@keyframes winBandOut{
+  0%  { transform:none; opacity:1; }
+  20% { transform:none; opacity:.6; }
+  30% { transform:none; opacity:1; }
+  55% { transform:none; opacity:.55; }
+  65% { transform:none; opacity:1; }
+  82% { transform:scaleY(1);    opacity:.8; }
+  90% { transform:scaleY(.06);  opacity:1; }
+  97% { transform:scaleY(.01);  opacity:.8; }
+  100%{ transform:scaleY(0);    opacity:0; }
 }
 
 .frame.win-glow-blue {
@@ -588,6 +677,153 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
   .frame { width:60px;height:60px; }
   .score-container { margin-top:1vh; }
 }
+
+/* ───── FINISH BANNER（軽量版：演出はCanvas、CSSはtransform/opacityのみ） ───── */
+.finish-fx{
+  --dir:-1; --fc:#fff;
+  position:fixed;inset:0;z-index:9800;pointer-events:none;overflow:hidden;
+}
+.finish-fx.right{ --dir:1; }
+.finish-fx.out{ animation:fbOut .4s ease-in forwards; }
+@keyframes fbOut{ to{ opacity:0; } }
+.fx-canvas{ position:absolute;left:0;top:0;width:100%;height:100%; }
+
+.finish-banner{ position:absolute;left:0;right:0;top:30%;transform:translateY(-50%); }
+.fx-xtreme .finish-banner,.fx-burst .finish-banner{ animation:fbShake .5s .2s linear 1; }
+@keyframes fbShake{
+  0%,100%{ transform:translate(0,-50%); }
+  20%{ transform:translate(-12px,-50%); } 40%{ transform:translate(10px,-50%); }
+  60%{ transform:translate(-7px,-50%); }  80%{ transform:translate(4px,-50%); }
+}
+.fb-band{
+  position:relative;display:flex;justify-content:center;align-items:center;
+  padding:2.2vh 0 2.4vh;
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 1px,transparent 1px 4px),
+    linear-gradient(90deg,transparent 0%,rgba(2,4,14,.8) 16%,rgba(2,4,14,.8) 84%,transparent 100%);
+  transform-origin:center;animation:fbBand .24s cubic-bezier(.2,.9,.2,1) both;
+}
+.fb-band::before,.fb-band::after{
+  content:"";position:absolute;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent 0%,var(--fc) 20%,var(--fc) 80%,transparent 100%);
+  filter:drop-shadow(0 0 6px var(--fc));
+}
+.fb-band::before{ top:0; }
+.fb-band::after{ bottom:0; }
+@keyframes fbBand{ from{transform:scaleY(0);opacity:0} to{transform:scaleY(1);opacity:1} }
+
+.fb-name{
+  position:relative;
+  font-family:'EvogriaItalic','Arial Black',sans-serif;font-style:italic;font-weight:900;
+  font-size:clamp(2.2rem,9vw,7.5rem);line-height:1.05;letter-spacing:.05em;white-space:nowrap;
+  color:#fff;will-change:transform,opacity;
+  animation:fbSlam .45s cubic-bezier(.15,.9,.2,1) both;
+}
+@keyframes fbSlam{
+  0%  { transform:translateX(calc(var(--dir) * 50vw)) skewX(calc(var(--dir) * 26deg)) scale(1.4); opacity:0; }
+  60% { transform:translateX(calc(var(--dir) * -2vw)) skewX(calc(var(--dir) * -6deg)) scale(1.04); opacity:1; }
+  100%{ transform:none; opacity:1; }
+}
+
+/* 文字本体：ベースのグラデ + 一度だけ走るハイライト。--base / --sheen で各FINISHが色を決める */
+.fb-txt{
+  display:block;position:relative;z-index:1;
+  background-image:var(--sheen),var(--base);
+  background-size:250% 100%,100% 100%;background-repeat:no-repeat;background-position:130% 0,0 0;
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  animation:fbSheen 1.3s .35s ease-in-out 1 both;
+}
+@keyframes fbSheen{ from{background-position:130% 0,0 0} to{background-position:-30% 0,0 0} }
+
+/* 色収差（RGBずれ）グリッチ：登場時に激しく、その後は微かなズレだけ残す */
+.fb-name::before,.fb-name::after{
+  content:attr(data-text);position:absolute;left:0;top:0;z-index:0;
+  white-space:nowrap;pointer-events:none;mix-blend-mode:screen;
+}
+.fb-name::before{ color:var(--ga,#19e8ff);animation:fbGlA .9s .1s steps(1) both; }
+.fb-name::after { color:var(--gb,#ff2bd0);animation:fbGlB .9s .1s steps(1) both; }
+@keyframes fbGlA{
+  0%{transform:translate(-9px,0);clip-path:inset(0 0 70% 0)}
+  12%{transform:translate(7px,-2px);clip-path:inset(40% 0 20% 0)}
+  24%{transform:translate(-12px,1px);clip-path:inset(70% 0 0 0)}
+  36%{transform:translate(5px,0);clip-path:inset(15% 0 55% 0)}
+  50%{transform:translate(-6px,0);clip-path:inset(0)}
+  70%{transform:translate(-3px,0);clip-path:inset(0)}
+  100%{transform:translate(-2px,0);clip-path:inset(0)}
+}
+@keyframes fbGlB{
+  0%{transform:translate(9px,0);clip-path:inset(60% 0 0 0)}
+  12%{transform:translate(-7px,2px);clip-path:inset(10% 0 60% 0)}
+  24%{transform:translate(12px,-1px);clip-path:inset(0 0 70% 0)}
+  36%{transform:translate(-5px,0);clip-path:inset(45% 0 25% 0)}
+  50%{transform:translate(6px,0);clip-path:inset(0)}
+  70%{transform:translate(3px,0);clip-path:inset(0)}
+  100%{transform:translate(2px,0);clip-path:inset(0)}
+}
+
+/* 各FINISHの個性 */
+.fx-xtreme{ --fc:#e04bff; --sheen:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.95) 50%,transparent 58%); }
+.fx-xtreme .fb-txt{
+  --base:linear-gradient(90deg,#ff3df0 0%,#9b5cff 50%,#2ee6ff 100%);
+  filter:drop-shadow(0 0 8px rgba(255,60,230,.75)) drop-shadow(0 0 26px rgba(120,70,255,.65));
+}
+.fx-burst{ --fc:#ff6a1f; --ga:#ff4a14; --gb:#ffd65a; --sheen:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.9) 50%,transparent 58%); }
+.fx-burst .fb-txt{
+  --base:linear-gradient(180deg,#fffbe6 0%,#ffd45e 38%,#ff7a1f 70%,#d6320e 100%);
+  filter:drop-shadow(0 0 6px rgba(255,120,30,.9)) drop-shadow(0 0 24px rgba(255,60,10,.7));
+}
+.fx-over{ --fc:#19f0d0; --sheen:linear-gradient(105deg,transparent 40%,rgba(255,255,255,1) 50%,transparent 60%); }
+.fx-over .fb-txt{
+  --base:linear-gradient(180deg,#ffffff 0%,#b4f8ee 45%,#3de6cb 100%);
+  filter:drop-shadow(0 0 7px rgba(25,240,208,.85)) drop-shadow(0 0 24px rgba(25,240,208,.55));
+}
+.fx-spin{ --fc:#ffd21a; --ga:#3eeaff; --gb:#ffb300; --sheen:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.95) 50%,transparent 58%); }
+.fx-spin .fb-txt{
+  --base:linear-gradient(180deg,#fffbe0 0%,#ffd21a 55%,#ff9d00 100%);
+  filter:drop-shadow(0 0 7px rgba(255,200,30,.9)) drop-shadow(0 0 24px rgba(255,160,0,.6));
+}
+
+/* ───── CONTROLLER TOAST / SETUP ───── */
+.pad-toast{
+  position:fixed;left:50%;bottom:4vh;transform:translateX(-50%);z-index:9900;
+  padding:8px 18px;border:1px solid #0ff;border-radius:6px;background:rgba(0,0,0,.85);
+  color:#0ff;font-family:'CyberFont',sans-serif;letter-spacing:2px;font-size:.95rem;
+  pointer-events:none;animation:toastInOut 2.6s ease forwards;white-space:nowrap;
+}
+@keyframes toastInOut{
+  0%{opacity:0;transform:translate(-50%,10px)} 10%,80%{opacity:1;transform:translate(-50%,0)} 100%{opacity:0;transform:translate(-50%,0)}
+}
+.pad-open-btn{
+  font-family:'CyberFont',sans-serif;font-size:1rem;letter-spacing:2px;color:#0ff;
+  background:rgba(0,0,0,.6);border:1px solid #0ff7;border-radius:8px;padding:10px 22px;cursor:pointer;
+}
+.pad-open-btn:hover{ box-shadow:0 0 16px #0ff8; }
+
+#pad-config{
+  position:fixed;inset:0;z-index:9500;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(6px);
+}
+#pad-config.show{ display:flex; }
+.pc-box{
+  width:min(760px,94vw);max-height:92vh;overflow-y:auto;touch-action:pan-y;
+  background:rgba(8,12,18,.96);border:2px solid #00d4ff;border-radius:12px;
+  box-shadow:0 0 30px rgba(0,212,255,.35);padding:16px 20px;color:#fff;
+  font-family:system-ui,'Segoe UI','Yu Gothic',Meiryo,sans-serif;font-size:14px;
+}
+.pc-head{ display:flex;justify-content:space-between;align-items:center;font-size:18px;font-weight:700;color:#0ff;margin-bottom:10px; }
+.pc-mon{ background:#000;border:1px solid #234;border-radius:8px;padding:8px 10px;margin-bottom:12px;font-family:Consolas,monospace;font-size:12px;color:#9fe; }
+.pc-mon .t{ color:#789;margin-top:4px; }
+.pc-mon pre{ margin:2px 0 0;white-space:pre-wrap;word-break:break-all; }
+.pc-live{ color:#ffd23f;font-size:15px; }
+.pc-group{ margin:12px 0 2px;font-weight:700;letter-spacing:2px; }
+.pc-group.l{ color:#aff; } .pc-group.r{ color:#faa; }
+.pc-row{ display:grid;grid-template-columns:1.2fr 1.5fr auto 40px;gap:8px;align-items:center;padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.08); }
+.pc-row.learning{ background:rgba(255,200,0,.14); }
+.pc-lab{ font-weight:700;letter-spacing:1px; }
+.pc-bind{ color:#cde;font-family:Consolas,monospace; }
+.pc-btn{ background:#123;border:1px solid #0ad;color:#bff;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:13px; }
+.pc-btn:hover{ background:#146; }
+.pc-foot{ display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;color:#89a;font-size:12px; }
 </style>
 </head>
 <body>
@@ -620,6 +856,7 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
     TEAM BATTLE
     <div class="mode-btn-sub">3vs3 / 勝ち残り・2ポイント先取</div>
   </button>
+  <button class="pad-open-btn" id="btn-pad">🎮 コントローラー設定</button>
 </div>
 
 <div class="ui-layer" id="game-ui" style="display:none;">
@@ -665,11 +902,46 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
 
 </div>
 
+
+<div id="pad-config">
+  <div class="pc-box">
+    <div class="pc-head"><span>🎮 CONTROLLER SETUP</span><button class="pc-btn" id="pc-close">✕ 閉じる</button></div>
+    <div class="pc-mon">
+      <div class="t">DEVICE</div><pre id="pc-status">-</pre>
+      <div class="t">いま押されている入力（ボタンを押すとここに出ます）</div><pre class="pc-live" id="pc-live">-</pre>
+      <div class="t">AXES</div><pre id="pc-axes"></pre>
+    </div>
+    <div id="pc-list"></div>
+    <div class="pc-foot">
+      <span>「割り当て」を押してから、割り当てたいボタンを押してください。設定はこのブラウザに保存されます。<br>※ Windowsのテスト画面の番号 − 1 ＝ ここの BTN 番号（Windowsの1番 = BTN 0）</span>
+      <button class="pc-btn" id="pc-reset">初期値に戻す</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
 navigator.mediaDevices.getUserMedia({ video:{ facingMode:"environment" } })
   .then(s => { document.getElementById("camera").srcObject = s; })
   .catch(e => console.error("カメラ起動失敗:", e));
+
+/* ── 効果音（ラウンド表示 / 勝利表示） ───────────── */
+const SFX = {
+  round: new Audio("sound/round.mp3"),
+  win:   new Audio("sound/win.mp3"),
+};
+Object.values(SFX).forEach(a => { a.preload = "auto"; });
+function playSfx(name) {
+  const a = SFX[name];
+  if (!a) return;
+  try { a.currentTime = 0; } catch (e) {}
+  const pr = a.play();
+  if (pr && pr.catch) pr.catch(e => console.warn("sfx blocked:", name, e));
+}
+function stopSfx(name) {
+  const a = SFX[name];
+  if (a) { a.pause(); try { a.currentTime = 0; } catch (e) {} }
+}
 
 const LONG_PRESS_MS = 600;
 const WIN_POINT_SINGLE = 4;
@@ -700,6 +972,8 @@ function startMode(mode) {
 
   r = 0;
   centerRank.textContent = ranks[r];
+  clearTimeout(winDelayTimer);
+  clearTimeout(autoResetTimer); autoResetTimer = null;
   gameBlocked = false;
 
   if (mode === "single") {
@@ -813,20 +1087,25 @@ function resetScoreDisplay() {
   clearWinEffect();
 }
 
-function addPoint(side) {
+function addPoint(side, n = 1) {
   if (gameBlocked) return;
   const block  = document.getElementById(`${side}-block`);
   const frames = [...block.querySelectorAll(".frame")];
-  const empty  = frames.find(f => !f.querySelector(".hud-ring"));
-  if (!empty) return;
 
-  const img = document.createElement("img");
-  img.className = side === "right"
-    ? "hud-ring right cyber-effect"
-    : "hud-ring cyber-effect";
-  img.src = side === "right" ? "HudLing-pink.png" : "HudLing.png";
-  empty.appendChild(img);
-  updateScore(block, side);
+  // n点ぶんHUDリングを追加（枠が埋まったらそこで打ち止め = 勝利ポイントを超えない）
+  let added = 0;
+  for (let i = 0; i < n; i++) {
+    const empty = frames.find(f => !f.querySelector(".hud-ring"));
+    if (!empty) break;
+    const img = document.createElement("img");
+    img.className = side === "right"
+      ? "hud-ring right cyber-effect"
+      : "hud-ring cyber-effect";
+    img.src = side === "right" ? "image/HudLing-pink.png" : "image/HudLing.png";
+    empty.appendChild(img);
+    added++;
+  }
+  if (added > 0) updateScore(block, side);
 }
 
 function removePoint(side) {
@@ -872,7 +1151,17 @@ function updateScore(container, side) {
   }
 }
 
+/* FINISH演出が再生中なら、終わるまで WIN 表示を待つ */
+let winDelayTimer = null;
 function handleWin(winningSide) {
+  gameBlocked = true;
+  clearTimeout(winDelayTimer);
+  const wait = finishEndAt - performance.now();
+  if (wait > 0) winDelayTimer = setTimeout(() => handleWinNow(winningSide), wait + 100);
+  else handleWinNow(winningSide);
+}
+
+function handleWinNow(winningSide) {
   gameBlocked = true;
   const losingSide = winningSide === "left" ? "right" : "left";
 
@@ -888,7 +1177,8 @@ function handleWin(winningSide) {
     const inputVal = inputEl ? inputEl.value.trim() : "";
     const label    = inputVal || (winningSide === "left" ? "L Blader" : "R Blader");
 
-    showWinText(`${label}\nWIN!!`);
+    showWinText(`${label}\nWIN!!`, 5000, winningSide);
+    scheduleAutoReset();
     setTimeout(() => {
       gameBlocked = false;
     }, 5000);
@@ -901,7 +1191,7 @@ function handleWin(winningSide) {
 
     const winnerIdx = teamState[winningSide].current + 1;
     const winLabel  = `Blader ${winnerIdx}\nWIN!!`;
-    showWinText(winLabel, 5000);
+    showWinText(winLabel, 5000, winningSide);
 
     setTimeout(() => {
       
@@ -915,6 +1205,7 @@ function handleWin(winningSide) {
           const teamName = winningSide === "left" ? "TEAM A" : "TEAM B";
           setTimeout(() => {
             showTeamWin(`${teamName}\nWIN!!`);
+            scheduleAutoReset();
             
           }, 300);
         } else {
@@ -1029,13 +1320,41 @@ function advanceBlader(side) {
   updateTeamLabels();
 }
 
-function showWinText(text, duration) {
+function showWinText(text, duration, side) {
   document.querySelectorAll(".win-overlay").forEach(d => d.remove());
+  const total = duration || 5000;
+  const lines = String(text).split("\n");
+
   const div = document.createElement("div");
-  div.className   = "win-overlay";
-  div.textContent = text;
+  div.className = "win-overlay " + (side === "right" ? "win-pink" : "win-blue");
+  // 名前の長さに合わせて文字サイズ(vw)を調整し、はみ出しを防ぐ
+  const nameLen = Math.max(4, (lines[0] || "").length);
+  div.style.setProperty("--fs", Math.min(8, 84 / nameLen / 0.75).toFixed(2));
+
+  const banner = document.createElement("div");
+  banner.className = "win-banner";
+  const band = document.createElement("div");
+  band.className = "fb-band";
+  lines.forEach((ln, i) => {
+    const nm = document.createElement("div");
+    nm.className = "fb-name win-line" + (i > 0 ? " win-big" : "");
+    nm.dataset.text = ln;                       // 色収差(RGBずれ)用の疑似要素が参照
+    const t = document.createElement("span");
+    t.className = "fb-txt";
+    t.textContent = ln;                         // ユーザー入力名なので textContent で安全に挿入
+    nm.appendChild(t);
+    band.appendChild(nm);
+  });
+  const noise = document.createElement("div");
+  noise.className = "win-noise";
+  band.appendChild(noise);
+  banner.appendChild(band);
+  div.appendChild(banner);
   document.body.appendChild(div);
-  setTimeout(() => div.remove(), duration || 5000);
+
+  playSfx("win");
+  setTimeout(() => div.classList.add("out"), Math.max(0, total - 1000));  // 最後の1秒でノイズを掛けて消す
+  setTimeout(() => div.remove(), total);
 }
 
 function showTeamWin(text) {
@@ -1046,6 +1365,7 @@ function showTeamWin(text) {
   const lineCls  = isBlue ? "blue-line" : "pink-line";
 
   const lines = text.split("\n");
+  playSfx("win");
 
   const div = document.createElement("div");
   div.className = "team-win-overlay";
@@ -1109,9 +1429,39 @@ function returnToModeSelect() {
   gameUI.style.display      = "none";
   modeSelect.style.display  = "flex";
   currentMode  = null;
+  stopSfx("win");
+  clearTimeout(autoResetTimer); autoResetTimer = null;
   gameBlocked  = false;
   document.querySelectorAll(".win-overlay,.team-win-overlay,.team-win-sideline").forEach(d => d.remove());
   resetScoreDisplay();
+}
+
+/* 勝利後のリセット（クリック・自動の両方から使う） */
+let autoResetTimer = null;
+const AUTO_RESET_MS = 10000;   // 勝利表示から自動リセットまでの時間
+function resetAfterWin() {
+  clearTimeout(autoResetTimer); autoResetTimer = null;
+  stopSfx("win");
+  resetScoreDisplay();
+  lastScores = { left:0, right:0 };
+  r = 0;
+  centerRank.textContent = ranks[r];
+  gameBlocked = false;
+  document.querySelectorAll(".win-overlay,.team-win-overlay,.team-win-sideline").forEach(d => d.remove());
+
+  if (currentMode === "team") {
+    teamState = {
+      left:  { current:0, wins:[false,false,false] },
+      right: { current:0, wins:[false,false,false] }
+    };
+    updateTeamLabels();
+    buildLives("lives-left");
+    buildLives("lives-right");
+  }
+}
+function scheduleAutoReset() {
+  clearTimeout(autoResetTimer);
+  autoResetTimer = setTimeout(() => { autoResetTimer = null; if (currentMode) resetAfterWin(); }, AUTO_RESET_MS);
 }
 
 centerRank.addEventListener("click", () => {
@@ -1124,22 +1474,7 @@ centerRank.addEventListener("click", () => {
   const isRoundWon = leftScore === winPt || rightScore === winPt;
 
   if (gameBlocked || isTeamWon || isRoundWon) {
-    resetScoreDisplay();
-    lastScores = { left:0, right:0 };
-    r = 0;
-    centerRank.textContent = ranks[r];
-    gameBlocked = false;
-    document.querySelectorAll(".win-overlay,.team-win-overlay,.team-win-sideline").forEach(d => d.remove());
-
-    if (currentMode === "team") {
-      teamState = {
-        left:  { current:0, wins:[false,false,false] },
-        right: { current:0, wins:[false,false,false] }
-      };
-      updateTeamLabels();
-      buildLives("lives-left");
-      buildLives("lives-right");
-    }
+    resetAfterWin();
     return;
   }
 
@@ -1172,6 +1507,7 @@ function checkScoreForRank() {
 }
 
 function showRankUpEffect(rank) {
+  playSfx("round");
   const container = document.createElement("div");
   container.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;width:min(1000px,100vw);max-width:100vw;overflow:visible;";
   container.innerHTML = `
@@ -1205,7 +1541,7 @@ function showRankUpEffect(rank) {
 ─────────────────────────────────────────────────────── */
 
 function isInteractiveTarget(el) {
-  return el.closest("input, #center-rank, #mode-select");
+  return el.closest("input, #center-rank, #mode-select, #pad-config");
 }
 
 document.addEventListener("contextmenu", e => e.preventDefault());
@@ -1269,6 +1605,745 @@ document.addEventListener("pointercancel", e => {
   pressPointerType = null;
   pressSide        = null;
   longFired        = false;
+});
+
+
+/* ════════════════════════════════════════════════════════════
+   FINISH 加点 + ゲームコントローラー対応
+   ・FINISH表示 … 1.5秒表示 → 0.45秒でフェードアウト
+   ・入力は Gamepad API をポーリング（立ち上がり検出）
+   ・割り当ては設定画面(Gキー)で「学習」して変更可能。localStorageに保存
+════════════════════════════════════════════════════════════ */
+const FINISH_SHOW_MS    = 2000;  // 表示時間
+const FINISH_FADE_MS    = 450;   // フェードアウト時間
+const FINISH_LOCKOUT_MS = 500;   // 同じ側の連続入力ロック（誤連打防止）
+const SIMUL_GUARD_MS    = 45;    // 同時押し(十字の斜めなど)判定の待ち時間
+
+const FINISHES = {
+  XTREME: { label:"XTREME FINISH", pts:3, color:"#e060ff" },
+  OVER:   { label:"OVER FINISH",   pts:2, color:"#19f0d0" },
+  BURST:  { label:"BURST FINISH",  pts:2, color:"#e0643a" },
+  SPIN:   { label:"SPIN FINISH",   pts:1, color:"#ffd21a" },
+};
+
+/* ── フィニッシュ音声 ───────────────────────────── */
+const FINISH_SOUNDS = {
+  XTREME: new Audio("sound/xtreme.mp3"),
+  BURST:  new Audio("sound/burst.mp3"),
+  SPIN:   new Audio("sound/spin.mp3"),
+  OVER:   new Audio("sound/over.mp3"),
+};
+Object.values(FINISH_SOUNDS).forEach(a => { a.preload = "auto"; });
+let currentFinishSound = null;
+
+function playFinishSound(key) {
+  const a = FINISH_SOUNDS[key];
+  if (!a) return;
+  // 直前のフィニッシュ音が鳴っていたら止める（連続入力で重ならないように）
+  if (currentFinishSound) { currentFinishSound.pause(); currentFinishSound.currentTime = 0; }
+  currentFinishSound = a;
+  a.currentTime = 0;
+  const pr = a.play();
+  if (pr && pr.catch) pr.catch(e => console.warn("finish sound blocked:", e));
+}
+
+const PAD_ACTIONS = [
+  { key:"R_XTREME", side:"right", type:"finish", finish:"XTREME" },
+  { key:"R_OVER",   side:"right", type:"finish", finish:"OVER"   },
+  { key:"R_BURST",  side:"right", type:"finish", finish:"BURST"  },
+  { key:"R_SPIN",   side:"right", type:"finish", finish:"SPIN"   },
+  { key:"R_UNDO",   side:"right", type:"undo" },
+  { key:"L_XTREME", side:"left",  type:"finish", finish:"XTREME" },
+  { key:"L_OVER",   side:"left",  type:"finish", finish:"OVER"   },
+  { key:"L_BURST",  side:"left",  type:"finish", finish:"BURST"  },
+  { key:"L_SPIN",   side:"left",  type:"finish", finish:"SPIN"   },
+  { key:"L_UNDO",   side:"left",  type:"undo" },
+];
+
+/* 入力ID:  "b12" = buttons[12] / "h:up" = 十字キーがhat(axes[9])で届く場合
+   初期値: ブラウザ標準の位置（Windowsの番号−1）。十字は標準(b12-15)とhatの両方を受ける */
+const DEFAULT_PAD_MAP = {
+  R_SPIN:["b0"], R_OVER:["b1"], R_BURST:["b2"], R_XTREME:["b3"],
+  L_SPIN:["b13","h:down"], L_OVER:["b15","h:right"], L_BURST:["b14","h:left"], L_XTREME:["b12","h:up"],
+  L_UNDO:["b4"], R_UNDO:["b5"],   // 肩ボタン: 誤入力の訂正用(-1点)
+};
+const PAD_STORE_KEY = "beyCamPadMap_v1";
+
+const qs = s => document.querySelector(s);
+const cloneMap = m => JSON.parse(JSON.stringify(m));
+
+function loadPadMap() {
+  const base = cloneMap(DEFAULT_PAD_MAP);
+  try {
+    const saved = JSON.parse(localStorage.getItem(PAD_STORE_KEY));
+    if (saved && typeof saved === "object") {
+      for (const k in base) {
+        if (Array.isArray(saved[k]) && saved[k].every(x => typeof x === "string")) base[k] = saved[k];
+      }
+    }
+  } catch (e) {}
+  return base;
+}
+function savePadMap() {
+  try { localStorage.setItem(PAD_STORE_KEY, JSON.stringify(padMap)); } catch (e) {}
+}
+let padMap = loadPadMap();
+
+/* ── FINISH バナー + Canvas演出 ──────────────────
+   演出はすべて1枚のCanvas(低解像度で描画→CSSで拡大)で行い、
+   DOMアニメーションは transform/opacity のみ。重い場合は FX_SCALE を下げる。 */
+const FX_SCALE = 0.5;   // Canvas解像度の倍率（0.45=より軽い / 0.8=より綺麗）
+let finishFxEl = null;
+let finishEndAt = 0;   // 現在のFINISH演出が終わる時刻(performance.now基準)
+let finishTimers = [];
+let finishCancel = null;
+
+const rnd = (a, b) => a + Math.random() * (b - a);
+
+/* ── Canvas演出 共通ヘルパー ───────────────────── */
+const TAU = Math.PI * 2;
+const SPR_CACHE = {};
+/* 柔らかい発光スプライト（加算合成で使う。shadowBlurより圧倒的に軽い） */
+function glowSprite(rgb) {
+  if (SPR_CACHE[rgb]) return SPR_CACHE[rgb];
+  const S = 128, c = document.createElement("canvas");
+  c.width = c.height = S;
+  const g = c.getContext("2d"), r = S / 2, gr = g.createRadialGradient(r, r, 0, r, r, r);
+  gr.addColorStop(0,    `rgba(${rgb},1)`);
+  gr.addColorStop(0.18, `rgba(${rgb},.72)`);
+  gr.addColorStop(0.45, `rgba(${rgb},.26)`);
+  gr.addColorStop(1,    `rgba(${rgb},0)`);
+  g.fillStyle = gr; g.fillRect(0, 0, S, S);
+  return (SPR_CACHE[rgb] = c);
+}
+function drawSpr(ctx, s, x, y, w, a, h) {              // h省略で正円
+  if (a <= 0.003 || w <= 0) return;
+  const hh = h === undefined ? w : h;
+  ctx.globalAlpha = a; ctx.drawImage(s, x - w / 2, y - hh / 2, w, hh);
+}
+function polyPath(ctx, cx, cy, r, n, rot) {
+  ctx.beginPath();
+  for (let i = 0; i <= n; i++) {
+    const a = rot + i / n * TAU, x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+}
+/* 中点変位法の稲妻 */
+function boltPts(x0, y0, x1, y1, rough, depth) {
+  let pts = [[x0, y0], [x1, y1]], off = rough;
+  for (let d = 0; d < depth; d++) {
+    const np = [pts[0]];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1, o = rnd(-off, off);
+      np.push([(a[0] + b[0]) / 2 - dy / l * o, (a[1] + b[1]) / 2 + dx / l * o]); np.push(b);
+    }
+    pts = np; off *= 0.55;
+  }
+  return pts;
+}
+function strokePts(ctx, pts) {
+  ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.stroke();
+}
+
+/* XTREME: ネオンの稲妻 + 六角衝撃波 + アナモフィックフレア（マゼンタ/バイオレット/シアン） */
+function simXtreme(W, H, ctx) {
+  const cx = W / 2, cy = H * 0.3, R = Math.hypot(W, H) * 0.6, u = W / 1000;
+  const sMag = glowSprite("255,50,220"), sVio = glowSprite("130,70,255"), sCyn = glowSprite("40,230,255"), sWht = glowSprite("255,255,255");
+  const cols = ["255,70,225", "150,80,255", "50,225,255", "255,255,255"];
+  const P = [];
+  const burst = (n, spd, delay) => {
+    for (let i = 0; i < n; i++) {
+      const a = rnd(0, TAU), v = spd * u * rnd(0.25, 1);
+      P.push({ x:cx, y:cy, vx:Math.cos(a) * v, vy:Math.sin(a) * v, d:delay, life:0, max:rnd(0.6, 1.5),
+               w:rnd(1.5, 4) * u, c:cols[(Math.random() * 4) | 0], sq:Math.random() < 0.3 });
+    }
+  };
+  burst(60, 1300, 0); burst(36, 900, 0.2); burst(20, 600, 0.45);
+  let bolts = [], nextBolt = 0;
+  const makeBolts = () => {
+    bolts = [];
+    for (let i = 0; i < 6; i++) {
+      const a = i / 6 * TAU + rnd(-0.3, 0.3), L = R * rnd(0.55, 1);
+      const main = boltPts(cx, cy, cx + Math.cos(a) * L, cy + Math.sin(a) * L, L * 0.12, 5);
+      bolts.push({ pts:main, c:i % 2, w:1 });
+      const k = main[(main.length * rnd(0.3, 0.6)) | 0], b = a + rnd(-0.8, 0.8), L2 = L * rnd(0.25, 0.4);
+      bolts.push({ pts:boltPts(k[0], k[1], k[0] + Math.cos(b) * L2, k[1] + Math.sin(b) * L2, L2 * 0.12, 4), c:i % 2, w:0.55 });
+    }
+  };
+  return (dt, t) => {
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = Math.min(1, t / 0.2) * 0.34; ctx.fillStyle = "#10002a"; ctx.fillRect(0, 0, W, H);   // 暗幕でネオンを際立たせる
+    if (t < 0.14) { ctx.globalAlpha = 0.85 * (1 - t / 0.14); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H); }
+    ctx.globalCompositeOperation = "lighter";
+    const ge = Math.max(0, 1 - t / 2.2), pulse = 1 + 0.06 * Math.sin(t * 38);
+    drawSpr(ctx, sVio, cx, cy, W * 0.95 * (0.55 + 0.45 * Math.min(1, t / 0.25)) * pulse, 0.85 * ge);
+    drawSpr(ctx, sWht, cx, cy, W * 0.12 * pulse, 0.9 * ge);
+    const se = Math.max(0, 1 - t / 0.95);                                    // アナモフィックフレア
+    drawSpr(ctx, sMag, cx, cy, W * 1.5, 0.75 * se, 40 * u);
+    drawSpr(ctx, sCyn, cx, cy, W * 1.1, 0.7 * se, 16 * u);
+    drawSpr(ctx, sWht, cx, cy, W * 0.8, 0.9 * se, 6 * u);
+    for (let i = 0; i < 3; i++) {                                            // 衝撃波（円 / 六角 / 円）
+      const rt = t - i * 0.1;
+      if (rt <= 0 || rt >= 0.9) continue;
+      const k = 1 - Math.pow(1 - rt / 0.9, 3), r = k * R * 0.9, a = 1 - rt / 0.9, col = i % 2 ? "50,225,255" : "255,60,225";
+      const path = () => i === 1 ? polyPath(ctx, cx, cy, r, 6, t * 1.2) : (ctx.beginPath(), ctx.arc(cx, cy, r, 0, TAU));
+      ctx.globalAlpha = 1; ctx.lineJoin = "miter";
+      ctx.strokeStyle = `rgba(${col},${0.22 * a})`; ctx.lineWidth = (20 * a + 3) * u; path(); ctx.stroke();
+      ctx.strokeStyle = `rgba(${col},${0.8 * a})`;  ctx.lineWidth = (5 * a + 1) * u;  path(); ctx.stroke();
+      ctx.strokeStyle = `rgba(255,255,255,${0.9 * a})`; ctx.lineWidth = 1.4 * u;      path(); ctx.stroke();
+    }
+    if (t < 1.9) {                                                           // 稲妻（毎フレーム近く再生成してちらつかせる）
+      if (t >= nextBolt) { makeBolts(); nextBolt = t + rnd(0.07, 0.11); }
+      const env = Math.pow(Math.max(0, 1 - t / 1.9), 1.3) * (0.7 + 0.3 * Math.random()) * (t > 0.85 && t < 1.0 ? 1.8 : 1);   // 0.9秒付近で再放電
+      ctx.globalAlpha = 1; ctx.lineJoin = "round"; ctx.lineCap = "round";
+      for (const b of bolts) {
+        const mid = b.c ? "60,230,255" : "255,60,230";
+        ctx.strokeStyle = `rgba(${mid},${0.55 * env})`;     ctx.lineWidth = 6 * u * b.w;  strokePts(ctx, b.pts);
+        ctx.strokeStyle = `rgba(255,255,255,${0.95 * env})`; ctx.lineWidth = 1.5 * u * b.w; strokePts(ctx, b.pts);
+      }
+    }
+    const drag = Math.exp(-2.4 * dt);                                        // ネオンの火花 / データ片
+    ctx.lineCap = "round";
+    for (const p of P) {
+      if (p.d > 0) { p.d -= dt; continue; }
+      p.life += dt; if (p.life > p.max) continue;
+      p.vx *= drag; p.vy = p.vy * drag + 180 * u * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      const k = p.life / p.max, a = (1 - k) * (0.6 + 0.4 * Math.random());
+      ctx.globalAlpha = 1;
+      if (p.sq) { ctx.fillStyle = `rgba(${p.c},${a})`; const s = p.w * 2.4; ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s); }
+      else { ctx.strokeStyle = `rgba(${p.c},${a})`; ctx.lineWidth = p.w * (1 - k * 0.5); ctx.beginPath(); ctx.moveTo(p.x - p.vx * 0.04, p.y - p.vy * 0.04); ctx.lineTo(p.x, p.y); ctx.stroke(); }
+    }
+    ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
+  };
+}
+
+/* BURST: 派手な多段爆発（閃光 → 3連続の火球 → 光条 → 衝撃波 → 火花 → 黒煙・残り火） */
+function simBurst(W, H, ctx) {
+  const cx = W / 2, cy = H * 0.3, u = W / 1000;
+  const heat = ["255,252,235", "255,236,160", "255,196,80", "255,136,34", "228,72,16", "140,32,10"].map(glowSprite);
+  const smk = glowSprite("34,24,20"), emb = glowSprite("255,150,40");
+  const blasts = [[0, 0, 0, 1], [0.16, -0.16, 0.05, 0.8], [0.3, 0.18, -0.04, 0.85]];   // [遅延, x, y, 大きさ]
+  const FI = [], SM = [], SP = [], EM = [], RAY = [];
+  for (const [dl, bx, by, sz] of blasts) {
+    const x0 = cx + bx * W, y0 = cy + by * H;
+    for (let i = 0; i < 40; i++) {
+      const a = rnd(0, TAU), v = rnd(60, 700) * u * sz, o = rnd(0, 24 * u);
+      FI.push({ x:x0 + Math.cos(a) * o, y:y0 + Math.sin(a) * o, vx:Math.cos(a) * v, vy:Math.sin(a) * v - 50 * u,
+                d:dl + rnd(0, 0.2), life:0, max:rnd(0.8, 1.5), s0:rnd(100, 210) * u * sz, g:rnd(1.8, 2.6) });
+    }
+    for (let i = 0; i < 8; i++) {
+      const a = rnd(0, TAU), v = rnd(30, 260) * u;
+      SM.push({ x:x0, y:y0, vx:Math.cos(a) * v, vy:Math.sin(a) * v, d:dl + rnd(0.1, 0.5), life:0, max:rnd(1.5, 2.4), s0:rnd(170, 280) * u * sz, g:rnd(1.8, 2.8) });
+    }
+  }
+  const sc = ["255,250,210", "255,214,110", "255,160,50"];
+  for (let i = 0; i < 90; i++) {                                            // 外へ走る火花
+    const a = rnd(0, TAU), v = rnd(500, 2200) * u;
+    SP.push({ x:cx, y:cy, vx:Math.cos(a) * v, vy:Math.sin(a) * v, d:rnd(0, 0.3), life:0, max:rnd(0.4, 1.1), w:rnd(1.2, 3.2) * u, c:sc[i % 3] });
+  }
+  for (let i = 0; i < 30; i++) EM.push({ x:cx + rnd(-1, 1) * W * 0.15, y:cy + rnd(-1, 1) * H * 0.1, vx:rnd(-60, 60) * u, vy:rnd(-140, -30) * u, d:rnd(0.1, 0.8), life:0, max:rnd(1.2, 2.4), ph:rnd(0, TAU) });
+  for (let i = 0; i < 22; i++) RAY.push({ a:rnd(0, TAU), w:rnd(0.008, 0.03), l:rnd(0.5, 1.1) });
+  return (dt, t) => {
+    ctx.save();
+    const amp = 20 * u * Math.max(0, 1 - t / 0.8);
+    if (amp > 0.2) ctx.translate(rnd(-amp, amp), rnd(-amp, amp));
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = Math.min(1, t / 0.15) * 0.3; ctx.fillStyle = "#0a0402"; ctx.fillRect(-40, -40, W + 80, H + 80);
+    const sdrag = Math.exp(-1.6 * dt);
+    for (const p of SM) {
+      if (p.d > 0) { p.d -= dt; continue; }
+      p.life += dt; if (p.life > p.max) continue;
+      p.vx *= sdrag; p.vy = p.vy * sdrag - 70 * u * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      const k = p.life / p.max;
+      drawSpr(ctx, smk, p.x, p.y, p.s0 * (1 + p.g * k), (k < 0.15 ? k / 0.15 : 1) * (1 - k) * 0.5);
+    }
+    ctx.globalCompositeOperation = "lighter";
+    const fdrag = Math.exp(-2.2 * dt);
+    for (const p of FI) {
+      if (p.d > 0) { p.d -= dt; continue; }
+      p.life += dt; if (p.life > p.max) continue;
+      p.vx *= fdrag; p.vy = p.vy * fdrag - 120 * u * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      const k = p.life / p.max, idx = Math.min(5, 1 + ((k * 5.6) | 0));
+      drawSpr(ctx, heat[idx], p.x, p.y, p.s0 * (0.6 + p.g * k), (k < 0.08 ? k / 0.08 : Math.pow(1 - k, 1.4)) * 0.5);
+    }
+    if (t < 0.6) {                                                           // 放射状の光条
+      const e = 1 - t / 0.6; ctx.globalAlpha = 0.16 * e; ctx.fillStyle = "rgb(255,190,100)";
+      const L = W * (0.3 + 0.9 * (1 - e));
+      for (const r of RAY) {
+        ctx.beginPath(); ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(r.a - r.w) * L * r.l, cy + Math.sin(r.a - r.w) * L * r.l);
+        ctx.lineTo(cx + Math.cos(r.a + r.w) * L * r.l, cy + Math.sin(r.a + r.w) * L * r.l); ctx.fill();
+      }
+    }
+    for (const [dl, bx, by, sz] of blasts) {                                 // 各爆発の中心閃光
+      const k = t - dl; if (k < 0 || k > 0.5) continue;
+      const e = 1 - k / 0.5, x = cx + bx * W, y = cy + by * H;
+      drawSpr(ctx, heat[0], x, y, W * 0.5 * sz * e, 0.7 * e);
+    }
+    const se = Math.max(0, 1 - t / 0.8);
+    drawSpr(ctx, heat[2], cx, cy, W * 1.6, 0.8 * se, 40 * u);
+    drawSpr(ctx, heat[0], cx, cy, W * 1.0, 0.9 * se, 10 * u);
+    for (let i = 0; i < 2; i++) {                                            // 衝撃波（2波）
+      const rt = t - i * 0.18; if (rt <= 0 || rt >= 0.8) continue;
+      const k = 1 - Math.pow(1 - rt / 0.8, 2.6), r = k * W * 0.8, a = 1 - rt / 0.8;
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = `rgba(255,200,120,${0.35 * a})`; ctx.lineWidth = (26 * a + 3) * u; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = `rgba(60,220,255,${0.5 * a})`;   ctx.lineWidth = 2 * u;           ctx.beginPath(); ctx.arc(cx, cy, r * 1.03, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = `rgba(255,255,240,${0.9 * a})`;  ctx.lineWidth = (3 * a + 1) * u;  ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
+    }
+    const gdrag = Math.exp(-1.6 * dt);
+    ctx.lineCap = "round"; ctx.globalAlpha = 1;
+    for (const p of SP) {
+      if (p.d > 0) { p.d -= dt; continue; }
+      p.life += dt; if (p.life > p.max) continue;
+      p.vx *= gdrag; p.vy *= gdrag; p.x += p.vx * dt; p.y += p.vy * dt;
+      const k = p.life / p.max;
+      ctx.strokeStyle = `rgba(${p.c},${1 - k * k})`; ctx.lineWidth = p.w * (1 - k * 0.5);
+      ctx.beginPath(); ctx.moveTo(p.x - p.vx * 0.04, p.y - p.vy * 0.04); ctx.lineTo(p.x, p.y); ctx.stroke();
+    }
+    for (const p of EM) {
+      if (p.d > 0) { p.d -= dt; continue; }
+      p.life += dt; if (p.life > p.max) continue;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      const k = p.life / p.max;
+      drawSpr(ctx, emb, p.x, p.y, 16 * u * (1 - k * 0.4), (1 - k) * (0.55 + 0.45 * Math.sin(t * 30 + p.ph)));
+    }
+    ctx.globalCompositeOperation = "source-over";
+    if (t < 0.09) { ctx.globalAlpha = 0.9 * (1 - t / 0.09); ctx.fillStyle = "#fff"; ctx.fillRect(-40, -40, W + 80, H + 80); }
+    ctx.restore();
+  };
+}
+
+/* OVER: 手前のガラス板に衝撃 → ひび割れ → 破片がこちら（カメラ側）へ勢いよく砕け飛んでくる（疑似3D） */
+function simOver(W, H, ctx) {
+  const cx = W / 2, cy = H * 0.3, base = Math.hypot(W, H), F = base * 0.55, u = W / 1000;
+  const NA = 20, RF = [0, 0.03, 0.07, 0.12, 0.19, 0.29, 0.43, 0.62, 0.85, 1.1], NR = RF.length;
+  const V = [];
+  for (let i = 0; i < NA; i++) {
+    V[i] = [];
+    for (let j = 0; j < NR; j++) {
+      const a = (i + rnd(-0.32, 0.32)) / NA * TAU, r = j === 0 ? 0 : RF[j] * base * (j === NR - 1 ? 1 : rnd(0.86, 1.14));
+      V[i][j] = [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+    }
+  }
+  const C = [];
+  const add = (pts, rj) => {
+    let mx = 0, my = 0; for (const p of pts) { mx += p[0]; my += p[1]; } mx /= pts.length; my /= pts.length;
+    const dx = mx - cx, dy = my - cy, dist = Math.hypot(dx, dy) || 1, n = dist / base;
+    const vz = rnd(650, 1900) * (1 - 0.45 * Math.min(1, n * 1.3)), sp = rnd(50, 340);
+    C.push({ L:pts.map(p => [p[0] - mx, p[1] - my]), px:dx, py:dy, rj, td:0.62 + n * 0.3 + rnd(0, 0.06),
+             vx:dx / dist * sp, vy:dy / dist * sp - rnd(0, 60), vz, z:0, ax:rnd(0, 0.3), ay:rnd(0, 0.3), az:0,
+             vax:rnd(-5, 5), vay:rnd(-5, 5), vaz:rnd(-4, 4) });
+  };
+  for (let i = 0; i < NA; i++) for (let j = 0; j < NR - 1; j++) {
+    const p0 = V[i][j], p1 = V[(i + 1) % NA][j], p2 = V[(i + 1) % NA][j + 1], p3 = V[i][j + 1], rj = RF[j] * base;
+    if (j === 0) add([p0, p2, p3], rj);
+    else if (Math.random() < 0.5) { add([p0, p1, p2], rj); add([p0, p2, p3], rj); }
+    else add([p0, p1, p2, p3], rj);
+  }
+  C.sort((a, b) => a.vz - b.vz);                                            // 奥 → 手前 の順で描く
+  const G = [];                                                              // 細かいガラス粉
+  for (let i = 0; i < 240; i++) {
+    const a = rnd(0, TAU), r = Math.pow(Math.random(), 1.5) * base * 0.6;
+    G.push({ x:Math.cos(a) * r, y:Math.sin(a) * r, vx:Math.cos(a) * rnd(80, 500), vy:Math.sin(a) * rnd(80, 500), z:0, vz:rnd(900, 2800),
+             d:0.62 + r / base * 0.3 + rnd(0, 0.1), sz:rnd(2, 7) * u, c:Math.random() < 0.6 ? "220,255,250" : "120,255,225" });
+  }
+  const sCore = glowSprite("200,255,248");
+  const LX = -0.48, LY = -0.58, LZ = 0.66;                                   // 光源方向
+  return (dt, t) => {
+    ctx.globalCompositeOperation = "source-over";
+    if (t < 0.12) { ctx.globalAlpha = 0.75 * (1 - t / 0.12); ctx.fillStyle = "#eafffb"; ctx.fillRect(0, 0, W, H); }
+    const reveal = t * base * 2.4;                                           // ひびの伝播
+    ctx.lineJoin = "round";
+    for (const c of C) {
+      if (c.rj > reveal) continue;
+      const flying = t > c.td;
+      if (flying) { c.px += c.vx * dt; c.py += c.vy * dt; c.z += c.vz * dt; c.ax += c.vax * dt; c.ay += c.vay * dt; c.az += c.vaz * dt; }
+      const depth = c.z / F;
+      let alpha = depth < 0.55 ? 1 : Math.max(0, 1 - (depth - 0.55) / 0.35);
+      if (alpha <= 0) continue;
+      const ca = Math.cos(c.ax), sa = Math.sin(c.ax), cb = Math.cos(c.ay), sb = Math.sin(c.ay), cg = Math.cos(c.az), sg = Math.sin(c.az);
+      const xs = [], ys = [];
+      let dead = false, sx = 0, sy = 0, sAvg = 0;
+      for (const q of c.L) {
+        const x = q[0] * cg - q[1] * sg, y = q[0] * sg + q[1] * cg;           // Z回転 → X回転 → Y回転
+        const y1 = y * ca, z1 = y * sa;
+        const x2 = x * cb + z1 * sb, z2 = -x * sb + z1 * cb, Zw = c.z + z2;
+        if (Zw >= F * 0.93) { dead = true; break; }
+        const s = F / (F - Zw), X = cx + (c.px + x2) * s, Y = cy + (c.py + y1) * s;
+        xs.push(X); ys.push(Y); sx += X; sy += Y; sAvg += s;
+      }
+      if (dead) continue;
+      const n = xs.length; sx /= n; sy /= n; sAvg /= n;
+      const tr = (X, Y) => { ctx.beginPath(); ctx.moveTo(X[0], Y[0]); for (let i = 1; i < n; i++) ctx.lineTo(X[i], Y[i]); ctx.closePath(); };
+      const nx = ca * sb, ny = -sa, nz = ca * cb;
+      const fres = 1 - Math.abs(nz), spec = Math.pow(Math.abs(nx * LX + ny * LY + nz * LZ), 14);
+      ctx.globalCompositeOperation = "source-over";                          // ガラスの面（正面は透明、斜めほど白く：フレネル）
+      ctx.globalAlpha = 1; ctx.fillStyle = `rgba(140,255,238,${(0.07 + 0.34 * fres * fres) * alpha})`; tr(xs, ys); ctx.fill();
+      ctx.globalCompositeOperation = "lighter";
+      if (spec > 0.02) { ctx.fillStyle = `rgba(255,255,255,${spec * 0.8 * alpha})`; ctx.fill(); }   // 反射のきらめき
+      const lw = (flying ? 0.75 : 0.5) * u * Math.min(2.2, Math.sqrt(sAvg));
+      ctx.strokeStyle = `rgba(235,255,252,${(flying ? 0.38 : 0.2) * alpha})`; ctx.lineWidth = lw; ctx.stroke();   // 断面の縁
+      const ix = [], iy = [];                                                // 厚みを感じさせる内側のエッジ
+      for (let i = 0; i < n; i++) { ix.push(sx + (xs[i] - sx) * 0.8); iy.push(sy + (ys[i] - sy) * 0.8); }
+      tr(ix, iy); ctx.strokeStyle = `rgba(60,255,215,${0.12 * alpha})`; ctx.lineWidth = lw * 0.8; ctx.stroke();
+    }
+    ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round";
+    if (t < 0.5) {                                                           // 着弾点の閃光とスター
+      const k = 1 - t / 0.5;
+      drawSpr(ctx, sCore, cx, cy, 220 * u * k + 20 * u, 0.9 * k);
+      if (t < 0.3) {
+        const e = Math.min(1, t / 0.08), a = 1 - t / 0.3;
+        ctx.globalAlpha = 1; ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = 2 * u;
+        for (let i = 0; i < 14; i++) {
+          const ang = i / 14 * TAU + 0.2, l = (80 + (i * 53 % 240)) * u * e;
+          ctx.beginPath(); ctx.moveTo(cx + Math.cos(ang) * 12 * u, cy + Math.sin(ang) * 12 * u); ctx.lineTo(cx + Math.cos(ang) * l, cy + Math.sin(ang) * l); ctx.stroke();
+        }
+      }
+    }
+    if (t > 0.62 && t < 0.82) { ctx.globalAlpha = 0.22 * (1 - (t - 0.62) / 0.2); ctx.fillStyle = "#7fffe8"; ctx.fillRect(0, 0, W, H); }   // 砕けた瞬間
+    for (const g of G) {                                                     // ガラス粉がレンズへ飛んでくる
+      if (t < g.d) continue;
+      g.x += g.vx * dt; g.y += g.vy * dt; g.z += g.vz * dt;
+      if (g.z >= F * 0.9) continue;
+      const s = F / (F - g.z), s2 = F / (F - Math.max(0, g.z - g.vz * 0.03));
+      const a = Math.max(0, 1 - g.z / (F * 0.9));
+      ctx.globalAlpha = 1; ctx.strokeStyle = `rgba(${g.c},${a})`; ctx.lineWidth = Math.max(1, g.sz * s * 0.5);
+      ctx.beginPath(); ctx.moveTo(cx + g.x * s2, cy + g.y * s2); ctx.lineTo(cx + g.x * s, cy + g.y * s); ctx.stroke();
+    }
+    ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
+  };
+}
+
+/* SPIN: 竜巻を真上から見下ろす（渦の中心＝漏斗の底へ吸い込まれていく） */
+function simSpin(W, H, ctx) {
+  const cx = W / 2, cy = H * 0.3, u = W / 1000, Rmax = Math.hypot(W, H) * 0.62, re = 46 * u;
+  const sHot = glowSprite("255,244,170"), sAmb = glowSprite("255,190,30"), sCyn = glowSprite("60,235,255"), sDark = glowSprite("18,10,0");
+  const cols = ["255,214,40", "255,244,160", "255,255,255", "255,168,20", "255,214,40"];
+  const omega = r => 1.6 + 11 * Math.pow(re / (r + re * 0.6), 0.9);            // 中心ほど速い（差動回転）
+  const inflow = r => 1.6 * r + 150 * u;                                         // 中心へ吸い込まれる速さ
+  const spawn = (p, init) => {
+    p.r  = init ? re * 1.3 + (Rmax - re * 1.3) * Math.pow(Math.random(), 1.5) : Rmax * rnd(0.75, 1.1);
+    p.th = rnd(0, TAU);
+  };
+  const P = [], CL = [], DK = [];
+  for (let i = 0; i < 380; i++) {
+    const c = Math.random() < 0.08 ? "60,235,255" : cols[i % 5];
+    const p = { st:`rgb(${c})`, s:rnd(1.2, 3.6) * u, chunk:i % 16 === 0, rot:rnd(0, TAU), vr:rnd(-8, 8) };
+    spawn(p, true); P.push(p);
+  }
+  for (let i = 0; i < 110; i++) { const p = { s:rnd(0.7, 1.3), h:i % 9 === 0 }; spawn(p, true); CL.push(p); }
+  for (let i = 0; i < 48; i++) { const p = { s:rnd(0.8, 1.4) }; spawn(p, true); DK.push(p); }
+  const vg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Rmax);
+  vg.addColorStop(0, "rgba(0,0,0,.92)"); vg.addColorStop(re * 1.6 / Rmax, "rgba(8,4,0,.66)");
+  vg.addColorStop(0.3, "rgba(14,8,0,.28)"); vg.addColorStop(1, "rgba(0,0,0,.5)");
+  let phase = 0;
+  const advance = (p, dt) => {                                               // 吸い込まれながら旋回
+    p.th += omega(p.r) * dt;
+    p.r  -= inflow(p.r) * dt;
+    if (p.r < re * 0.9) spawn(p, false);
+  };
+  return (dt, t) => {
+    const fin = Math.min(1, t / 0.4), zoom = 0.55 + 0.45 * fin, fa = fin * 0.5;   // fa: 全体の不透明度
+    phase += dt;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = fa; ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+    for (const p of DK) {                                                    // 渦の影（奥行き）
+      advance(p, dt);
+      const r = p.r * zoom;
+      drawSpr(ctx, sDark, cx + Math.cos(p.th) * r, cy + Math.sin(p.th) * r, (160 + r * 0.8) * p.s, 0.32 * fa * Math.min(1, (p.r - re) / (re * 3)));
+    }
+    ctx.globalCompositeOperation = "lighter";
+    for (const p of CL) {                                                    // 渦の雲
+      advance(p, dt);
+      const r = p.r * zoom, near = 1 - Math.min(1, p.r / Rmax);
+      drawSpr(ctx, p.h ? sHot : sAmb, cx + Math.cos(p.th) * r, cy + Math.sin(p.th) * r, (90 + r * 0.55) * p.s, (0.08 + 0.14 * near) * fa * Math.min(1, (p.r - re) / (re * 2.5)));
+    }
+    ctx.lineWidth = 2 * u; ctx.strokeStyle = "rgb(255,210,60)";               // HUD風の点線リングが中心へ収束
+    for (let i = 0; i < 6; i++) {
+      const f = (i / 6 + t * 0.35) % 1, r = (re * 1.5 + (Rmax - re * 1.5) * f * f) * zoom;
+      ctx.globalAlpha = (1 - f) * 0.32 * fa * Math.min(1, f * 5);
+      ctx.setLineDash([r * 0.15, r * 0.1]); ctx.lineDashOffset = -phase * r * 0.5;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.lineCap = "round";
+    for (const p of P) {                                                     // 螺旋を描いて吸い込まれる粒子（進行方向に尾を引く）
+      advance(p, dt);
+      const w = omega(p.r), v = inflow(p.r);
+      ctx.globalAlpha = fa * (0.35 + 0.65 * Math.min(1, (p.r - re) / (re * 2))) * (0.55 + 0.45 * (p.r / Rmax));
+      ctx.strokeStyle = p.st; ctx.lineWidth = p.s * (0.5 + p.r / Rmax * 1.5);
+      ctx.beginPath();
+      for (let k = 0; k <= 3; k++) {
+        const tau = 0.075 * k / 3, rr = (p.r + v * tau) * zoom, th = p.th - w * tau;
+        const x = cx + Math.cos(th) * rr, y = cy + Math.sin(th) * rr;
+        k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.stroke();
+    }
+    drawSpr(ctx, sAmb, cx, cy, re * 7 * zoom, 0.35 * fa);                    // 漏斗の底の光
+    drawSpr(ctx, sCyn, cx, cy, re * 3.4 * zoom, 0.3 * fa);
+    ctx.globalAlpha = fa; ctx.lineWidth = 14 * u; ctx.strokeStyle = "rgba(255,190,30,.35)";   // アイウォール（縁）
+    ctx.beginPath(); ctx.arc(cx, cy, re * 1.1 * zoom, 0, TAU); ctx.stroke();
+    ctx.lineWidth = 2.5 * u; ctx.strokeStyle = `rgba(255,255,230,${0.8 + 0.2 * Math.sin(t * 50)})`;
+    ctx.beginPath(); ctx.arc(cx, cy, re * 1.1 * zoom, 0, TAU); ctx.stroke();
+    if (t < 0.25) { ctx.globalAlpha = 0.18 * (1 - t / 0.25); ctx.fillStyle = "#ffe650"; ctx.fillRect(0, 0, W, H); }
+    ctx.globalCompositeOperation = "source-over";
+    for (const p of P) {                                                     // 舞い上がる破片
+      if (!p.chunk) continue;
+      const r = p.r * zoom, x = cx + Math.cos(p.th) * r, y = cy + Math.sin(p.th) * r, s = p.s * 3.5 * (0.4 + p.r / Rmax * 1.8);
+      p.rot += p.vr * dt;
+      ctx.globalAlpha = fa * Math.min(1, (p.r - re) / (re * 2));
+      ctx.save(); ctx.translate(x, y); ctx.rotate(p.rot);
+      ctx.fillStyle = "#1a1206"; ctx.fillRect(-s, -s * 0.35, s * 2, s * 0.7);
+      ctx.strokeStyle = "rgba(255,190,50,.85)"; ctx.lineWidth = 1.2 * u; ctx.strokeRect(-s, -s * 0.35, s * 2, s * 0.7); ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  };
+}
+
+const FINISH_SIMS = { XTREME:simXtreme, BURST:simBurst, OVER:simOver, SPIN:simSpin };
+
+function startFinishCanvas(key, fx, totalMs) {
+  const sim = FINISH_SIMS[key];
+  if (!sim) return null;
+  const W = window.innerWidth, H = window.innerHeight;
+  const cv = document.createElement("canvas");
+  cv.className = "fx-canvas";
+  cv.width  = Math.round(W * FX_SCALE);
+  cv.height = Math.round(H * FX_SCALE);
+  fx.insertBefore(cv, fx.firstChild);
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(FX_SCALE, 0, 0, FX_SCALE, 0, 0);
+  const step = sim(W, H, ctx);
+  let raf = 0, last = performance.now();
+  const t0 = last;
+  const frame = now => {
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000));
+    last = now;
+    ctx.clearRect(-60, -60, W + 120, H + 120);
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+    step(dt, (now - t0) / 1000);
+    if (now - t0 < totalMs) raf = requestAnimationFrame(frame);
+  };
+  raf = requestAnimationFrame(frame);
+  return () => cancelAnimationFrame(raf);
+}
+
+function showFinishBanner(side, key) {
+  const f = FINISHES[key];
+  if (!f) return;
+  if (finishFxEl) { finishFxEl.remove(); finishFxEl = null; }
+  finishTimers.forEach(clearTimeout); finishTimers = [];
+  if (finishCancel) { finishCancel(); finishCancel = null; }
+  playFinishSound(key);
+
+  const fx = document.createElement("div");
+  fx.className = `finish-fx ${side} fx-${key.toLowerCase()}`;
+  fx.innerHTML = `<div class="finish-banner"><div class="fb-band"><div class="fb-name"><span class="fb-txt"></span></div></div></div>`;
+  const nm = fx.querySelector(".fb-name");
+  nm.dataset.text = f.label;                                  // 色収差(RGBずれ)用の疑似要素が参照
+  nm.querySelector(".fb-txt").textContent = f.label;
+  document.body.appendChild(fx);
+  finishFxEl = fx;
+  finishEndAt = performance.now() + FINISH_SHOW_MS + FINISH_FADE_MS;
+  finishCancel = startFinishCanvas(key, fx, FINISH_SHOW_MS + FINISH_FADE_MS);
+
+  finishTimers.push(setTimeout(() => fx.classList.add("out"), FINISH_SHOW_MS));
+  finishTimers.push(setTimeout(() => {
+    fx.remove();
+    if (finishFxEl === fx) { finishFxEl = null; if (finishCancel) { finishCancel(); finishCancel = null; } }
+  }, FINISH_SHOW_MS + FINISH_FADE_MS));
+}
+
+function scoreFinish(side, key) {
+  showFinishBanner(side, key);
+  addPoint(side, FINISHES[key].pts);
+}
+
+/* ── アクション実行 ─────────────────────────────── */
+const padPending    = { left:null, right:null };
+const padBlockUntil = { left:0, right:0 };
+
+function fireAction(a) {
+  if (a.type === "undo") { removePoint(a.side); return; }
+
+  const side = a.side;
+  const now  = performance.now();
+  if (now < padBlockUntil[side]) return;
+
+  // 同じ側で極短時間に2つのFINISHが押された(十字の斜め押し等) → どちらか判別不能なので両方無効
+  if (padPending[side]) {
+    clearTimeout(padPending[side]);
+    padPending[side] = null;
+    padBlockUntil[side] = now + 300;
+    return;
+  }
+  padPending[side] = setTimeout(() => {
+    padPending[side] = null;
+    if (!currentMode || gameBlocked) return;
+    padBlockUntil[side] = performance.now() + FINISH_LOCKOUT_MS;
+    scoreFinish(side, a.finish);
+  }, SIMUL_GUARD_MS);
+}
+
+/* ── Gamepad ポーリング ─────────────────────────── */
+const HAT_CARDINAL = { 0:"up", 2:"right", 4:"down", 6:"left" }; // 斜めは無視
+const padPrev = new Map();
+let padLearn = null;
+let padMonT  = 0;
+
+function readPadInputs(gp) {
+  const s = new Set();
+  gp.buttons.forEach((b, i) => { if (b.pressed || b.value > 0.6) s.add("b" + i); });
+  // 非標準マッピング時、十字キーは axes[9] に8方向hat値で届く（中立は約1.29）
+  if (gp.axes.length > 9) {
+    const v = gp.axes[9];
+    const idx = Math.round((v + 1) * 3.5);
+    if (idx >= 0 && idx <= 7 && Math.abs(v - (idx / 3.5 - 1)) < 0.06 && HAT_CARDINAL[idx]) {
+      s.add("h:" + HAT_CARDINAL[idx]);
+    }
+  }
+  return s;
+}
+
+function padConfigOpen() { return qs("#pad-config").classList.contains("show"); }
+
+function onPadInput(id) {
+  if (padLearn) { commitLearn(id); return; }
+  if (padConfigOpen()) return;
+  if (!currentMode || gameBlocked) return;
+  for (const a of PAD_ACTIONS) {
+    if ((padMap[a.key] || []).includes(id)) fireAction(a);
+  }
+}
+
+function pollPads() {
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  const info = [];
+  for (const gp of pads) {
+    if (!gp) continue;
+    const cur  = readPadInputs(gp);
+    const prev = padPrev.get(gp.index);
+    // 初回は現在状態を記録するだけ（接続時に押しっぱなしのボタンで誤発火しない）
+    if (prev) cur.forEach(id => { if (!prev.has(id)) onPadInput(id); });
+    padPrev.set(gp.index, cur);
+    info.push({ gp, cur });
+  }
+  if (padConfigOpen()) {
+    const t = performance.now();
+    if (t - padMonT > 80) { padMonT = t; updatePadMonitor(info); }
+  }
+}
+setInterval(pollPads, 8);
+
+function padToast(text) {
+  document.querySelectorAll(".pad-toast").forEach(e => e.remove());
+  const d = document.createElement("div");
+  d.className = "pad-toast";
+  d.textContent = text;
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 2700);
+}
+window.addEventListener("gamepadconnected", e => {
+  padToast("🎮 CONTROLLER CONNECTED");
+  console.log("Gamepad connected:", e.gamepad.id, "mapping:", e.gamepad.mapping);
+});
+window.addEventListener("gamepaddisconnected", e => {
+  padPrev.delete(e.gamepad.index);
+  padToast("🎮 CONTROLLER DISCONNECTED");
+});
+
+/* ── 設定画面 ───────────────────────────────────── */
+function idLabel(id) {
+  let m;
+  if ((m = /^b(\d+)$/.exec(id))) return `BTN ${m[1]}`;
+  if ((m = /^h:(\w+)$/.exec(id))) return "十字(hat) " + ({ up:"↑", down:"↓", left:"←", right:"→" }[m[1]] || m[1]);
+  return id;
+}
+
+function updatePadMonitor(info) {
+  const st = qs("#pc-status"), live = qs("#pc-live"), ax = qs("#pc-axes");
+  if (!info.length) {
+    st.textContent  = "コントローラー未検出 — 画面をクリックしてから、コントローラーのボタンを1つ押してください";
+    live.textContent = "-"; ax.textContent = "";
+    return;
+  }
+  st.textContent = info.map(({ gp }) =>
+    `#${gp.index} ${gp.id}\n   mapping: ${gp.mapping || "(non-standard)"} / buttons:${gp.buttons.length} / axes:${gp.axes.length}`).join("\n");
+  live.textContent = info.map(({ cur }) => [...cur].map(idLabel).join("   ") || "(なし)").join("\n");
+  ax.textContent = info.map(({ gp }) => gp.axes.map((v, i) => `${i}:${v.toFixed(2)}`).join("  ")).join("\n");
+}
+
+function renderPadConfig() {
+  const list = qs("#pc-list");
+  list.innerHTML = "";
+  [["right", "R BLADER", "r"], ["left", "L BLADER", "l"]].forEach(([side, title, cls]) => {
+    const h = document.createElement("div");
+    h.className = "pc-group " + cls; h.textContent = title;
+    list.appendChild(h);
+
+    PAD_ACTIONS.filter(a => a.side === side).forEach(a => {
+      const row = document.createElement("div");
+      row.className = "pc-row" + (padLearn === a.key ? " learning" : "");
+
+      const lab = document.createElement("span");
+      lab.className = "pc-lab";
+      if (a.type === "finish") {
+        lab.textContent = `${FINISHES[a.finish].label}  +${FINISHES[a.finish].pts}`;
+        lab.style.color = FINISHES[a.finish].color;
+      } else {
+        lab.textContent = "訂正（−1点）";
+      }
+
+      const bind = document.createElement("span");
+      bind.className = "pc-bind";
+      bind.textContent = padLearn === a.key
+        ? "入力待ち… ボタンを押してください（Escで取消）"
+        : ((padMap[a.key] || []).map(idLabel).join(" / ") || "未割当");
+
+      const btn = document.createElement("button");
+      btn.className = "pc-btn";
+      btn.textContent = padLearn === a.key ? "取消" : "割り当て";
+      btn.onclick = () => { padLearn = padLearn === a.key ? null : a.key; renderPadConfig(); };
+
+      row.append(lab, bind, btn);
+      if (a.type === "finish") {
+        const t = document.createElement("button");
+        t.className = "pc-btn"; t.textContent = "▶"; t.title = "表示テスト（加点なし）";
+        t.onclick = () => showFinishBanner(a.side, a.finish);
+        row.append(t);
+      } else {
+        row.append(document.createElement("span"));
+      }
+      list.appendChild(row);
+    });
+  });
+}
+
+function commitLearn(id) {
+  const key = padLearn;
+  padLearn = null;
+  for (const k in padMap) padMap[k] = padMap[k].filter(x => x !== id); // 重複割り当てを解消
+  padMap[key] = [id];
+  savePadMap();
+  renderPadConfig();
+}
+
+function openPadConfig()  { padLearn = null; qs("#pad-config").classList.add("show"); renderPadConfig(); }
+function closePadConfig() { padLearn = null; qs("#pad-config").classList.remove("show"); }
+
+qs("#btn-pad").addEventListener("click", openPadConfig);
+qs("#pc-close").addEventListener("click", closePadConfig);
+qs("#pc-reset").addEventListener("click", () => {
+  padMap = cloneMap(DEFAULT_PAD_MAP); savePadMap(); padLearn = null; renderPadConfig();
+});
+document.addEventListener("keydown", e => {
+  if (e.target && e.target.closest && e.target.closest("input")) return;
+  if (e.key === "g" || e.key === "G") { padConfigOpen() ? closePadConfig() : openPadConfig(); }
+  else if (e.key === "Escape") { if (padLearn) { padLearn = null; renderPadConfig(); } else if (padConfigOpen()) closePadConfig(); }
 });
 
 </script>

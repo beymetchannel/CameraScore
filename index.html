@@ -728,6 +728,8 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
 /* 文字本体：ベースのグラデ + 一度だけ走るハイライト。--base / --sheen で各FINISHが色を決める */
 .fb-txt{
   display:block;position:relative;z-index:1;
+  /* イタリックのはみ出し(右端)が background-clip:text で切れるのを防ぐ。padding分は負マージンで相殺し、位置は変えない */
+  padding:0 .3em;margin:0 -.3em;
   background-image:var(--sheen),var(--base);
   background-size:250% 100%,100% 100%;background-repeat:no-repeat;background-position:130% 0,0 0;
   -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
@@ -1508,14 +1510,15 @@ function checkScoreForRank() {
 
 function showRankUpEffect(rank) {
   playSfx("round");
+  const pad = "\u2002";   // 左右対称のEn Space：SVG文字のbboxを広げ、イタリック右端のフィルタ切れを防ぐ
   const container = document.createElement("div");
   container.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;width:min(1000px,100vw);max-width:100vw;overflow:visible;";
   container.innerHTML = `
-    <svg viewBox="0 0 1000 250" width="100%" height="auto" style="overflow:visible;display:block;">
-      <text x="50%" y="40%" class="outline big"  style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">${rank}</text>
-      <text x="50%" y="75%" class="outline small" style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">Battle</text>
-      <text x="50%" y="40%" class="fill big"     style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">${rank}</text>
-      <text x="50%" y="75%" class="fill small"   style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">Battle</text>
+    <svg viewBox="0 0 1000 250" width="100%" height="auto" style="overflow:visible;display:block;white-space:pre;">
+      <text x="50%" y="40%" class="outline big"  style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">${pad}${rank}${pad}</text>
+      <text x="50%" y="75%" class="outline small" style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">${pad}Battle${pad}</text>
+      <text x="50%" y="40%" class="fill big"     style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">${pad}${rank}${pad}</text>
+      <text x="50%" y="75%" class="fill small"   style="font-family:'EvogriaItalic',sans-serif;text-anchor:middle;dominant-baseline:middle;">${pad}Battle${pad}</text>
     </svg>`;
   document.body.appendChild(container);
   setTimeout(() => {

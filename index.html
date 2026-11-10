@@ -21,8 +21,9 @@
 body,html { margin:0;padding:0;height:100%;background:#000;font-family:'CyberFont',sans-serif; overflow:hidden; touch-action:none; }
 input { user-select:text; -webkit-user-select:text; }
 video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0; }
-.bi-border { position:absolute;inset:0;pointer-events:none;background:url('image/bi.png')center/contain no-repeat;opacity:.6;filter:drop-shadow(0 0 20px #0ff);animation:glow 2s infinite alternate;z-index:1; }
-@keyframes glow { 0%{opacity:.45} 100%{opacity:.75} }
+:root { --bi-opacity-min:.12; --bi-opacity-max:.30; }  /* bi.pngの透明度（小さいほど透明）。旧: .45〜.75 */
+.bi-border { position:absolute;inset:0;pointer-events:none;background:url('image/bi.png')center/contain no-repeat;opacity:var(--bi-opacity-max);filter:drop-shadow(0 0 8px #0ff);animation:glow 2s infinite alternate;z-index:1; }
+@keyframes glow { 0%{opacity:var(--bi-opacity-min)} 100%{opacity:var(--bi-opacity-max)} }
 
 #mode-select {
   position:fixed;inset:0;z-index:9000;
@@ -102,12 +103,6 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
   text-shadow:0 0 10px #ffaa33,0 0 20px #ffaa33,0 0 40px #ff4400;pointer-events:auto;
 }
 .score-container { display:flex;align-items:center;gap:.8vw; }
-.left-score-container  .blader-name { border:2px solid #aaffff; }
-.right-score-container .blader-name { border:2px solid #ffaaaa; }
-.blader-name {
-  padding:8px 12px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;
-  font-size:1.6rem;white-space:nowrap;
-}
 .score.pulse { animation:scoreGlowWave 2.2s ease-in-out infinite; }
 @keyframes scoreGlowWave {
   0%  { text-shadow:0 0 6px #ffaa33,0 0 14px #ffaa33,0 0 24px #ff4400;filter:brightness(1); }
@@ -219,6 +214,9 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
 .win-overlay .fb-band{ flex-direction:column;gap:.2vh; }
 .win-overlay .fb-txt{ filter:var(--glow); }
 .win-overlay .win-line{ font-size:clamp(1.6rem,calc(var(--fs,8) * 1vw),7.5rem); }
+/* ブレーダー名が入力されている時は、名前入力欄と同じフォントを使う */
+.win-overlay .win-line.win-name-input,
+.win-overlay .win-line.win-name-input .fb-txt{ font-family:'CyberFont',sans-serif; font-style:normal; }
 .win-overlay .win-big{
   font-size:clamp(3rem,13vw,11rem);
   animation-delay:.12s;
@@ -362,6 +360,17 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
         text-shadow:0 0 15px rgba(255,0,255,.7), 0 0 30px rgba(255,119,255,.7); filter:brightness(2.2); }
   100%{ box-shadow:0 0 8px rgba(255,0,255,.7), 0 0 20px rgba(255,100,255,.28);
         text-shadow:0 0 10px rgba(255,0,255,.7); filter:brightness(1.4); }
+}
+/* 今回のFINISHで追加されたHUDリングを強調（演出中〜リプレイ終了まで） */
+.hud-ring.hud-new.hud-new-blue { animation:hudNewBlue .7s ease-in-out infinite alternate, hudSpin 3s linear infinite !important; z-index:2; }
+.hud-ring.hud-new.hud-new-pink { animation:hudNewPink .7s ease-in-out infinite alternate, hudSpin 3s linear infinite !important; z-index:2; }
+@keyframes hudNewBlue {
+  0%  { filter:brightness(1.4) drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #0ff) drop-shadow(0 0 40px #0ff); opacity:1; }
+  100%{ filter:brightness(2.4) drop-shadow(0 0 18px #fff) drop-shadow(0 0 38px #0ff) drop-shadow(0 0 70px #09f); opacity:1; }
+}
+@keyframes hudNewPink {
+  0%  { filter:brightness(1.4) drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #ff77ff) drop-shadow(0 0 40px #ff4bd8); opacity:1; }
+  100%{ filter:brightness(2.4) drop-shadow(0 0 18px #fff) drop-shadow(0 0 38px #ff77ff) drop-shadow(0 0 70px #f0f); opacity:1; }
 }
 @keyframes hudWinBlue {
   0%  { filter:drop-shadow(0 0 6px rgba(0,255,255,.7)) drop-shadow(0 0 12px rgba(0,255,255,.35)); opacity:.75; }
@@ -687,6 +696,7 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
 .finish-fx.out{ animation:fbOut .4s ease-in forwards; }
 @keyframes fbOut{ to{ opacity:0; } }
 .fx-canvas{ position:absolute;left:0;top:0;width:100%;height:100%; }
+.fx-burst .fx-canvas{ opacity:.8; }   /* 大爆発が画面を覆っても映像が見えるように80% */
 
 .finish-banner{ position:absolute;left:0;right:0;top:30%;transform:translateY(-50%); }
 .fx-xtreme .finish-banner,.fx-burst .finish-banner{ animation:fbShake .5s .2s linear 1; }
@@ -785,6 +795,28 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
   filter:drop-shadow(0 0 7px rgba(255,200,30,.9)) drop-shadow(0 0 24px rgba(255,160,0,.6));
 }
 
+.fx-miss2{ --fc:#2f7bff; --ga:#3eeaff; --gb:#2a46ff; --sheen:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.95) 50%,transparent 58%); }
+.fx-miss2 .fb-txt{
+  --base:linear-gradient(180deg,#eef5ff 0%,#74b4ff 50%,#1f5cff 100%);
+  filter:drop-shadow(0 0 7px rgba(47,123,255,.9)) drop-shadow(0 0 24px rgba(30,90,255,.6));
+}
+
+/* ───── REPLAY（カメラ映像の位置に差し替えて表示。bi.png・スコアHUDはその上に残る） ───── */
+#replay-layer{ position:absolute;inset:0;z-index:1;display:none;background:#000;overflow:hidden;pointer-events:none; }
+#replay-layer video{ position:absolute;inset:0;width:100%;height:100%;object-fit:cover; }
+#replay-badge{
+  position:fixed;left:50%;bottom:4vh;transform:translateX(-50%);z-index:3;display:none;
+  padding:6px 20px;border:1px solid #ff4d6d;border-radius:6px;background:rgba(0,0,0,.65);color:#fff;
+  font-family:'EvogriaItalic','Arial Black',sans-serif;font-style:italic;letter-spacing:.2em;
+  font-size:clamp(1rem,2.6vw,1.6rem);pointer-events:none;white-space:nowrap;
+}
+#replay-badge::before{
+  content:"";display:inline-block;width:.62em;height:.62em;border-radius:50%;
+  background:#ff3355;box-shadow:0 0 .5em #ff3355;
+  margin-right:.65em;vertical-align:-.04em;animation:repBlink 1s steps(1) infinite;
+}
+@keyframes repBlink{ 50%{ opacity:0; } }
+
 /* ───── CONTROLLER TOAST / SETUP ───── */
 .pad-toast{
   position:fixed;left:50%;bottom:4vh;transform:translateX(-50%);z-index:9900;
@@ -818,20 +850,30 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
 .pc-mon pre{ margin:2px 0 0;white-space:pre-wrap;word-break:break-all; }
 .pc-live{ color:#ffd23f;font-size:15px; }
 .pc-group{ margin:12px 0 2px;font-weight:700;letter-spacing:2px; }
-.pc-group.l{ color:#aff; } .pc-group.r{ color:#faa; }
+.pc-group.l{ color:#aff; } .pc-group.r{ color:#faa; } .pc-group.c{ color:#ffd; }
 .pc-row{ display:grid;grid-template-columns:1.2fr 1.5fr auto 40px;gap:8px;align-items:center;padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.08); }
 .pc-row.learning{ background:rgba(255,200,0,.14); }
 .pc-lab{ font-weight:700;letter-spacing:1px; }
 .pc-bind{ color:#cde;font-family:Consolas,monospace; }
 .pc-btn{ background:#123;border:1px solid #0ad;color:#bff;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:13px; }
 .pc-btn:hover{ background:#146; }
+.pc-test{ display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:14px;padding:10px 12px;border:1px solid #345;border-radius:8px;color:#89a;font-size:12px; }
+.pc-test b{ display:block;color:#cde;font-size:14px;margin-bottom:2px; }
+.pc-box.testmode .pc-test{ border-color:#ffb300;background:rgba(255,179,0,.08); }
+.pc-box.testmode .pc-test b{ color:#ffd23f; }
+.pc-switch{ flex:none;position:relative;width:56px;height:28px;border-radius:14px;border:1px solid #567;background:#234;cursor:pointer;padding:0;transition:background .15s; }
+.pc-switch .knob{ position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#9ab;transition:transform .15s,background .15s; }
+.pc-switch.on{ background:#a06a00;border-color:#ffb300; }
+.pc-switch.on .knob{ transform:translateX(28px);background:#ffd23f; }
 .pc-foot{ display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;color:#89a;font-size:12px; }
 </style>
 </head>
 <body>
 
 <video id="camera" autoplay playsinline muted></video>
+<div id="replay-layer"></div>
 <div class="bi-border"></div>
+<div id="replay-badge">Replay</div>
 
 <div id="lives-overlay">
   <div class="lov-row">
@@ -875,7 +917,6 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
       <div class="frame-container left-frames" id="frames-left"></div>
       <div class="score-container left-score-container">
         <div class="score pulse" id="score-left">0</div>
-        <div class="blader-name" id="left-blader" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -896,7 +937,6 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
     <div class="block-bottom">
       <div class="frame-container right-frames" id="frames-right"></div>
       <div class="score-container right-score-container">
-        <div class="blader-name" id="right-blader" style="display:none;"></div>
         <div class="score pulse" id="score-right">0</div>
       </div>
     </div>
@@ -918,21 +958,32 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
       <span>「割り当て」を押してから、割り当てたいボタンを押してください。設定はこのブラウザに保存されます。<br>※ Windowsのテスト画面の番号 − 1 ＝ ここの BTN 番号（Windowsの1番 = BTN 0）</span>
       <button class="pc-btn" id="pc-reset">初期値に戻す</button>
     </div>
+    <div class="pc-test">
+      <div><b>モード切替：<span id="pc-test-state">コントローラーモード</span></b>
+        <span>「キーボードモード」では、各ボタンにキーボードのキーも割り当てられます（G・Escは予約済み）。コントローラーモードとキーボードモードの割り当てはそれぞれ別に保存され、切り替えると自動で反映されます。右のスイッチ：OFF＝コントローラーモード／ON＝キーボードモード。</span></div>
+      <button class="pc-switch" id="pc-test-toggle" type="button" role="switch" aria-checked="false" aria-label="キーボードモード切替"><span class="knob"></span></button>
+    </div>
   </div>
 </div>
 
 <script>
 
 navigator.mediaDevices.getUserMedia({ video:{ facingMode:"environment" } })
-  .then(s => { document.getElementById("camera").srcObject = s; })
+  .then(s => {
+    document.getElementById("camera").srcObject = s;
+    cameraStream = s;
+    if (currentMode) startReplayRecording();   // 先にバトル開始済みなら録画開始
+  })
   .catch(e => console.error("カメラ起動失敗:", e));
 
 /* ── 効果音（ラウンド表示 / 勝利表示） ───────────── */
 const SFX = {
   round: new Audio("sound/round.mp3"),
   win:   new Audio("sound/win.mp3"),
+  death: new Audio("sound/death.mp3"),
 };
 Object.values(SFX).forEach(a => { a.preload = "auto"; });
+SFX.death.volume = 0.6;  // death の音量 60%
 function playSfx(name) {
   const a = SFX[name];
   if (!a) return;
@@ -976,6 +1027,8 @@ function startMode(mode) {
   centerRank.textContent = ranks[r];
   clearTimeout(winDelayTimer);
   clearTimeout(autoResetTimer); autoResetTimer = null;
+  cancelFinishSequence();
+  startReplayRecording();
   gameBlocked = false;
 
   if (mode === "single") {
@@ -1004,24 +1057,7 @@ function setupSingle() {
 
   document.getElementById("center-label").textContent = "Battle";
 
-  syncBladerName("blade-name-left",  "left-blader");
-  syncBladerName("blade-name-right", "right-blader");
-
   resetScoreDisplay();
-}
-
-function syncBladerName(inputId, displayId) {
-  const input   = document.getElementById(inputId);
-  const display = document.getElementById(displayId);
-  
-  const fresh = input.cloneNode(true);
-  input.parentNode.replaceChild(fresh, input);
-  fresh.addEventListener("input", () => {
-    display.textContent  = fresh.value;
-    display.style.display = fresh.value.trim() === "" ? "none" : "block";
-  });
-  display.style.display = "none";
-  display.textContent   = "";
 }
 
 function setupTeam() {
@@ -1089,8 +1125,18 @@ function resetScoreDisplay() {
   clearWinEffect();
 }
 
-function addPoint(side, n = 1) {
+/* 今回のFINISHで追加されたリングを強調する */
+function clearNewRings() {
+  document.querySelectorAll(".hud-ring.hud-new").forEach(h => h.classList.remove("hud-new","hud-new-blue","hud-new-pink"));
+}
+function markNewRings(rings, side) {
+  clearNewRings();
+  rings.forEach(h => h.classList.add("hud-new", side === "right" ? "hud-new-pink" : "hud-new-blue"));
+}
+
+function addPoint(side, n = 1, markNew = false) {
   if (gameBlocked) return;
+  const newRings = [];
   const block  = document.getElementById(`${side}-block`);
   const frames = [...block.querySelectorAll(".frame")];
 
@@ -1105,8 +1151,10 @@ function addPoint(side, n = 1) {
       : "hud-ring cyber-effect";
     img.src = side === "right" ? "image/HudLing-pink.png" : "image/HudLing.png";
     empty.appendChild(img);
+    newRings.push(img);
     added++;
   }
+  if (markNew) markNewRings(newRings, side);
   if (added > 0) updateScore(block, side);
 }
 
@@ -1153,13 +1201,12 @@ function updateScore(container, side) {
   }
 }
 
-/* FINISH演出が再生中なら、終わるまで WIN 表示を待つ */
+/* FINISH演出（＋リプレイ）が再生中なら、終わるまで WIN 表示を待つ */
 let winDelayTimer = null;
 function handleWin(winningSide) {
   gameBlocked = true;
   clearTimeout(winDelayTimer);
-  const wait = finishEndAt - performance.now();
-  if (wait > 0) winDelayTimer = setTimeout(() => handleWinNow(winningSide), wait + 100);
+  if (finishBusy) whenFinishDone(() => { winDelayTimer = setTimeout(() => handleWinNow(winningSide), 100); });
   else handleWinNow(winningSide);
 }
 
@@ -1179,7 +1226,7 @@ function handleWinNow(winningSide) {
     const inputVal = inputEl ? inputEl.value.trim() : "";
     const label    = inputVal || (winningSide === "left" ? "L Blader" : "R Blader");
 
-    showWinText(`${label}\nWIN!!`, 5000, winningSide);
+    showWinText(`${label}\nWIN!!`, 5000, winningSide, !!inputVal);
     scheduleAutoReset();
     setTimeout(() => {
       gameBlocked = false;
@@ -1322,7 +1369,7 @@ function advanceBlader(side) {
   updateTeamLabels();
 }
 
-function showWinText(text, duration, side) {
+function showWinText(text, duration, side, nameIsInput = false) {
   document.querySelectorAll(".win-overlay").forEach(d => d.remove());
   const total = duration || 5000;
   const lines = String(text).split("\n");
@@ -1339,7 +1386,7 @@ function showWinText(text, duration, side) {
   band.className = "fb-band";
   lines.forEach((ln, i) => {
     const nm = document.createElement("div");
-    nm.className = "fb-name win-line" + (i > 0 ? " win-big" : "");
+    nm.className = "fb-name win-line" + (i > 0 ? " win-big" : (nameIsInput ? " win-name-input" : ""));
     nm.dataset.text = ln;                       // 色収差(RGBずれ)用の疑似要素が参照
     const t = document.createElement("span");
     t.className = "fb-txt";
@@ -1355,7 +1402,10 @@ function showWinText(text, duration, side) {
   document.body.appendChild(div);
 
   playSfx("win");
-  setTimeout(() => div.classList.add("out"), Math.max(0, total - 1000));  // 最後の1秒でノイズを掛けて消す
+  setTimeout(() => {
+    div.classList.add("out");                       // 最後の1秒でノイズを掛けて消す
+    if (currentMode === "team") playSfx("death");   // チーム戦：ノイズの入りだしで death.mp3
+  }, Math.max(0, total - 1000));
   setTimeout(() => div.remove(), total);
 }
 
@@ -1386,6 +1436,20 @@ function showTeamWin(text) {
   });
 }
 
+/* 勝者側の枠・名前・HUDを呼吸するように光らせる（WIN演出とリプレイ中で共用） */
+function applySideGlow(side) {
+  const isBlue    = side === "left";
+  const frameGlow = isBlue ? "win-glow-blue"     : "win-glow-pink";
+  const nameGlow  = isBlue ? "win-glow-name-blue" : "win-glow-name-pink";
+  const hudGlow   = isBlue ? "win-glow-hud-blue"  : "win-glow-hud-pink";
+  const block     = document.getElementById(`${side}-block`);
+  if (!block) return;
+  block.querySelectorAll(".frame").forEach(f => f.classList.add(frameGlow));
+  [block.querySelector(".blade-name-input"), block.querySelector(".team-blader-label")]
+    .forEach(el => { if (el) el.classList.add(nameGlow); });
+  block.querySelectorAll(".hud-ring").forEach(h => h.classList.add(hudGlow));
+}
+
 function showWinEffect(winnerSide) {
   const isBlue      = winnerSide === "left";
   const frameGlow   = isBlue ? "win-glow-blue"      : "win-glow-pink";
@@ -1398,7 +1462,6 @@ function showWinEffect(winnerSide) {
   [
     block.querySelector(".blade-name-input"),
     block.querySelector(".team-blader-label"),
-    block.querySelector(".blader-name"),
   ].forEach(el => { if (el) el.classList.add(nameGlow); });
 
   block.querySelectorAll(".hud-ring").forEach(h => h.classList.add(hudGlow));
@@ -1413,10 +1476,11 @@ function showWinEffect(winnerSide) {
 }
 
 function clearWinEffect() {
+  clearNewRings();
   document.querySelectorAll(".frame").forEach(f => {
     f.classList.remove("win-glow-blue","win-glow-pink");
   });
-  document.querySelectorAll(".blade-name-input,.team-blader-label,.blader-name").forEach(el => {
+  document.querySelectorAll(".blade-name-input,.team-blader-label").forEach(el => {
     el.classList.remove("win-glow-name-blue","win-glow-name-pink");
   });
   document.querySelectorAll(".hud-ring").forEach(h => {
@@ -1431,6 +1495,8 @@ function returnToModeSelect() {
   gameUI.style.display      = "none";
   modeSelect.style.display  = "flex";
   currentMode  = null;
+  cancelFinishSequence();
+  stopReplayRecording();
   stopSfx("win");
   clearTimeout(autoResetTimer); autoResetTimer = null;
   gameBlocked  = false;
@@ -1443,6 +1509,8 @@ let autoResetTimer = null;
 const AUTO_RESET_MS = 10000;   // 勝利表示から自動リセットまでの時間
 function resetAfterWin() {
   clearTimeout(autoResetTimer); autoResetTimer = null;
+  clearTimeout(winDelayTimer);
+  cancelFinishSequence();
   stopSfx("win");
   resetScoreDisplay();
   lastScores = { left:0, right:0 };
@@ -1493,18 +1561,22 @@ centerRank.addEventListener("click", () => {
 function checkScoreForRank() {
   if (scoreTimer) clearTimeout(scoreTimer);
   scoreTimer = setTimeout(() => {
-    const nl = parseInt(document.getElementById("score-left").textContent);
-    const nr = parseInt(document.getElementById("score-right").textContent);
-    const winPt = currentMode === "team" ? WIN_POINT_TEAM : WIN_POINT_SINGLE;
-    if (nl === winPt || nr === winPt) { scoreTimer = null; return; }
-    if (nl > lastScores.left || nr > lastScores.right) {
-      r = (r + 1) % ranks.length;
-      centerRank.textContent = ranks[r];
-      showRankUpEffect(ranks[r]);
-      lastScores.left = nl;
-      lastScores.right = nr;
-    }
     scoreTimer = null;
+    // FINISH演出・リプレイ中なら、終わってから次のラウンドへ移る
+    whenFinishDone(() => {
+      if (!currentMode) return;
+      const nl = parseInt(document.getElementById("score-left").textContent);
+      const nr = parseInt(document.getElementById("score-right").textContent);
+      const winPt = currentMode === "team" ? WIN_POINT_TEAM : WIN_POINT_SINGLE;
+      if (nl === winPt || nr === winPt) return;
+      if (nl > lastScores.left || nr > lastScores.right) {
+        r = (r + 1) % ranks.length;
+        centerRank.textContent = ranks[r];
+        showRankUpEffect(ranks[r]);
+        lastScores.left = nl;
+        lastScores.right = nr;
+      }
+    });
   }, 4000);
 }
 
@@ -1627,6 +1699,7 @@ const FINISHES = {
   OVER:   { label:"OVER FINISH",   pts:2, color:"#19f0d0" },
   BURST:  { label:"BURST FINISH",  pts:2, color:"#e0643a" },
   SPIN:   { label:"SPIN FINISH",   pts:1, color:"#ffd21a" },
+  MISS2:  { label:"2SHOOT MISS",   pts:1, color:"#2f7bff" },   // 青。電撃・爆発等のCanvas演出なし（バナーのみ）。得点はここで変更可
 };
 
 /* ── フィニッシュ音声 ───────────────────────────── */
@@ -1640,10 +1713,10 @@ Object.values(FINISH_SOUNDS).forEach(a => { a.preload = "auto"; });
 let currentFinishSound = null;
 
 function playFinishSound(key) {
-  const a = FINISH_SOUNDS[key];
-  if (!a) return;
   // 直前のフィニッシュ音が鳴っていたら止める（連続入力で重ならないように）
-  if (currentFinishSound) { currentFinishSound.pause(); currentFinishSound.currentTime = 0; }
+  if (currentFinishSound) { currentFinishSound.pause(); currentFinishSound.currentTime = 0; currentFinishSound = null; }
+  const a = FINISH_SOUNDS[key];
+  if (!a) return;   // 2SHOOT MISS は効果音なし
   currentFinishSound = a;
   a.currentTime = 0;
   const pr = a.play();
@@ -1655,12 +1728,15 @@ const PAD_ACTIONS = [
   { key:"R_OVER",   side:"right", type:"finish", finish:"OVER"   },
   { key:"R_BURST",  side:"right", type:"finish", finish:"BURST"  },
   { key:"R_SPIN",   side:"right", type:"finish", finish:"SPIN"   },
+  { key:"R_MISS2",  side:"right", type:"finish", finish:"MISS2"  },
   { key:"R_UNDO",   side:"right", type:"undo" },
   { key:"L_XTREME", side:"left",  type:"finish", finish:"XTREME" },
   { key:"L_OVER",   side:"left",  type:"finish", finish:"OVER"   },
   { key:"L_BURST",  side:"left",  type:"finish", finish:"BURST"  },
   { key:"L_SPIN",   side:"left",  type:"finish", finish:"SPIN"   },
+  { key:"L_MISS2",  side:"left",  type:"finish", finish:"MISS2"  },
   { key:"L_UNDO",   side:"left",  type:"undo" },
+  { key:"SIDE_CHANGE", side:"common", type:"swap" },   // L/Rブレーダー名の入れ替え
 ];
 
 /* 入力ID:  "b12" = buttons[12] / "h:up" = 十字キーがhat(axes[9])で届く場合
@@ -1669,16 +1745,20 @@ const DEFAULT_PAD_MAP = {
   R_SPIN:["b0"], R_OVER:["b1"], R_BURST:["b2"], R_XTREME:["b3"],
   L_SPIN:["b13","h:down"], L_OVER:["b15","h:right"], L_BURST:["b14","h:left"], L_XTREME:["b12","h:up"],
   L_UNDO:["b4"], R_UNDO:["b5"],   // 肩ボタン: 誤入力の訂正用(-1点)
+  L_MISS2:["b6"], R_MISS2:["b7"],  // トリガー: 2SHOOT MISS
+  SIDE_CHANGE:["b8"],              // BACK/SELECT: サイドチェンジ
 };
-const PAD_STORE_KEY = "beyCamPadMap_v1";
+const PAD_STORE_KEY      = "beyCamPadMap_v1";       // 通常モードの割り当て
+const PAD_TEST_STORE_KEY = "beyCamPadMap_test_v1";  // キーボードモードの割り当て
+const TEST_MODE_KEY      = "beyCamTestMode_v1";     // キーボードモードON/OFF
 
 const qs = s => document.querySelector(s);
 const cloneMap = m => JSON.parse(JSON.stringify(m));
 
-function loadPadMap() {
-  const base = cloneMap(DEFAULT_PAD_MAP);
+function loadPadMap(key, fallback) {
+  const base = cloneMap(fallback || DEFAULT_PAD_MAP);
   try {
-    const saved = JSON.parse(localStorage.getItem(PAD_STORE_KEY));
+    const saved = JSON.parse(localStorage.getItem(key));
     if (saved && typeof saved === "object") {
       for (const k in base) {
         if (Array.isArray(saved[k]) && saved[k].every(x => typeof x === "string")) base[k] = saved[k];
@@ -1687,19 +1767,235 @@ function loadPadMap() {
   } catch (e) {}
   return base;
 }
+/* 現在のモードの割り当てだけを保存する */
 function savePadMap() {
-  try { localStorage.setItem(PAD_STORE_KEY, JSON.stringify(padMap)); } catch (e) {}
+  try { localStorage.setItem(testMode ? PAD_TEST_STORE_KEY : PAD_STORE_KEY, JSON.stringify(padMap)); } catch (e) {}
 }
-let padMap = loadPadMap();
+let testMode = false;
+try { testMode = localStorage.getItem(TEST_MODE_KEY) === "1"; } catch (e) {}
+let padMapNormal = loadPadMap(PAD_STORE_KEY);
+let padMapTest   = loadPadMap(PAD_TEST_STORE_KEY, padMapNormal);   // 初回は通常モードの割り当てを引き継ぐ
+let padMap       = testMode ? padMapTest : padMapNormal;           // 現在有効な割り当て
 
 /* ── FINISH バナー + Canvas演出 ──────────────────
    演出はすべて1枚のCanvas(低解像度で描画→CSSで拡大)で行い、
    DOMアニメーションは transform/opacity のみ。重い場合は FX_SCALE を下げる。 */
 const FX_SCALE = 0.5;   // Canvas解像度の倍率（0.45=より軽い / 0.8=より綺麗）
 let finishFxEl = null;
-let finishEndAt = 0;   // 現在のFINISH演出が終わる時刻(performance.now基準)
 let finishTimers = [];
 let finishCancel = null;
+
+/* ── FINISH後のリプレイ ─────────────────────────────
+   カメラ映像を MediaRecorder で常時録画し、ボタン押下の瞬間に「直前3秒」を切り出す。
+   MediaRecorder は途中からの切り出しができないため、録画を2本・半周期ずらして回し、
+   常に3秒以上溜まっている方を使う（7秒周期 → 常に 3.5〜7秒分が手元にある）。
+   演出(約2.5秒)の間にクリップを読み込んでおき、演出終了後に 0.25倍速で再生 → 次へ。 */
+const REPLAY_SEC    = 3;       // 押下の何秒前から再生するか
+const REPLAY_RATE   = 0.25;    // 再生速度
+const REC_PERIOD_MS = 7000;    // 1本あたりの録画周期
+const REC_BITRATE   = 4000000;
+
+let cameraStream = null;
+let recSlots = [null, null], recTimers = [], recRunning = false, recMime = "";
+let finishBusy = false, finishSeq = 0, finishDoneCbs = [];
+let clipPromise = null, replayActive = false, replayStop = null, replaySkip = false;
+const replayLayer = document.getElementById("replay-layer");
+const replayBadge = document.getElementById("replay-badge");
+
+function pickRecMime() {
+  const c = ["video/webm;codecs=vp8", "video/webm;codecs=vp9", "video/webm", "video/mp4"];
+  return c.find(t => MediaRecorder.isTypeSupported(t)) || "";
+}
+function startReplayRecording() {
+  if (recRunning || !cameraStream || typeof MediaRecorder === "undefined") return;
+  recMime = pickRecMime();
+  recRunning = true;
+  startRecSlot(0);
+  recTimers[1] = setTimeout(() => { if (recRunning) startRecSlot(1); }, REC_PERIOD_MS / 2);
+}
+function startRecSlot(i) {
+  let rec;
+  try {
+    rec = new MediaRecorder(cameraStream, Object.assign({ videoBitsPerSecond: REC_BITRATE }, recMime ? { mimeType: recMime } : {}));
+  } catch (e) { console.warn("録画開始失敗(リプレイ無効):", e); recRunning = false; return; }
+  const slot = { rec, chunks: [], t0: 0, flushCb: null };
+  rec.ondataavailable = e => {
+    if (e.data && e.data.size) slot.chunks.push(e.data);
+    if (slot.flushCb) { const f = slot.flushCb; slot.flushCb = null; f(); }
+  };
+  rec.onstart = () => { slot.t0 = performance.now(); };
+  try { rec.start(200); } catch (e) { console.warn("録画開始失敗(リプレイ無効):", e); recRunning = false; return; }
+  recSlots[i] = slot;
+  recTimers[i] = setTimeout(() => {
+    if (!recRunning) return;
+    try { rec.stop(); } catch (e) {}
+    startRecSlot(i);
+  }, REC_PERIOD_MS);
+}
+function stopReplayRecording() {
+  recRunning = false;
+  recTimers.forEach(clearTimeout); recTimers = [];
+  recSlots.forEach(sl => { if (sl) { try { sl.rec.stop(); } catch (e) {} } });
+  recSlots = [null, null];
+}
+
+/* 押下の瞬間のスナップショット（一番長く録れている録画を使う） */
+function captureReplayClip() {
+  return new Promise(resolve => {
+    let best = null;
+    for (const sl of recSlots) {
+      if (sl && sl.t0 && sl.rec.state === "recording" && (!best || sl.t0 < best.t0)) best = sl;
+    }
+    if (!best) return resolve(null);
+    const mime = best.rec.mimeType || recMime || "video/webm";
+    let done = false;
+    const finish = () => {
+      if (done) return; done = true;
+      resolve(best.chunks.length ? { blob: new Blob(best.chunks.slice(), { type: mime }), elapsed: (performance.now() - best.t0) / 1000 } : null);
+    };
+    best.flushCb = finish;
+    try { best.rec.requestData(); } catch (e) { finish(); }
+    setTimeout(finish, 400);
+  });
+}
+
+/* Blob → <video>。MediaRecorderのWebMは duration=Infinity になるため、一度末尾へシークして長さを確定させる。
+   ※ここでは長さを調べるだけ。開始位置へのシークは再生直前(runReplay)で確実に行う */
+function prepareClipVideo(blob, elapsed) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(blob);
+    const v = document.createElement("video");
+    v.muted = true; v.playsInline = true; v.preload = "auto"; v.src = url;
+    // 画面外に置いて読み込む（DOMから外れたvideoだとシーク等が不安定な環境があるため）
+    v.style.cssText = "position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0;pointer-events:none;";
+    document.body.appendChild(v);
+    let settled = false, timer = 0;
+    const cleanup = () => { clearTimeout(timer); v.onerror = v.onloadedmetadata = null; v.removeEventListener("durationchange", check); v.removeEventListener("timeupdate", check); };
+    const fail = why => { if (settled) return; settled = true; cleanup(); console.warn("[replay] クリップ読込失敗:", why); v.remove(); URL.revokeObjectURL(url); resolve(null); };
+    const finalize = () => {
+      if (settled) return; settled = true; cleanup();
+      let dur = v.duration;
+      // 長さが不正/録画時間と大きくズレる場合は、録画経過時間から推定する
+      if (!isFinite(dur) || dur < 0.3 || Math.abs(dur - elapsed) > 2) dur = Math.max(0, elapsed - 0.3);
+      if (dur < 0.5) { fail("クリップが短すぎる(" + dur.toFixed(2) + "s)"); return; }
+      console.info("[replay] クリップ準備OK dur=" + dur.toFixed(2) + "s elapsed=" + elapsed.toFixed(2) + "s");
+      resolve({ v, url, dur, start: Math.max(0, dur - REPLAY_SEC) });
+    };
+    function check() { if (isFinite(v.duration)) finalize(); }
+    v.onerror = () => fail("video error");
+    v.onloadedmetadata = () => {
+      if (isFinite(v.duration)) { finalize(); return; }
+      v.addEventListener("durationchange", check);
+      v.addEventListener("timeupdate", check);
+      v.currentTime = 1e101;
+    };
+    timer = setTimeout(() => { v.readyState >= 1 ? finalize() : fail("タイムアウト"); }, 3000);
+  });
+}
+function seekTo(v, t) {
+  return new Promise(res => {
+    if (Math.abs(v.currentTime - t) < 0.01) { res(); return; }
+    const done = () => { v.removeEventListener("seeked", done); clearTimeout(to); res(); };
+    const to = setTimeout(done, 1500);
+    v.addEventListener("seeked", done);
+    v.currentTime = t;
+  });
+}
+function disposeClip(clip) {
+  if (!clip) return;
+  try { clip.v.onended = null; clip.v.ontimeupdate = null; clip.v.pause(); clip.v.removeAttribute("src"); clip.v.load(); clip.v.remove(); } catch (e) {}
+  try { URL.revokeObjectURL(clip.url); } catch (e) {}
+}
+function hideReplay() {
+  if (replayActive) {
+    document.querySelectorAll(".frame").forEach(f => f.classList.remove("win-glow-blue","win-glow-pink"));
+    document.querySelectorAll(".blade-name-input,.team-blader-label").forEach(el => el.classList.remove("win-glow-name-blue","win-glow-name-pink"));
+    document.querySelectorAll(".hud-ring").forEach(h => h.classList.remove("win-glow-hud-blue","win-glow-hud-pink"));
+  }
+  replayActive = false;
+  if (replayLayer) { replayLayer.style.display = "none"; replayLayer.innerHTML = ""; }
+  if (replayBadge) replayBadge.style.display = "none";
+}
+
+/* FINISH シーケンス（演出 → リプレイ → 完了コールバック） */
+function whenFinishDone(fn) { if (finishBusy) finishDoneCbs.push(fn); else fn(); }
+function endFinishSequence() {
+  clearNewRings();
+  finishBusy = false;
+  const cbs = finishDoneCbs; finishDoneCbs = [];
+  cbs.forEach(f => f());
+}
+function beginFinishSequence(doReplay = true) {
+  finishSeq++;
+  replaySkip = false;
+  if (replayStop) replayStop();     // 再生中のリプレイがあれば止める
+  if (clipPromise) clipPromise.then(disposeClip);
+  finishBusy = true;
+  if (!doReplay) { clipPromise = null; return finishSeq; }   // 2SHOOT MISS はリプレイ無し
+  clipPromise = captureReplayClip().then(c => {
+    if (!c) console.warn("[replay] 録画データなし（カメラ未取得 / 録画未開始 / MediaRecorder非対応）");
+    return c ? prepareClipVideo(c.blob, c.elapsed) : null;
+  });
+  return finishSeq;
+}
+async function runReplay(id, side) {
+  const clip = await clipPromise;
+  if (id !== finishSeq) { disposeClip(clip); return; }    // 新しいFINISHに置き換わった
+  clipPromise = null;
+  if (!clip || replaySkip || !replayLayer) { disposeClip(clip); endFinishSequence(); return; }
+
+  const v = clip.v;
+  replayActive = true;
+  v.removeAttribute("style");
+  v.style.visibility = "hidden";                 // 開始位置へのシークが終わるまで映さない
+  replayLayer.appendChild(v);
+  replayLayer.style.display = "block";
+  replayBadge.style.display = "block";
+  if (side) applySideGlow(side);      // どちらの得点か分かるよう、勝者側を呼吸発光
+  v.playbackRate = REPLAY_RATE;
+
+  let ended = false, guard = 0;
+  const finish = () => {
+    if (ended) return; ended = true;
+    clearTimeout(guard);
+    replayStop = null;
+    disposeClip(clip);
+    hideReplay();
+    if (id === finishSeq) endFinishSequence();
+  };
+  replayStop = finish;
+  guard = setTimeout(finish, ((clip.dur - clip.start) / REPLAY_RATE + 4) * 1000);   // 念のための保険
+
+  // 開始位置(押下の3秒前)へ確実にシーク。長さ確定用のシークが残っていても位置を再確認する
+  for (let i = 0; i < 3 && !ended; i++) {
+    await seekTo(v, clip.start);
+    if (Math.abs(v.currentTime - clip.start) < 0.5) break;
+  }
+  if (ended) return;
+  console.info("[replay] 再生開始 start=" + clip.start.toFixed(2) + "s pos=" + v.currentTime.toFixed(2) + "s dur=" + clip.dur.toFixed(2) + "s");
+  v.style.visibility = "visible";
+  v.onended = finish;
+  v.ontimeupdate = () => { if (v.currentTime >= clip.dur - 0.04) finish(); };
+  const pr = v.play();
+  if (pr && pr.catch) pr.catch(e => { console.warn("[replay] 再生失敗:", e); finish(); });
+}
+/* リプレイをスキップ（訂正ボタン / Esc） */
+function skipReplay() {
+  replaySkip = true;
+  if (replayStop) replayStop();
+}
+/* リセット時：演出・リプレイ・待機中の処理をすべて破棄 */
+function cancelFinishSequence() {
+  finishSeq++;
+  finishDoneCbs = [];
+  finishBusy = false;
+  if (replayStop) replayStop();
+  if (clipPromise) { clipPromise.then(disposeClip); clipPromise = null; }
+  hideReplay();
+  finishTimers.forEach(clearTimeout); finishTimers = [];
+  if (finishCancel) { finishCancel(); finishCancel = null; }
+  if (finishFxEl) { finishFxEl.remove(); finishFxEl = null; }
+}
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 
@@ -1827,53 +2123,58 @@ function simBurst(W, H, ctx) {
   const cx = W / 2, cy = H * 0.3, u = W / 1000;
   const heat = ["255,252,235", "255,236,160", "255,196,80", "255,136,34", "228,72,16", "140,32,10"].map(glowSprite);
   const smk = glowSprite("34,24,20"), emb = glowSprite("255,150,40");
-  const blasts = [[0, 0, 0, 1], [0.16, -0.16, 0.05, 0.8], [0.3, 0.18, -0.04, 0.85]];   // [遅延, x, y, 大きさ]
+  const blasts = [[0, 0, 0, 1.7], [0.07, -0.2, 0.08, 1.25], [0.13, 0.22, -0.06, 1.35]];   // 短い間隔で一気に弾ける   // [遅延, x, y, 大きさ]
   const FI = [], SM = [], SP = [], EM = [], RAY = [];
   for (const [dl, bx, by, sz] of blasts) {
     const x0 = cx + bx * W, y0 = cy + by * H;
-    for (let i = 0; i < 40; i++) {
-      const a = rnd(0, TAU), v = rnd(60, 700) * u * sz, o = rnd(0, 24 * u);
+    for (let i = 0; i < 56; i++) {
+      const a = rnd(0, TAU), v = rnd(500, 2300) * u * sz, o = rnd(0, 24 * u);
       FI.push({ x:x0 + Math.cos(a) * o, y:y0 + Math.sin(a) * o, vx:Math.cos(a) * v, vy:Math.sin(a) * v - 50 * u,
-                d:dl + rnd(0, 0.2), life:0, max:rnd(0.8, 1.5), s0:rnd(100, 210) * u * sz, g:rnd(1.8, 2.6) });
+                d:dl + rnd(0, 0.08), life:0, max:rnd(0.6, 1.1), s0:rnd(150, 300) * u * sz, g:rnd(1.2, 2.0) });
     }
     for (let i = 0; i < 8; i++) {
-      const a = rnd(0, TAU), v = rnd(30, 260) * u;
-      SM.push({ x:x0, y:y0, vx:Math.cos(a) * v, vy:Math.sin(a) * v, d:dl + rnd(0.1, 0.5), life:0, max:rnd(1.5, 2.4), s0:rnd(170, 280) * u * sz, g:rnd(1.8, 2.8) });
+      const a = rnd(0, TAU), v = rnd(300, 1100) * u;
+      SM.push({ x:x0, y:y0, vx:Math.cos(a) * v, vy:Math.sin(a) * v, d:dl + rnd(0.05, 0.25), life:0, max:rnd(0.7, 1.1), s0:rnd(220, 360) * u * sz, g:rnd(1.2, 2.0) });
     }
   }
   const sc = ["255,250,210", "255,214,110", "255,160,50"];
-  for (let i = 0; i < 90; i++) {                                            // 外へ走る火花
-    const a = rnd(0, TAU), v = rnd(500, 2200) * u;
-    SP.push({ x:cx, y:cy, vx:Math.cos(a) * v, vy:Math.sin(a) * v, d:rnd(0, 0.3), life:0, max:rnd(0.4, 1.1), w:rnd(1.2, 3.2) * u, c:sc[i % 3] });
+  for (let i = 0; i < 130; i++) {                                           // 外へ走る火花
+    const a = rnd(0, TAU), v = rnd(1400, 4200) * u;
+    SP.push({ x:cx, y:cy, vx:Math.cos(a) * v, vy:Math.sin(a) * v, d:rnd(0, 0.12), life:0, max:rnd(0.25, 0.7), w:rnd(1.6, 4) * u, c:sc[i % 3] });
   }
-  for (let i = 0; i < 30; i++) EM.push({ x:cx + rnd(-1, 1) * W * 0.15, y:cy + rnd(-1, 1) * H * 0.1, vx:rnd(-60, 60) * u, vy:rnd(-140, -30) * u, d:rnd(0.1, 0.8), life:0, max:rnd(1.2, 2.4), ph:rnd(0, TAU) });
+  for (let i = 0; i < 30; i++) EM.push({ x:cx + rnd(-1, 1) * W * 0.15, y:cy + rnd(-1, 1) * H * 0.1, vx:rnd(-1, 1) * 900 * u, vy:rnd(-1, 1) * 900 * u, d:rnd(0.05, 0.4), life:0, max:rnd(0.6, 1.3), ph:rnd(0, TAU) });
+  const DB = [];                                                            // 飛び散る破片
+  for (let i = 0; i < 26; i++) {
+    const a = rnd(0, TAU), v = rnd(500, 1800) * u;
+    DB.push({ x:cx, y:cy, vx:Math.cos(a) * v, vy:Math.sin(a) * v, d:rnd(0, 0.1), life:0, max:rnd(0.9, 1.5), s:rnd(4, 11) * u, rot:rnd(0, TAU), vr:rnd(-14, 14), c:i % 3 });
+  }
   for (let i = 0; i < 22; i++) RAY.push({ a:rnd(0, TAU), w:rnd(0.008, 0.03), l:rnd(0.5, 1.1) });
   return (dt, t) => {
     ctx.save();
-    const amp = 20 * u * Math.max(0, 1 - t / 0.8);
+    const amp = 38 * u * Math.max(0, 1 - t / 0.5);
     if (amp > 0.2) ctx.translate(rnd(-amp, amp), rnd(-amp, amp));
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = Math.min(1, t / 0.15) * 0.3; ctx.fillStyle = "#0a0402"; ctx.fillRect(-40, -40, W + 80, H + 80);
-    const sdrag = Math.exp(-1.6 * dt);
+    const sdrag = Math.exp(-0.3 * dt);
     for (const p of SM) {
       if (p.d > 0) { p.d -= dt; continue; }
       p.life += dt; if (p.life > p.max) continue;
-      p.vx *= sdrag; p.vy = p.vy * sdrag - 70 * u * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      p.vx *= sdrag; p.vy *= sdrag; p.x += p.vx * dt; p.y += p.vy * dt;
       const k = p.life / p.max;
       drawSpr(ctx, smk, p.x, p.y, p.s0 * (1 + p.g * k), (k < 0.15 ? k / 0.15 : 1) * (1 - k) * 0.5);
     }
     ctx.globalCompositeOperation = "lighter";
-    const fdrag = Math.exp(-2.2 * dt);
+    const fdrag = Math.exp(-0.25 * dt);
     for (const p of FI) {
       if (p.d > 0) { p.d -= dt; continue; }
       p.life += dt; if (p.life > p.max) continue;
-      p.vx *= fdrag; p.vy = p.vy * fdrag - 120 * u * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      p.vx *= fdrag; p.vy *= fdrag; p.x += p.vx * dt; p.y += p.vy * dt;
       const k = p.life / p.max, idx = Math.min(5, 1 + ((k * 5.6) | 0));
       drawSpr(ctx, heat[idx], p.x, p.y, p.s0 * (0.6 + p.g * k), (k < 0.08 ? k / 0.08 : Math.pow(1 - k, 1.4)) * 0.5);
     }
-    if (t < 0.6) {                                                           // 放射状の光条
-      const e = 1 - t / 0.6; ctx.globalAlpha = 0.16 * e; ctx.fillStyle = "rgb(255,190,100)";
-      const L = W * (0.3 + 0.9 * (1 - e));
+    if (t < 0.4) {                                                           // 放射状の光条
+      const e = 1 - t / 0.4; ctx.globalAlpha = 0.3 * e; ctx.fillStyle = "rgb(255,190,100)";
+      const L = W * (0.5 + 1.2 * (1 - e));
       for (const r of RAY) {
         ctx.beginPath(); ctx.moveTo(cx, cy);
         ctx.lineTo(cx + Math.cos(r.a - r.w) * L * r.l, cy + Math.sin(r.a - r.w) * L * r.l);
@@ -1881,22 +2182,22 @@ function simBurst(W, H, ctx) {
       }
     }
     for (const [dl, bx, by, sz] of blasts) {                                 // 各爆発の中心閃光
-      const k = t - dl; if (k < 0 || k > 0.5) continue;
-      const e = 1 - k / 0.5, x = cx + bx * W, y = cy + by * H;
-      drawSpr(ctx, heat[0], x, y, W * 0.5 * sz * e, 0.7 * e);
+      const k = t - dl; if (k < 0 || k > 0.35) continue;
+      const e = 1 - k / 0.35, x = cx + bx * W, y = cy + by * H;
+      drawSpr(ctx, heat[0], x, y, W * 0.35 * sz * (1 + 2.2 * (1 - e)), 0.8 * e);
     }
-    const se = Math.max(0, 1 - t / 0.8);
-    drawSpr(ctx, heat[2], cx, cy, W * 1.6, 0.8 * se, 40 * u);
-    drawSpr(ctx, heat[0], cx, cy, W * 1.0, 0.9 * se, 10 * u);
+    const se = Math.max(0, 1 - t / 0.5);
+    drawSpr(ctx, heat[2], cx, cy, W * (0.8 + 2.2 * (1 - se)), 0.8 * se, 40 * u);
+    drawSpr(ctx, heat[0], cx, cy, W * (0.4 + 1.4 * (1 - se)), 0.9 * se, 10 * u);
     for (let i = 0; i < 2; i++) {                                            // 衝撃波（2波）
-      const rt = t - i * 0.18; if (rt <= 0 || rt >= 0.8) continue;
-      const k = 1 - Math.pow(1 - rt / 0.8, 2.6), r = k * W * 0.8, a = 1 - rt / 0.8;
+      const rt = t - i * 0.1; if (rt <= 0 || rt >= 0.5) continue;
+      const k = 1 - Math.pow(1 - rt / 0.5, 2.6), r = k * W * 1.15, a = 1 - rt / 0.5;
       ctx.globalAlpha = 1;
-      ctx.strokeStyle = `rgba(255,200,120,${0.35 * a})`; ctx.lineWidth = (26 * a + 3) * u; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = `rgba(255,200,120,${0.35 * a})`; ctx.lineWidth = (44 * a + 4) * u; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
       ctx.strokeStyle = `rgba(60,220,255,${0.5 * a})`;   ctx.lineWidth = 2 * u;           ctx.beginPath(); ctx.arc(cx, cy, r * 1.03, 0, TAU); ctx.stroke();
       ctx.strokeStyle = `rgba(255,255,240,${0.9 * a})`;  ctx.lineWidth = (3 * a + 1) * u;  ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
     }
-    const gdrag = Math.exp(-1.6 * dt);
+    const gdrag = Math.exp(-0.2 * dt);
     ctx.lineCap = "round"; ctx.globalAlpha = 1;
     for (const p of SP) {
       if (p.d > 0) { p.d -= dt; continue; }
@@ -1914,7 +2215,18 @@ function simBurst(W, H, ctx) {
       drawSpr(ctx, emb, p.x, p.y, 16 * u * (1 - k * 0.4), (1 - k) * (0.55 + 0.45 * Math.sin(t * 30 + p.ph)));
     }
     ctx.globalCompositeOperation = "source-over";
-    if (t < 0.09) { ctx.globalAlpha = 0.9 * (1 - t / 0.09); ctx.fillStyle = "#fff"; ctx.fillRect(-40, -40, W + 80, H + 80); }
+    for (const p of DB) {
+      if (p.d > 0) { p.d -= dt; continue; }
+      p.life += dt; if (p.life > p.max) continue;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
+      const k = p.life / p.max;
+      ctx.globalAlpha = 1 - k * k;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = ["#2a1a10", "#ff8a2a", "#ffd870"][p.c]; ctx.fillRect(-p.s, -p.s * 0.45, p.s * 2, p.s * 0.9);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+    if (t < 0.12) { ctx.globalAlpha = 0.9 * (1 - t / 0.12); ctx.fillStyle = "#fff"; ctx.fillRect(-40, -40, W + 80, H + 80); }
     ctx.restore();
   };
 }
@@ -2022,8 +2334,8 @@ function simOver(W, H, ctx) {
 
 /* SPIN: 竜巻を真上から見下ろす（渦の中心＝漏斗の底から外側へ拡散していく） */
 function simSpin(W, H, ctx) {
-  const cx = W / 2, cy = H * 0.3, u = W / 1000, Rmax = Math.hypot(W, H) * 0.62, re = 46 * u;
-  const sHot = glowSprite("255,244,170"), sAmb = glowSprite("255,190,30"), sCyn = glowSprite("60,235,255"), sDark = glowSprite("18,10,0");
+  const cx = W / 2, cy = H / 2, u = W / 1000, Rmax = Math.hypot(W, H) * 0.62, re = 46 * u;
+  const sHot = glowSprite("255,244,170"), sAmb = glowSprite("255,190,30"), sCyn = glowSprite("60,235,255"), sDark = glowSprite("255,226,140");
   const cols = ["255,214,40", "255,244,160", "255,255,255", "255,168,20", "255,214,40"];
   const omega = r => 1.6 + 11 * Math.pow(re / (r + re * 0.6), 0.9);            // 中心ほど速い（差動回転）
   const outflow = r => 1.6 * r + 150 * u;                                        // 中心から外へ噴き出す速さ
@@ -2040,9 +2352,9 @@ function simSpin(W, H, ctx) {
   }
   for (let i = 0; i < 110; i++) { const p = { s:rnd(0.7, 1.3), h:i % 9 === 0 }; spawn(p, true); CL.push(p); }
   for (let i = 0; i < 48; i++) { const p = { s:rnd(0.8, 1.4) }; spawn(p, true); DK.push(p); }
-  const vg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Rmax);
-  vg.addColorStop(0, "rgba(0,0,0,.92)"); vg.addColorStop(re * 1.6 / Rmax, "rgba(8,4,0,.66)");
-  vg.addColorStop(0.3, "rgba(14,8,0,.28)"); vg.addColorStop(1, "rgba(0,0,0,.5)");
+  const vg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Rmax);   // 暗い周辺減光をやめ、明るい光の渦に
+  vg.addColorStop(0, "rgba(255,246,190,.85)"); vg.addColorStop(re * 1.6 / Rmax, "rgba(255,214,90,.5)");
+  vg.addColorStop(0.3, "rgba(255,190,50,.18)"); vg.addColorStop(1, "rgba(255,170,30,0)");
   let phase = 0;
   const advance = (p, dt) => {                                               // 旋回しながら外へ拡散
     p.th += omega(p.r) * dt;
@@ -2050,14 +2362,16 @@ function simSpin(W, H, ctx) {
     if (p.r > Rmax) spawn(p, false);
   };
   return (dt, t) => {
-    const fin = Math.min(1, t / 0.4), zoom = 0.55 + 0.45 * fin, fa = fin * 0.5;   // fa: 全体の不透明度
+    const fin = Math.min(1, t / 0.4), zoom = 0.55 + 0.45 * fin, fa = fin * 0.22;   // fa: 全体の不透明度
     phase += dt;
     ctx.globalCompositeOperation = "source-over";
+    ctx.globalCompositeOperation = "lighter";
     ctx.globalAlpha = fa; ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
-    for (const p of DK) {                                                    // 渦の影（奥行き）
+    ctx.globalCompositeOperation = "lighter";
+    for (const p of DK) {                                                    // 渦の淡いグロウ（奥行き）
       advance(p, dt);
       const r = p.r * zoom;
-      drawSpr(ctx, sDark, cx + Math.cos(p.th) * r, cy + Math.sin(p.th) * r, (160 + r * 0.8) * p.s, 0.32 * fa * Math.min(1, (p.r - re) / (re * 3)) * edge(p.r));
+      drawSpr(ctx, sDark, cx + Math.cos(p.th) * r, cy + Math.sin(p.th) * r, (160 + r * 0.8) * p.s, 0.5 * fa * Math.min(1, (p.r - re) / (re * 3)) * edge(p.r));
     }
     ctx.globalCompositeOperation = "lighter";
     for (const p of CL) {                                                    // 渦の雲
@@ -2089,10 +2403,6 @@ function simSpin(W, H, ctx) {
     }
     drawSpr(ctx, sAmb, cx, cy, re * 7 * zoom, 0.35 * fa);                    // 漏斗の底の光
     drawSpr(ctx, sCyn, cx, cy, re * 3.4 * zoom, 0.3 * fa);
-    ctx.globalAlpha = fa; ctx.lineWidth = 14 * u; ctx.strokeStyle = "rgba(255,190,30,.35)";   // アイウォール（縁）
-    ctx.beginPath(); ctx.arc(cx, cy, re * 1.1 * zoom, 0, TAU); ctx.stroke();
-    ctx.lineWidth = 2.5 * u; ctx.strokeStyle = `rgba(255,255,230,${0.8 + 0.2 * Math.sin(t * 50)})`;
-    ctx.beginPath(); ctx.arc(cx, cy, re * 1.1 * zoom, 0, TAU); ctx.stroke();
     if (t < 0.25) { ctx.globalAlpha = 0.18 * (1 - t / 0.25); ctx.fillStyle = "#ffe650"; ctx.fillRect(0, 0, W, H); }
     ctx.globalCompositeOperation = "source-over";
     for (const p of P) {                                                     // 舞い上がる破片
@@ -2101,8 +2411,8 @@ function simSpin(W, H, ctx) {
       p.rot += p.vr * dt;
       ctx.globalAlpha = fa * Math.min(1, (p.r - re) / (re * 2)) * edge(p.r);
       ctx.save(); ctx.translate(x, y); ctx.rotate(p.rot);
-      ctx.fillStyle = "#1a1206"; ctx.fillRect(-s, -s * 0.35, s * 2, s * 0.7);
-      ctx.strokeStyle = "rgba(255,190,50,.85)"; ctx.lineWidth = 1.2 * u; ctx.strokeRect(-s, -s * 0.35, s * 2, s * 0.7); ctx.restore();
+      ctx.fillStyle = "rgba(255,236,160,.55)"; ctx.fillRect(-s, -s * 0.35, s * 2, s * 0.7);
+      ctx.strokeStyle = "rgba(255,255,220,.9)"; ctx.lineWidth = 1.2 * u; ctx.strokeRect(-s, -s * 0.35, s * 2, s * 0.7); ctx.restore();
     }
     ctx.globalAlpha = 1;
   };
@@ -2136,13 +2446,16 @@ function startFinishCanvas(key, fx, totalMs) {
   return () => cancelAnimationFrame(raf);
 }
 
-function showFinishBanner(side, key) {
+function showFinishBanner(side, key, withReplay) {
   const f = FINISHES[key];
   if (!f) return;
+  if (!withReplay && finishBusy) return;   // 設定画面の表示テストは、実際のFINISH進行中は無視
   if (finishFxEl) { finishFxEl.remove(); finishFxEl = null; }
   finishTimers.forEach(clearTimeout); finishTimers = [];
   if (finishCancel) { finishCancel(); finishCancel = null; }
   playFinishSound(key);
+  const doReplay = withReplay && key !== "MISS2";   // 2SHOOT MISS はリプレイ無し
+  const seq = withReplay ? beginFinishSequence(doReplay) : 0;
 
   const fx = document.createElement("div");
   fx.className = `finish-fx ${side} fx-${key.toLowerCase()}`;
@@ -2152,27 +2465,44 @@ function showFinishBanner(side, key) {
   nm.querySelector(".fb-txt").textContent = f.label;
   document.body.appendChild(fx);
   finishFxEl = fx;
-  finishEndAt = performance.now() + FINISH_SHOW_MS + FINISH_FADE_MS;
   finishCancel = startFinishCanvas(key, fx, FINISH_SHOW_MS + FINISH_FADE_MS);
 
   finishTimers.push(setTimeout(() => fx.classList.add("out"), FINISH_SHOW_MS));
   finishTimers.push(setTimeout(() => {
     fx.remove();
     if (finishFxEl === fx) { finishFxEl = null; if (finishCancel) { finishCancel(); finishCancel = null; } }
+    if (doReplay) runReplay(seq, side);     // 演出が終わったら直前3秒を0.25倍速でリプレイ
+    else if (withReplay && seq === finishSeq) endFinishSequence();   // リプレイ無し（2SHOOT MISS）
   }, FINISH_SHOW_MS + FINISH_FADE_MS));
 }
 
 function scoreFinish(side, key) {
-  showFinishBanner(side, key);
-  addPoint(side, FINISHES[key].pts);
+  showFinishBanner(side, key, true);
+  addPoint(side, FINISHES[key].pts, true);
 }
 
 /* ── アクション実行 ─────────────────────────────── */
 const padPending    = { left:null, right:null };
 const padBlockUntil = { left:0, right:0 };
 
+let swapBlockUntil = 0;
+/* サイドチェンジ：L/Rのブレーダー名入力欄の中身を入れ替えるだけ（演出なし） */
+function swapBladerNames() {
+  const l = qs("#blade-name-left"), rgt = qs("#blade-name-right");
+  if (!l || !rgt) return;
+  const tmp = l.value; l.value = rgt.value; rgt.value = tmp;
+}
+
 function fireAction(a) {
-  if (a.type === "undo") { removePoint(a.side); return; }
+  if (a.type === "undo") { skipReplay(); removePoint(a.side); return; }
+  if (a.type === "swap") {
+    const t = performance.now();
+    if (t < swapBlockUntil) return;
+    swapBlockUntil = t + 300;   // 二重入力防止
+    swapBladerNames();
+    return;
+  }
+  if (replayActive) return;     // リプレイ中はFINISH入力を受け付けない
 
   const side = a.side;
   const now  = performance.now();
@@ -2187,7 +2517,7 @@ function fireAction(a) {
   }
   padPending[side] = setTimeout(() => {
     padPending[side] = null;
-    if (!currentMode || gameBlocked) return;
+    if (!currentMode || gameBlocked || replayActive) return;
     padBlockUntil[side] = performance.now() + FINISH_LOCKOUT_MS;
     scoreFinish(side, a.finish);
   }, SIMUL_GUARD_MS);
@@ -2265,6 +2595,7 @@ function idLabel(id) {
   let m;
   if ((m = /^b(\d+)$/.exec(id))) return `BTN ${m[1]}`;
   if ((m = /^h:(\w+)$/.exec(id))) return "十字(hat) " + ({ up:"↑", down:"↓", left:"←", right:"→" }[m[1]] || m[1]);
+  if ((m = /^k:(.+)$/.exec(id))) return "KEY " + m[1].replace(/^Key|^Digit/, "");
   return id;
 }
 
@@ -2281,10 +2612,30 @@ function updatePadMonitor(info) {
   ax.textContent = info.map(({ gp }) => gp.axes.map((v, i) => `${i}:${v.toFixed(2)}`).join("  ")).join("\n");
 }
 
+function syncTestUI() {
+  qs("#pc-test-toggle").classList.toggle("on", testMode);
+  qs("#pc-test-toggle").setAttribute("aria-checked", String(testMode));
+  qs("#pc-test-state").textContent = testMode ? "キーボードモード" : "コントローラーモード";
+  qs(".pc-box").classList.toggle("testmode", testMode);
+}
+function setTestMode(on) {
+  if (on === testMode) return;
+  padLearn = null;
+  testMode = on;
+  try { localStorage.setItem(TEST_MODE_KEY, on ? "1" : "0"); } catch (e) {}
+  padMap = on ? padMapTest : padMapNormal;       // 各モードの割り当てを自動で反映
+  let hasSaved = true;
+  try { hasSaved = localStorage.getItem(on ? PAD_TEST_STORE_KEY : PAD_STORE_KEY) !== null; } catch (e) {}
+  if (!hasSaved) savePadMap();                   // 初回は現在の割り当てを固定して保存
+  renderPadConfig();
+  padToast(on ? "🧪 TEST MODE ON（キーボード割り当て可）" : "🎮 TEST MODE OFF");
+}
+
 function renderPadConfig() {
+  syncTestUI();
   const list = qs("#pc-list");
   list.innerHTML = "";
-  [["right", "R BLADER", "r"], ["left", "L BLADER", "l"]].forEach(([side, title, cls]) => {
+  [["right", "R BLADER", "r"], ["left", "L BLADER", "l"], ["common", "共通", "c"]].forEach(([side, title, cls]) => {
     const h = document.createElement("div");
     h.className = "pc-group " + cls; h.textContent = title;
     list.appendChild(h);
@@ -2298,6 +2649,8 @@ function renderPadConfig() {
       if (a.type === "finish") {
         lab.textContent = `${FINISHES[a.finish].label}  +${FINISHES[a.finish].pts}`;
         lab.style.color = FINISHES[a.finish].color;
+      } else if (a.type === "swap") {
+        lab.textContent = "サイドチェンジ（L⇄R名入替）";
       } else {
         lab.textContent = "訂正（−1点）";
       }
@@ -2305,7 +2658,7 @@ function renderPadConfig() {
       const bind = document.createElement("span");
       bind.className = "pc-bind";
       bind.textContent = padLearn === a.key
-        ? "入力待ち… ボタンを押してください（Escで取消）"
+        ? (testMode ? "入力待ち… ボタン／キーを押してください（Escで取消）" : "入力待ち… ボタンを押してください（Escで取消）")
         : ((padMap[a.key] || []).map(idLabel).join(" / ") || "未割当");
 
       const btn = document.createElement("button");
@@ -2317,7 +2670,7 @@ function renderPadConfig() {
       if (a.type === "finish") {
         const t = document.createElement("button");
         t.className = "pc-btn"; t.textContent = "▶"; t.title = "表示テスト（加点なし）";
-        t.onclick = () => showFinishBanner(a.side, a.finish);
+        t.onclick = () => showFinishBanner(a.side, a.finish, false);
         row.append(t);
       } else {
         row.append(document.createElement("span"));
@@ -2342,12 +2695,35 @@ function closePadConfig() { padLearn = null; qs("#pad-config").classList.remove(
 qs("#btn-pad").addEventListener("click", openPadConfig);
 qs("#pc-close").addEventListener("click", closePadConfig);
 qs("#pc-reset").addEventListener("click", () => {
-  padMap = cloneMap(DEFAULT_PAD_MAP); savePadMap(); padLearn = null; renderPadConfig();
+  const fresh = cloneMap(DEFAULT_PAD_MAP);       // 現在のモードの割り当てだけ初期化
+  if (testMode) padMapTest = fresh; else padMapNormal = fresh;
+  padMap = fresh; savePadMap(); padLearn = null; renderPadConfig();
 });
+qs("#pc-test-toggle").addEventListener("click", () => setTestMode(!testMode));
 document.addEventListener("keydown", e => {
-  if (e.target && e.target.closest && e.target.closest("input")) return;
+  // ブレーダー名入力欄のTab移動：L → R → フォーカス解除（Shift+Tabは逆順：R → L → 解除）
+  if (e.key === "Tab" && e.target && (e.target.id === "blade-name-left" || e.target.id === "blade-name-right")) {
+    e.preventDefault();
+    const L = qs("#blade-name-left"), R = qs("#blade-name-right");
+    if (!e.shiftKey) { if (e.target === L) R.focus(); else R.blur(); }
+    else             { if (e.target === R) L.focus(); else L.blur(); }
+    return;
+  }
+  if (e.target && e.target.closest && e.target.closest("input")) return;   // 入力中は他のキー操作(G等)を無効にする
+  // キーボードモード：割り当て学習中はキーボードのキーを受け付ける（Esc=取消、G=設定画面用のため不可）
+  if (testMode && padLearn && e.key !== "Escape") {
+    e.preventDefault();
+    if (e.code === "KeyG") padToast("Gキーは設定画面用のため割り当てできません");
+    else if (!e.repeat) commitLearn("k:" + e.code);
+    return;
+  }
   if (e.key === "g" || e.key === "G") { padConfigOpen() ? closePadConfig() : openPadConfig(); }
-  else if (e.key === "Escape") { if (padLearn) { padLearn = null; renderPadConfig(); } else if (padConfigOpen()) closePadConfig(); }
+  else if (e.key === "Escape") { if (replayActive) skipReplay(); else if (padLearn) { padLearn = null; renderPadConfig(); } else if (padConfigOpen()) closePadConfig(); }
+  // キーボードモード：割り当て済みキーでアクション実行（設定画面を閉じている間のみ）
+  else if (testMode && !e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey && !padConfigOpen()) {
+    const id = "k:" + e.code;
+    if (PAD_ACTIONS.some(a => (padMap[a.key] || []).includes(id))) { e.preventDefault(); onPadInput(id); }
+  }
 });
 
 </script>

@@ -1,6 +1,6 @@
 {
-  "name": "CameraScore",
-  "short_name": "CamScore",
+  "name": "BEYカメラ",
+  "short_name": "BEYカメラ",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "landscape",

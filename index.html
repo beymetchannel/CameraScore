@@ -1022,6 +1022,11 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
   padding:5px 10px;font-size:13px;font-family:inherit;
 }
 .pc-foot{ display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;color:#89a;font-size:12px; }
+#hold-guide{ position:fixed;left:50%;bottom:14%;transform:translateX(-50%);z-index:10001;display:none;min-width:280px;padding:10px 18px 12px;border-radius:10px;background:rgba(10,14,24,.9);border:1px solid #19d4ff;color:#cde;font:700 15px/1.2 sans-serif;text-align:center;pointer-events:none;white-space:nowrap; }
+#hold-guide .hg-bar{ margin-top:8px;height:6px;border-radius:3px;background:rgba(255,255,255,.15);overflow:hidden; }
+#hold-guide .hg-fill{ height:100%;background:#19d4ff;transform-origin:left;transform:scaleX(0); }
+#hold-guide.run .hg-fill{ animation:hgFill var(--hg-ms,1000ms) linear forwards; }
+@keyframes hgFill{ to{ transform:scaleX(1); } }
 </style>
 </head>
 <body>
@@ -1143,14 +1148,84 @@ video#camera { position:absolute;inset:0;width:100%;height:100%;object-fit:cover
         <select id="pc-replay-rate"></select>
       </label>
     </div>
+    <div class="pc-test">
+      <div><b>映像（画質・フレームレート）</b>
+        <span>解像度・フレームレートを変更するとカメラを再起動します。リプレイ録画画質は次の録画から反映されます。高い設定は負荷が増え、カウントダウンやリプレイに影響する場合があります。</span>
+        <span id="pc-video-actual" style="display:block;margin-top:4px;color:#7fe;">-</span></div>
+    </div>
+    <div class="pc-replay-opts" id="pc-video-opts">
+      <label class="pc-replay-opt">解像度
+        <select id="pc-video-res"></select>
+      </label>
+      <label class="pc-replay-opt">フレームレート
+        <select id="pc-video-fps"></select>
+      </label>
+      <label class="pc-replay-opt">リプレイ録画画質
+        <select id="pc-video-bitrate"></select>
+      </label>
+    </div>
   </div>
 </div>
 
 <script>
 
-const CAMERA_FPS = 60;
-const CAMERA_WIDTH = 1920;
-const CAMERA_HEIGHT = 1080;
+// ===== 映像設定（画質・フレームレート。設定画面で変更） =====
+const VIDEO_STORE_KEY = "beyCamVideoSettings_v1";
+const VIDEO_RES_OPTIONS = [
+  { id:"720",  w:1280, h:720,  label:"1280×720 (HD)" },
+  { id:"1080", w:1920, h:1080, label:"1920×1080 (フルHD)" },
+  { id:"1440", w:2560, h:1440, label:"2560×1440 (WQHD)" },
+  { id:"2160", w:3840, h:2160, label:"3840×2160 (4K)" },
+];
+const VIDEO_FPS_OPTIONS     = [24, 30, 60];
+const REC_BITRATE_OPTIONS   = [2, 4, 6, 8, 12];   // Mbps（リプレイ録画の画質）
+function loadVideoSettings() {
+  const base = { res:"1080", fps:60, bitrate:6 };
+  try {
+    const sv = JSON.parse(localStorage.getItem(VIDEO_STORE_KEY));
+    if (sv && typeof sv === "object") {
+      if (VIDEO_RES_OPTIONS.some(o => o.id === sv.res)) base.res = sv.res;
+      if (VIDEO_FPS_OPTIONS.includes(sv.fps))           base.fps = sv.fps;
+      if (REC_BITRATE_OPTIONS.includes(sv.bitrate))     base.bitrate = sv.bitrate;
+    }
+  } catch (e) {}
+  return base;
+}
+let videoSettings = loadVideoSettings();
+function saveVideoSettings() { try { localStorage.setItem(VIDEO_STORE_KEY, JSON.stringify(videoSettings)); } catch (e) {} }
+let videoActual = null;
+let cameraRestarting = false, cameraRestartPending = false;
+
+// 指定のfps上限が端末で満たせない場合は上限なしで取り直す
+async function getCameraStream(video) {
+  try {
+    return await navigator.mediaDevices.getUserMedia({ audio: false, video });
+  } catch (e) {
+    if (e && e.name === "OverconstrainedError" && video.frameRate && video.frameRate.max) {
+      const relaxed = { ...video, frameRate: { ideal: video.frameRate.ideal } };
+      return await navigator.mediaDevices.getUserMedia({ audio: false, video: relaxed });
+    }
+    throw e;
+  }
+}
+// 解像度・fps変更時：カメラを止めて新しい設定で取り直す
+async function restartCamera() {
+  if (cameraRestarting) { cameraRestartPending = true; syncVideoUI(); return; }
+  cameraRestarting = true;
+  syncVideoUI();
+  try {
+    do {
+      cameraRestartPending = false;
+      stopReplayRecording();
+      const old = cameraStream; cameraStream = null; videoActual = null;
+      if (old) old.getTracks().forEach(t => t.stop());
+      await startCamera();
+    } while (cameraRestartPending);
+  } finally {
+    cameraRestarting = false;
+    syncVideoUI();
+  }
+}
 
 async function startCamera() {
   const video = document.getElementById("camera");
@@ -1159,19 +1234,32 @@ async function startCamera() {
     return;
   }
 
+  const res = VIDEO_RES_OPTIONS.find(o => o.id === videoSettings.res) || VIDEO_RES_OPTIONS[1];
   const cameraConstraints = {
-    width: { ideal: CAMERA_WIDTH },
-    height: { ideal: CAMERA_HEIGHT },
-    frameRate: { ideal: CAMERA_FPS }
+    width: { ideal: res.w },
+    height: { ideal: res.h },
+    frameRate: { ideal: videoSettings.fps, max: videoSettings.fps }
   };
+
+  // スマホ・タブレットの場合はアウトカメラ(背面)を固定で使用
+  const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (isMobileDevice) {
+    cameraConstraints.facingMode = { exact: "environment" };
+  }
 
   let stream = null;
 
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      audio: false,
-      video: cameraConstraints
-    });
+    try {
+      stream = await getCameraStream(cameraConstraints);
+    } catch (facingError) {
+      if (!cameraConstraints.facingMode) throw facingError;
+      // exact指定で取得できない端末向けのフォールバック(アウトカメラ優先)
+      console.warn("[camera] アウトカメラの固定取得に失敗。優先指定で再試行します:", facingError);
+      cameraConstraints.facingMode = { ideal: "environment" };
+      stream = await getCameraStream(cameraConstraints);
+    }
 
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -1185,12 +1273,10 @@ async function startCamera() {
         if (currentTrack && currentTrack.getSettings().deviceId !== pixioCamera.deviceId) {
           const firstStream = stream;
           try {
-            stream = await navigator.mediaDevices.getUserMedia({
-              audio: false,
-              video: {
-                deviceId: { exact: pixioCamera.deviceId },
-                ...cameraConstraints
-              }
+            stream = await getCameraStream({
+              ...cameraConstraints,
+              facingMode: undefined,
+              deviceId: { exact: pixioCamera.deviceId }
             });
             firstStream.getTracks().forEach(track => track.stop());
             console.info("[camera] Pixioカメラを選択:", pixioCamera.label);
@@ -1218,6 +1304,8 @@ async function startCamera() {
 
     const track = stream.getVideoTracks()[0];
     const settings = track ? track.getSettings() : {};
+    videoActual = { w: settings.width, h: settings.height, fps: settings.frameRate };
+    syncVideoUI();
 
     console.group("[camera] カメラ設定");
     console.table({
@@ -1227,7 +1315,7 @@ async function startCamera() {
       fps: settings.frameRate || "不明",
       deviceId: settings.deviceId ? settings.deviceId.slice(0, 12) + "…" : "不明"
     });
-    console.info("[camera] 希望設定: 1920x1080 / 60fps");
+    console.info("[camera] 希望設定: " + res.w + "x" + res.h + " / " + videoSettings.fps + "fps");
     console.groupEnd();
 
     if (typeof video.requestVideoFrameCallback === "function") {
@@ -1447,6 +1535,7 @@ function addPoint(side, n = 1, markNew = false) {
 
 function removePoint(side) {
   if (gameBlocked) return;
+  unlockFinishInput();   // 訂正操作はロックを解除
   const block = document.getElementById(`${side}-block`);
   const huds  = [...block.querySelectorAll(".hud-ring")];
   if (huds.length === 0) return;
@@ -1498,6 +1587,7 @@ function handleWin(winningSide) {
 
 function handleWinNow(winningSide) {
   gameBlocked = true;
+  unlockFinishInput();
   const losingSide = winningSide === "left" ? "right" : "left";
 
   showWinEffect(winningSide);
@@ -1777,6 +1867,7 @@ function clearWinEffect() {
 }
 
 function returnToModeSelect() {
+  cancelAllHolds();
   gameUI.style.display      = "none";
   modeSelect.style.display  = "flex";
   currentMode  = null;
@@ -1847,23 +1938,26 @@ function checkScoreForRank() {
   scoreTimer = setTimeout(() => {
     scoreTimer = null;
     whenFinishDone(() => {
-      if (!currentMode) return;
+      if (!currentMode) { unlockFinishInput(); return; }
       const nl = parseInt(document.getElementById("score-left").textContent);
       const nr = parseInt(document.getElementById("score-right").textContent);
       const winPt = currentMode === "team" ? WIN_POINT_TEAM : WIN_POINT_SINGLE;
-      if (nl === winPt || nr === winPt) return;
+      if (nl === winPt || nr === winPt) { unlockFinishInput(); return; }
       if (nl > lastScores.left || nr > lastScores.right) {
         r = (r + 1) % ranks.length;
         centerRank.textContent = ranks[r];
-        showRankUpEffect(ranks[r]);
+        showRankUpEffect(ranks[r], true);   // ラウンド表示が終わるまでフィニッシュ入力ロック継続
         lastScores.left = nl;
         lastScores.right = nr;
+      } else {
+        unlockFinishInput();
       }
     });
   }, 4000);
 }
 
-function showRankUpEffect(rank) {
+function showRankUpEffect(rank, releaseLock = false) {
+  const lockTok = finishLockToken;
   playSfx("round");
   const pad = "\u2002";
   const container = document.createElement("div");
@@ -1879,7 +1973,10 @@ function showRankUpEffect(rank) {
   setTimeout(() => {
     container.querySelectorAll(".outline").forEach(el => el.style.animation = "reverseDraw 1s ease forwards");
     container.querySelectorAll(".fill").forEach(el    => el.style.animation = "fadeOut 1s ease forwards");
-    setTimeout(() => container.remove(), 1000);
+    setTimeout(() => {
+      container.remove();
+      if (releaseLock && lockTok === finishLockToken) unlockFinishInput();
+    }, 1000);
   }, 3000);
 }
 
@@ -1906,7 +2003,9 @@ document.addEventListener("pointerdown", e => {
       const block = hudEl.closest("#left-block, #right-block");
       if (block) {
         e.preventDefault();
-        removePoint(block.id === "left-block" ? "left" : "right");
+        const hudSide = block.id === "left-block" ? "left" : "right";
+        // 減点は誤操作防止のため1秒長押しで反映
+        startHold("touch:" + e.pointerId, "訂正（−1点）  " + (hudSide === "left" ? "L" : "R") + "  ― 1秒長押し", () => removePoint(hudSide));
       }
       return;
     }
@@ -1962,6 +2061,18 @@ const FINISH_FADE_MS    = 450;
 const FINISH_LOCKOUT_MS = 500;
 const SIMUL_GUARD_MS    = 45;
 
+let finishInputLock = false, finishLockTimer = 0, finishLockToken = 0;
+function lockFinishInput() {
+  finishInputLock = true;
+  finishLockToken++;
+  clearTimeout(finishLockTimer);
+  finishLockTimer = setTimeout(unlockFinishInput, 120000);
+}
+function unlockFinishInput() {
+  finishInputLock = false;
+  clearTimeout(finishLockTimer);
+}
+
 const FINISHES = {
   XTREME: { label:"XTREME FINISH", pts:3, color:"#e060ff" },
   OVER:   { label:"OVER FINISH",   pts:2, color:"#19f0d0" },
@@ -1989,31 +2100,87 @@ function playFinishSound(key) {
   if (pr && pr.catch) pr.catch(e => console.warn("finish sound blocked:", e));
 }
 
-const CD_SOUNDS = {
-  ready: new Audio("sound/ready.mp3"),
-  n3:    new Audio("sound/3.mp3"),
-  n2:    new Audio("sound/2.mp3"),
-  n1:    new Audio("sound/1.mp3"),
-  go:    new Audio("sound/go.mp3"),
-  shoot: new Audio("sound/shoot.mp3"),
-};
-Object.values(CD_SOUNDS).forEach(a => { a.preload = "auto"; });
-function playCdSound(key) {
-  const a = CD_SOUNDS[key];
-  if (!a) return;
+// ===== カウントダウン（音声クロック同期版） =====
+// READY〜SHOOT を1本にまとめた音声(ShootCall.m4a)を Web Audio で再生し、
+// 映像は「音声の再生位置」を基準に切り替える。
+// 処理負荷で描画が遅れても、遅れが蓄積せず音とのズレは最大でも1フレーム程度に収まる。
+const CD_AUDIO_URL  = "sound/ShootCall.m4a";
+const CD_START_LEAD = 0.05;   // 再生開始の予約マージン(秒)
+const COUNTDOWN_STEPS = [
+  // at: ShootCall.m4a 内での各コール開始時刻(秒)。音声ファイルのタイミングに合わせて調整可
+  { text:"READY SET", phase:"ready", at:0 },
+  { text:"3",         phase:"num",   at:2 },
+  { text:"2",         phase:"num",   at:3 },
+  { text:"1",         phase:"num",   at:4 },
+  { text:"GO...",     phase:"go",    at:5 },
+  { text:"SHOOT!!",   phase:"shoot", at:6 },
+];
+const CD_END_AT = 7;          // オーバーレイを閉じる時刻(秒)
+
+let cdCtx = null, cdBuffer = null, cdLoading = false;
+const cdFallbackAudio = new Audio(CD_AUDIO_URL);
+cdFallbackAudio.preload = "auto";
+
+function cdRemoveUnlock() {
+  ["pointerdown", "keydown", "touchend", "click"].forEach(ev =>
+    window.removeEventListener(ev, initCdAudio, true));
+}
+function initCdAudio() {
+  if (!cdCtx) {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      cdCtx = new AC({ latencyHint: "interactive" });
+    } catch (e) { console.warn("[countdown] AudioContext生成失敗:", e); cdRemoveUnlock(); return; }
+  }
+  if (cdCtx.state === "suspended") cdCtx.resume().catch(() => {});
+  if (!cdBuffer && !cdLoading) {
+    cdLoading = true;
+    fetch(CD_AUDIO_URL)
+      .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.arrayBuffer(); })
+      .then(ab => new Promise((res, rej) => cdCtx.decodeAudioData(ab, res, rej)))
+      .then(buf => { cdBuffer = buf; })
+      .catch(e => console.warn("[countdown] 音声のデコード失敗(通常再生にフォールバック):", e));
+  }
+  if (cdCtx.state === "running" && cdBuffer) cdRemoveUnlock();
+}
+// 先に読み込み・デコードしておき、ユーザー操作でAudioContextを有効化する
+initCdAudio();
+["pointerdown", "keydown", "touchend", "click"].forEach(ev =>
+  window.addEventListener(ev, initCdAudio, true));
+
+// 再生を開始し、「音声が何秒目か」を返すクロックを返す
+function beginCdPlayback() {
+  if (cdCtx && cdCtx.state === "suspended") cdCtx.resume().catch(() => {});
+  if (cdCtx && cdBuffer && cdCtx.state === "running") {
+    const src = cdCtx.createBufferSource();
+    src.buffer = cdBuffer;
+    src.connect(cdCtx.destination);
+    const t0 = cdCtx.currentTime + CD_START_LEAD;
+    src.start(t0);
+    return {
+      // 出力遅延を引いて「実際に聞こえている位置」に映像を合わせる
+      elapsed: () => cdCtx.currentTime - (cdCtx.outputLatency || 0) - t0,
+      stop: () => { try { src.stop(); } catch (e) {} }
+    };
+  }
+  // フォールバック: HTMLAudioElement の再生位置をクロックにする
+  const a = cdFallbackAudio;
   try { a.currentTime = 0; } catch (e) {}
+  let blocked = false;
+  const p0 = performance.now();
   const pr = a.play();
-  if (pr && pr.catch) pr.catch(e => console.warn("countdown sfx blocked:", key, e));
+  if (pr && pr.catch) pr.catch(e => { blocked = true; console.warn("countdown sfx blocked:", e); });
+  return {
+    elapsed: () => {
+      const perf = (performance.now() - p0) / 1000;
+      if (blocked) return perf;                 // 音が出せない場合は時計で進行
+      if (a.currentTime > 0) return a.currentTime;
+      return Math.min(perf, 0.3);               // 音声の開始待ち
+    },
+    stop: () => { try { a.pause(); a.currentTime = 0; } catch (e) {} }
+  };
 }
 
-const COUNTDOWN_STEPS = [
-  { text:"READY SET", phase:"ready", dur:2000, snd:"ready" },
-  { text:"3",         phase:"num",   dur:1000, snd:"n3"    },
-  { text:"2",         phase:"num",   dur:1000, snd:"n2"    },
-  { text:"1",         phase:"num",   dur:1000, snd:"n1"    },
-  { text:"GO...",     phase:"go",    dur:1000, snd:"go"    },
-  { text:"SHOOT!!",   phase:"shoot", dur:1000, snd:"shoot" },
-];
 let countdownRunning = false;
 
 function startCountdown() {
@@ -2024,29 +2191,54 @@ function startCountdown() {
   countdownRunning = true;
   overlay.classList.remove("cd-exit");
   overlay.classList.add("show");
+  textEl.className = "cd-text";
+  textEl.textContent = "";
 
-  let i = 0;
-  const step = () => {
-    const s = COUNTDOWN_STEPS[i];
-    const isLast = i === COUNTDOWN_STEPS.length - 1;
+  const clock = beginCdPlayback();
+  let shown = -1, rafId = 0, pollId = 0;
+
+  const showStep = (idx, late) => {
+    const s = COUNTDOWN_STEPS[idx];
     textEl.textContent = s.text;
     textEl.dataset.text = s.text;
     textEl.className = "cd-text";
     void textEl.offsetWidth;
     textEl.classList.add("phase-" + s.phase);
-    playCdSound(s.snd);
-    if (isLast) overlay.classList.add("cd-exit");
-    i++;
-    setTimeout(() => {
-      if (isLast) {
-        overlay.classList.remove("show", "cd-exit");
-        countdownRunning = false;
-      } else {
-        step();
-      }
-    }, s.dur);
+    if (idx === COUNTDOWN_STEPS.length - 1) overlay.classList.add("cd-exit");
+    // 描画が遅れた分だけアニメーションを先送りして、音との位置関係を保つ
+    if (late > 0.016 && textEl.getAnimations) {
+      const ms = late * 1000;
+      textEl.getAnimations({ subtree: true }).forEach(an => {
+        try { an.currentTime = ms; } catch (e) {}
+      });
+    }
   };
-  step();
+
+  const tick = () => {
+    if (!countdownRunning) return;
+    const e = clock.elapsed();
+    // 到達済みの最新ステップだけを表示（遅延時に古いステップは飛ばす）
+    let due = -1;
+    for (let k = 0; k < COUNTDOWN_STEPS.length; k++) {
+      if (e >= COUNTDOWN_STEPS[k].at) due = k;
+    }
+    if (due > shown) {
+      showStep(due, e - COUNTDOWN_STEPS[due].at);
+      shown = due;
+    }
+    if (e >= CD_END_AT) {
+      cancelAnimationFrame(rafId);
+      clearInterval(pollId);
+      clock.stop();
+      overlay.classList.remove("show", "cd-exit");
+      countdownRunning = false;
+      return;
+    }
+    rafId = requestAnimationFrame(tick);
+  };
+  rafId = requestAnimationFrame(tick);
+  // 非表示タブなどで rAF が止まっても進行するよう保険の定期チェック
+  pollId = setInterval(() => { if (document.hidden) tick(); }, 50);
 }
 
 const PAD_ACTIONS = [
@@ -2064,6 +2256,7 @@ const PAD_ACTIONS = [
   { key:"L_UNDO",   side:"left",  type:"undo" },
   { key:"SIDE_CHANGE", side:"common", type:"swap" },
   { key:"COUNTDOWN",   side:"common", type:"countdown" },
+  { key:"REPLAY",      side:"common", type:"replay" },
 ];
 
 const DEFAULT_PAD_MAP = {
@@ -2073,6 +2266,7 @@ const DEFAULT_PAD_MAP = {
   L_MISS2:["b6"], R_MISS2:["b7"],
   SIDE_CHANGE:["b8"],
   COUNTDOWN:["b9"],
+  REPLAY:["b10"],
 };
 const PAD_STORE_KEY      = "beyCamPadMap_v1";
 const PAD_TEST_STORE_KEY = "beyCamPadMap_test_v1";
@@ -2088,6 +2282,10 @@ function loadPadMap(key, fallback) {
     if (saved && typeof saved === "object") {
       for (const k in base) {
         if (Array.isArray(saved[k]) && saved[k].every(x => typeof x === "string")) base[k] = saved[k];
+      }
+      // 後から追加した操作の初期割当が、保存済みの他の割当と重複する場合は外す
+      if (!Array.isArray(saved.REPLAY)) {
+        base.REPLAY = base.REPLAY.filter(id => !Object.keys(base).some(o => o !== "REPLAY" && base[o].includes(id)));
       }
     }
   } catch (e) {}
@@ -2125,8 +2323,10 @@ let finishFxEl = null;
 let finishTimers = [];
 let finishCancel = null;
 
-const REC_BITRATE   = 6000000;
-function currentRecPeriodMs() { return Math.max(6000, (replaySettings.sec + 1) * 2000); }
+function recBitrate() { return videoSettings.bitrate * 1000000; }
+const MANUAL_REPLAY_SEC  = 10;
+const MANUAL_REPLAY_RATE = 0.25;
+function currentRecPeriodMs() { return Math.max(6000, (Math.max(replaySettings.sec, MANUAL_REPLAY_SEC) + 1) * 2000); }
 
 let cameraStream = null;
 let recSlots = [null, null], recTimers = [], recRunning = false, recMime = "";
@@ -2151,7 +2351,7 @@ function startReplayRecording() {
 function startRecSlot(i) {
   let rec;
   try {
-    rec = new MediaRecorder(cameraStream, Object.assign({ videoBitsPerSecond: REC_BITRATE }, recMime ? { mimeType: recMime } : {}));
+    rec = new MediaRecorder(cameraStream, Object.assign({ videoBitsPerSecond: recBitrate() }, recMime ? { mimeType: recMime } : {}));
   } catch (e) { console.warn("録画開始失敗(リプレイ無効):", e); recRunning = false; return; }
   const slot = { rec, chunks: [], t0: 0, flushCb: null };
   rec.ondataavailable = e => {
@@ -2174,11 +2374,29 @@ function stopReplayRecording() {
   recSlots = [null, null];
 }
 
+// 録画が止まっていたら自動で再開する（リプレイ設定ONなのにクリップが無い事態の防止）
+function ensureReplayRecording() {
+  if (!replaySettings.enabled || !currentMode || !cameraStream || typeof MediaRecorder === "undefined") return;
+  const tr = cameraStream.getVideoTracks()[0];
+  if (!tr || tr.readyState !== "live") return;
+  const healthy = recRunning && recSlots.some(sl => sl && sl.rec.state === "recording");
+  if (healthy) return;
+  console.warn("[replay] 録画が停止していたため再開します");
+  stopReplayRecording();
+  startReplayRecording();
+}
+setInterval(ensureReplayRecording, 2000);
+
 function captureReplayClip() {
   return new Promise(resolve => {
     let best = null;
     for (const sl of recSlots) {
       if (sl && sl.t0 && sl.rec.state === "recording" && (!best || sl.t0 < best.t0)) best = sl;
+    }
+    if (!best) {
+      for (const sl of recSlots) {
+        if (sl && sl.t0 && sl.chunks.length && (!best || sl.t0 < best.t0)) best = sl;
+      }
     }
     if (!best) return resolve(null);
     const mime = best.rec.mimeType || recMime || "video/webm";
@@ -2193,7 +2411,7 @@ function captureReplayClip() {
   });
 }
 
-function prepareClipVideo(blob, elapsed) {
+function prepareClipVideo(blob, elapsed, sec, timeoutMs) {
   return new Promise(resolve => {
     const url = URL.createObjectURL(blob);
     const v = document.createElement("video");
@@ -2209,7 +2427,7 @@ function prepareClipVideo(blob, elapsed) {
       if (!isFinite(dur) || dur < 0.3 || Math.abs(dur - elapsed) > 2) dur = Math.max(0, elapsed - 0.3);
       if (dur < 0.5) { fail("クリップが短すぎる(" + dur.toFixed(2) + "s)"); return; }
       console.info("[replay] クリップ準備OK dur=" + dur.toFixed(2) + "s elapsed=" + elapsed.toFixed(2) + "s");
-      resolve({ v, url, dur, start: Math.max(0, dur - replaySettings.sec) });
+      resolve({ v, url, dur, start: Math.max(0, dur - sec) });
     };
     function check() { if (isFinite(v.duration)) finalize(); }
     v.onerror = () => fail("video error");
@@ -2219,8 +2437,18 @@ function prepareClipVideo(blob, elapsed) {
       v.addEventListener("timeupdate", check);
       v.currentTime = 1e101;
     };
-    timer = setTimeout(() => { v.readyState >= 1 ? finalize() : fail("タイムアウト"); }, 3000);
+    timer = setTimeout(() => { v.readyState >= 1 ? finalize() : fail("タイムアウト"); }, timeoutMs);
   });
+}
+// 高負荷時の読込失敗に備え、同じ録画データで待ち時間を延ばして再試行する
+async function prepareClipRetry(c, sec) {
+  const timeouts = [3000, 6000, 10000];
+  for (let n = 0; n < timeouts.length; n++) {
+    const clip = await prepareClipVideo(c.blob, c.elapsed, sec, timeouts[n]);
+    if (clip) return clip;
+    console.warn("[replay] クリップ準備を再試行します (" + (n + 1) + "/" + timeouts.length + ")");
+  }
+  return null;
 }
 function seekTo(v, t) {
   return new Promise(res => {
@@ -2252,11 +2480,14 @@ function whenFinishDone(fn) { if (finishBusy) finishDoneCbs.push(fn); else fn();
 function endFinishSequence() {
   clearNewRings();
   finishBusy = false;
+  // ラウンド表示が出ないケースでもロックが残らないよう、終了後に上限を設ける
+  if (finishInputLock) { clearTimeout(finishLockTimer); finishLockTimer = setTimeout(unlockFinishInput, 10000); }
   const cbs = finishDoneCbs; finishDoneCbs = [];
   cbs.forEach(f => f());
 }
-function beginFinishSequence(doReplay = true) {
+function beginFinishSequence(doReplay = true, opts = null) {
   finishSeq++;
+  const sec = (opts && opts.sec) || replaySettings.sec;
   replaySkip = false;
   if (replayStop) replayStop();
   if (clipPromise) clipPromise.then(disposeClip);
@@ -2264,15 +2495,20 @@ function beginFinishSequence(doReplay = true) {
   if (!doReplay) { clipPromise = null; return finishSeq; }
   clipPromise = captureReplayClip().then(c => {
     if (!c) console.warn("[replay] 録画データなし（カメラ未取得 / 録画未開始 / MediaRecorder非対応）");
-    return c ? prepareClipVideo(c.blob, c.elapsed) : null;
+    return c ? prepareClipRetry(c, sec) : null;
   });
   return finishSeq;
 }
-async function runReplay(id, side) {
+let replayVideoEl = null, replayBaseRate = 1;
+async function runReplay(id, side, opts = null) {
+  const rate = (opts && opts.rate) || replaySettings.rate;
   const clip = await clipPromise;
   if (id !== finishSeq) { disposeClip(clip); return; }
   clipPromise = null;
-  if (!clip || replaySkip || !replayLayer) { disposeClip(clip); endFinishSequence(); return; }
+  if (!clip || replaySkip || !replayLayer) {
+    if (!clip) { console.warn("[replay] 再生できるクリップがありません"); if (opts && opts.manual) padToast("REPLAY データなし"); }
+    disposeClip(clip); endFinishSequence(); return;
+  }
 
   const v = clip.v;
   replayActive = true;
@@ -2287,19 +2523,21 @@ async function runReplay(id, side) {
     replayFx.classList.add("show");
   }
   if (side) applySideGlow(side);
-  v.playbackRate = replaySettings.rate;
+  v.playbackRate = rate;
+  replayVideoEl = v; replayBaseRate = rate;
 
   let ended = false, guard = 0;
   const finish = () => {
     if (ended) return; ended = true;
     clearTimeout(guard);
     replayStop = null;
+    replayVideoEl = null;
     disposeClip(clip);
     hideReplay();
     if (id === finishSeq) endFinishSequence();
   };
   replayStop = finish;
-  guard = setTimeout(finish, ((clip.dur - clip.start) / replaySettings.rate + 4) * 1000);
+  guard = setTimeout(finish, ((clip.dur - clip.start) / rate + 4) * 1000);
 
   for (let i = 0; i < 3 && !ended; i++) {
     await seekTo(v, clip.start);
@@ -2317,7 +2555,40 @@ function skipReplay() {
   replaySkip = true;
   if (replayStop) replayStop();
 }
+// フィニッシュボタンでリプレイを終了。同じ押下の二重入力が得点にならないよう短時間ブロックする
+function endReplayByFinishButton() {
+  const t = performance.now() + 600;
+  for (const sd of ["left", "right"]) {
+    if (padPending[sd]) { clearTimeout(padPending[sd]); padPending[sd] = null; }
+    padBlockUntil[sd] = Math.max(padBlockUntil[sd], t);
+  }
+  skipReplay();
+  // 万一リプレイ状態だけ残っていた場合の保険（強制的に片付ける）
+  if (replayActive) {
+    console.warn("[replay] 終了処理が効かなかったため強制終了します");
+    if (replayStop) replayStop();
+    if (replayActive) { hideReplay(); endFinishSequence(); }
+  }
+}
+// リプレイ再生中の速度切替（0.25倍速 ⇄ 1倍速）
+function toggleReplaySpeed() {
+  if (!replayActive || !replayVideoEl) return;
+  const nr = replayVideoEl.playbackRate === 1 ? replayBaseRate : 1;
+  replayVideoEl.playbackRate = nr;
+  padToast("REPLAY ×" + nr);
+}
+// リプレイ単独機能：10秒前から0.25倍速で再生。再生中に押すと速度を切替
+function startManualReplay() {
+  if (!replaySettings.enabled) { padToast("REPLAY OFF（設定でONにしてください）"); return; }
+  if (replayActive) { toggleReplaySpeed(); return; }
+  if (finishBusy || countdownRunning) return;
+  ensureReplayRecording();
+  const opts = { sec: MANUAL_REPLAY_SEC, rate: MANUAL_REPLAY_RATE, manual: true };
+  const seq = beginFinishSequence(true, opts);
+  runReplay(seq, null, opts);
+}
 function cancelFinishSequence() {
+  unlockFinishInput();
   finishSeq++;
   finishDoneCbs = [];
   finishBusy = false;
@@ -2858,6 +3129,7 @@ function showFinishBanner(side, key, withReplay) {
 }
 
 function scoreFinish(side, key) {
+  lockFinishInput();
   showFinishBanner(side, key, true);
   addPoint(side, FINISHES[key].pts, true);
 }
@@ -2875,6 +3147,7 @@ function swapBladerNames() {
 function fireAction(a) {
   if (a.type === "countdown") { startCountdown(); return; }
   if (a.type === "undo") { skipReplay(); removePoint(a.side); return; }
+  if (a.type === "replay") { startManualReplay(); return; }
   if (a.type === "swap") {
     const t = performance.now();
     if (t < swapBlockUntil) return;
@@ -2882,7 +3155,10 @@ function fireAction(a) {
     swapBladerNames();
     return;
   }
-  if (replayActive) return;
+  // リプレイ再生中にフィニッシュボタンが押されたらリプレイを終了（得点には反映しない）
+  if (replayActive) { endReplayByFinishButton(); return; }
+  // フィニッシュ適用後〜ラウンド表示が終わるまでは反応しない
+  if (finishInputLock) return;
 
   const side = a.side;
   const now  = performance.now();
@@ -2896,7 +3172,7 @@ function fireAction(a) {
   }
   padPending[side] = setTimeout(() => {
     padPending[side] = null;
-    if (!currentMode || gameBlocked || replayActive) return;
+    if (!currentMode || gameBlocked || replayActive || finishInputLock) return;
     padBlockUntil[side] = performance.now() + FINISH_LOCKOUT_MS;
     scoreFinish(side, a.finish);
   }, SIMUL_GUARD_MS);
@@ -2922,12 +3198,77 @@ function readPadInputs(gp) {
 
 function padConfigOpen() { return qs("#pad-config").classList.contains("show"); }
 
+// ===== 長押し(1秒)で反映する操作：減点(訂正) / 2SHOOT MISS =====
+const HOLD_MS = 1000;
+const holdById = new Map();
+function isHoldAction(a) { return a.type === "undo" || (a.type === "finish" && a.finish === "MISS2"); }
+function holdLabel(a) {
+  const sd = a.side === "left" ? "L" : "R";
+  return (a.type === "undo" ? "訂正（−1点）" : "2SHOOT MISS") + "  " + sd + "  ― 1秒長押し";
+}
+let holdGuideEl = null;
+function showHoldGuide(label) {
+  if (!holdGuideEl) {
+    holdGuideEl = document.createElement("div");
+    holdGuideEl.id = "hold-guide";
+    holdGuideEl.innerHTML = '<div class="hg-txt"></div><div class="hg-bar"><div class="hg-fill"></div></div>';
+    document.body.appendChild(holdGuideEl);
+  }
+  holdGuideEl.querySelector(".hg-txt").textContent = label;
+  holdGuideEl.style.setProperty("--hg-ms", HOLD_MS + "ms");
+  holdGuideEl.classList.remove("run");
+  holdGuideEl.style.display = "block";
+  void holdGuideEl.offsetWidth;
+  holdGuideEl.classList.add("run");
+}
+function hideHoldGuide() {
+  if (holdGuideEl && holdById.size === 0) { holdGuideEl.style.display = "none"; holdGuideEl.classList.remove("run"); }
+}
+function startHold(id, label, fn) {
+  if (holdById.has(id)) return;
+  showHoldGuide(label);
+  const t = setTimeout(() => { holdById.delete(id); hideHoldGuide(); fn(); }, HOLD_MS);
+  holdById.set(id, t);
+}
+function cancelHold(id) {
+  if (!holdById.has(id)) return;
+  clearTimeout(holdById.get(id));
+  holdById.delete(id);
+  hideHoldGuide();
+}
+function cancelAllHolds() {
+  holdById.forEach(t => clearTimeout(t));
+  holdById.clear();
+  hideHoldGuide();
+}
+window.addEventListener("blur", cancelAllHolds);
+document.addEventListener("keyup", e => cancelHold("k:" + e.code));
+document.addEventListener("pointerup", e => cancelHold("touch:" + e.pointerId), true);
+document.addEventListener("pointercancel", e => cancelHold("touch:" + e.pointerId), true);
+
 function onPadInput(id) {
   if (padLearn) { commitLearn(id); return; }
   if (padConfigOpen()) return;
-  if (!currentMode || gameBlocked) return;
-  for (const a of PAD_ACTIONS) {
-    if ((padMap[a.key] || []).includes(id)) fireAction(a);
+  if (!currentMode) return;
+  const matched = PAD_ACTIONS.filter(a => (padMap[a.key] || []).includes(id));
+  // 試合を決めるフィニッシュ(gameBlocked中)のリプレイでも、ボタンでリプレイを終了できるようにする
+  if (gameBlocked) {
+    if (!replayActive) return;
+    for (const a of matched) {
+      if (a.type === "finish" || a.type === "undo") endReplayByFinishButton();
+      else if (a.type === "replay") toggleReplaySpeed();
+    }
+    return;
+  }
+  for (const a of matched) {
+    // リプレイ再生中は、フィニッシュ/訂正ボタンの押下で即リプレイ終了（長押し不要・得点には反映しない）
+    if (replayActive && (a.type === "finish" || a.type === "undo")) { endReplayByFinishButton(); continue; }
+    // 減点(訂正)と2SHOOT MISSは誤操作防止のため1秒長押しで反映
+    if (isHoldAction(a)) {
+      startHold(id, holdLabel(a), () => { if (currentMode && !gameBlocked) fireAction(a); });
+      continue;
+    }
+    fireAction(a);
   }
 }
 
@@ -2938,7 +3279,10 @@ function pollPads() {
     if (!gp) continue;
     const cur  = readPadInputs(gp);
     const prev = padPrev.get(gp.index);
-    if (prev) cur.forEach(id => { if (!prev.has(id)) onPadInput(id); });
+    if (prev) {
+      cur.forEach(id => { if (!prev.has(id)) onPadInput(id); });
+      prev.forEach(id => { if (!cur.has(id)) cancelHold(id); });
+    }
     padPrev.set(gp.index, cur);
     info.push({ gp, cur });
   }
@@ -2963,6 +3307,7 @@ window.addEventListener("gamepadconnected", e => {
 });
 window.addEventListener("gamepaddisconnected", e => {
   padPrev.delete(e.gamepad.index);
+  cancelAllHolds();
   padToast("🎮 CONTROLLER DISCONNECTED");
 });
 
@@ -3025,6 +3370,39 @@ function populateReplaySelects() {
     rateSel.dataset.filled = "1";
   }
 }
+function syncVideoUI() {
+  const fill = (id, items) => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.filled) return el;
+    items.forEach(([v, t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; el.appendChild(o); });
+    el.dataset.filled = "1";
+    return el;
+  };
+  const resSel = fill("pc-video-res", VIDEO_RES_OPTIONS.map(o => [o.id, o.label]));
+  const fpsSel = fill("pc-video-fps", VIDEO_FPS_OPTIONS.map(f => [f, f + " fps"]));
+  const brSel  = fill("pc-video-bitrate", REC_BITRATE_OPTIONS.map(b => [b, b + " Mbps" + (b <= 2 ? "（軽量）" : b >= 12 ? "（高画質）" : b === 6 ? "（標準）" : "")]));
+  if (!resSel) return;
+  resSel.value = videoSettings.res;
+  fpsSel.value = String(videoSettings.fps);
+  brSel.value  = String(videoSettings.bitrate);
+  const st = document.getElementById("pc-video-actual");
+  if (st) st.textContent = cameraRestarting ? "カメラを再起動中…"
+    : videoActual ? "実際の映像: " + (videoActual.w || "?") + "×" + (videoActual.h || "?") + " / " + (videoActual.fps ? Math.round(videoActual.fps) : "?") + "fps（カメラが対応していない場合は近い値になります）"
+    : "映像未取得";
+}
+function setVideoRes(id) {
+  if (id === videoSettings.res) return;
+  videoSettings.res = id; saveVideoSettings(); restartCamera();
+}
+function setVideoFps(f) {
+  if (f === videoSettings.fps) return;
+  videoSettings.fps = f; saveVideoSettings(); restartCamera();
+}
+function setVideoBitrate(b) {
+  if (b === videoSettings.bitrate) return;
+  videoSettings.bitrate = b; saveVideoSettings();
+  if (recRunning) { stopReplayRecording(); startReplayRecording(); }
+}
 function syncReplayUI() {
   populateReplaySelects();
   qs("#pc-replay-toggle").classList.toggle("on", replaySettings.enabled);
@@ -3059,6 +3437,7 @@ function setReplayRate(rate) {
 function renderPadConfig() {
   syncTestUI();
   syncReplayUI();
+  syncVideoUI();
   const list = qs("#pc-list");
   list.innerHTML = "";
   [["right", "R BLADER", "r"], ["left", "L BLADER", "l"], ["common", "共通", "c"]].forEach(([side, title, cls]) => {
@@ -3079,6 +3458,8 @@ function renderPadConfig() {
         lab.textContent = "サイドチェンジ（L⇄R名入替）";
       } else if (a.type === "countdown") {
         lab.textContent = "カウントダウン開始";
+      } else if (a.type === "replay") {
+        lab.textContent = "リプレイ（10秒前から0.25倍速／押すごとに1倍速⇄0.25倍速）";
       } else {
         lab.textContent = "訂正（−1点）";
       }
@@ -3123,6 +3504,9 @@ qs("#pc-test-toggle").addEventListener("click", () => setTestMode(!testMode));
 qs("#pc-replay-toggle").addEventListener("click", () => setReplayEnabled(!replaySettings.enabled));
 qs("#pc-replay-sec").addEventListener("change", e => setReplaySec(parseInt(e.target.value, 10)));
 qs("#pc-replay-rate").addEventListener("change", e => setReplayRate(parseFloat(e.target.value)));
+qs("#pc-video-res").addEventListener("change", e => setVideoRes(e.target.value));
+qs("#pc-video-fps").addEventListener("change", e => setVideoFps(parseInt(e.target.value, 10)));
+qs("#pc-video-bitrate").addEventListener("change", e => setVideoBitrate(parseInt(e.target.value, 10)));
 document.addEventListener("keydown", e => {
   if (e.key === "Tab" && e.target && (e.target.id === "blade-name-left" || e.target.id === "blade-name-right")) {
     e.preventDefault();
